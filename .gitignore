@@ -78,9 +78,9 @@ lerna-debug.log*
 *.sw?
 
 /data/
-/backend/src/main/resources/static/
+/web/backend/src/main/resources/static/
 /.idea/
-/frontend/node/
+/web/frontend/node/
 /tagger/build/tagger/
 /launcher/ai/**
 /launcher/web/**
@@ -88,3 +88,4 @@ lerna-debug.log*
 /tagger/build/
 /launcher/build/
 /bakabooru.exe
+/ai/build/
