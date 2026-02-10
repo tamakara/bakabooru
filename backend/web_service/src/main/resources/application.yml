@@ -1,0 +1,57 @@
+spring:
+  application:
+    name: bakabooru
+
+  # 数据库配置
+  datasource:
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+    username: ${DB_USER}
+    password: ${DB_PASS}
+
+  # JPA / Hibernate 配置
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+  # Flyway 数据库迁移
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+
+  # 文件上传限制
+  servlet:
+    multipart:
+      max-file-size: 500MB
+      max-request-size: 500MB
+
+server:
+  address: 0.0.0.0
+  port: 8080
+  servlet:
+    context-path: /
+  error:
+    include-message: always
+
+# 监控端点配置
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: "*"
+
+# 应用自定义配置
+app:
+  # MinIO 配置
+  minio:
+    endpoint: ${MINIO_ENDPOINT}
+    access-key: ${MINIO_ACCESS_KEY}
+    secret-key: ${MINIO_SECRET_KEY}
+    bucket-name: ${MINIO_BUCKET_NAME}
+  # AI 服务配置
+  ai-service:
+    url: ${AI_SERVICE_URL}

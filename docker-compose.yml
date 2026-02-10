@@ -1,0 +1,149 @@
+version: '3.8'
+
+networks:
+  bakabooru-net:
+    driver: bridge
+
+services:
+  # ===================================================
+  # 1. 基础设施：PostgreSQL (pgvector)
+  # ===================================================
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: bakabooru_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    networks: [ bakabooru-net ]
+    # 健康检查：确保数据库完全启动后，后端才开始连接
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ===================================================
+  # 2. 基础设施：MinIO
+  # ===================================================
+  minio:
+    image: minio/minio
+    container_name: bakabooru_minio
+    restart: always
+    # 启动服务并设置控制台地址
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    ports:
+      - "9000:9000" # API 端口 (供后端和客户端上传)
+      - "9001:9001" # Web 控制台端口 (浏览器访问)
+    volumes:
+      - ./data/minio:/data
+    networks: [ bakabooru-net ]
+    healthcheck:
+      test: [ "CMD-SHELL", "timeout 5s bash -c '</dev/tcp/localhost/9000' || exit 1" ]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  # [辅助] 自动创建 MinIO Bucket
+  minio-createbuckets:
+    image: minio/mc
+    depends_on:
+      minio:
+        condition: service_healthy
+    networks: [ bakabooru-net ]
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc alias set myminio http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD};
+      /usr/bin/mc mb --ignore-existing myminio/${MINIO_BUCKET_NAME};
+      /usr/bin/mc anonymous set public myminio/${MINIO_BUCKET_NAME};
+      exit 0;
+      "
+
+  # ===================================================
+  # 3. 核心业务：Web Service (Java Spring Boot)
+  # ===================================================
+  backend-web-service:
+    build: ./backend/web_service
+    container_name: bakabooru_backend_web_service
+    restart: always
+    environment:
+      # DB 配置
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASS: ${POSTGRES_PASSWORD}
+      # MinIO 配置
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
+      MINIO_BUCKET_NAME: ${MINIO_BUCKET_NAME}
+      # AI 服务地址
+      AI_SERVICE_URL: http://backend-ai-service:8000
+    networks: [bakabooru-net]
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+    depends_on:
+      db:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+
+  # ===================================================
+  # 4. AI计算：AI Service (Python FastAPI)
+  # ===================================================
+  backend-ai-service:
+    build: ./backend/ai_service
+    container_name: bakabooru_backend_ai_service
+    restart: always
+    environment:
+      # DB 配置
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: ${POSTGRES_USER}
+      DB_PASS: ${POSTGRES_PASSWORD}
+      DB_NAME: ${POSTGRES_DB}
+      # MinIO 配置
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
+      MINIO_BUCKET_NAME: ${MINIO_BUCKET_NAME}
+    volumes:
+      - ./data/model_cache:/model_cache
+    networks: [bakabooru-net]
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8000/health || exit 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    depends_on:
+      backend-web-service:
+        condition: service_healthy
+
+  # ===================================================
+  # 5. 交互界面：Frontend (Nginx)
+  # ===================================================
+  frontend:
+    build: ./frontend
+    container_name: bakabooru_frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      backend-web-service:
+        condition: service_healthy
+      backend-ai-service:
+        condition: service_healthy

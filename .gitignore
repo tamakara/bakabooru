@@ -1,91 +1,15 @@
-# ==============================================================================
-# Global / IDE / OS
-# ==============================================================================
-.DS_Store
-Thumbs.db
-ehthumbs.db
-Desktop.ini
-
-# IntelliJ IDEA
+# IDE files
 .idea
 *.iml
-*.iws
-*.ipr
-out/
+.vscode
 
-# VS Code
-.vscode/
-
-# Eclipse
-.classpath
-.project
-.settings/
-.springBeans
-bin/
-
-# ==============================================================================
-# Backend (Spring Boot / Maven)
-# ==============================================================================
-target/
-!.mvn/wrapper/maven-wrapper.jar
-
-### Spring Boot ###
-help.md
-.mvn/timing.properties
-
-### Java ###
-*.class
-*.log
-*.ctxt
-*.jar
-*.war
-*.nar
-*.ear
-*.zip
-*.tar.gz
-*.rar
-
-# ==============================================================================
-# Frontend (Vue 3 / Vite)
-# ==============================================================================
-node_modules/
-.sass-cache/
-.eslintcache
-.stylelintcache
-
-# Production
-dist/
-dist-ssr/
-
-# Local env files
+# env files
+.env
 .env.local
 .env.*.local
 
-# Logs
-logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
-# Editor directories and files
-*.local
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
+# data files
 /data/
-/web/backend/src/main/resources/static/
-/.idea/
-/web/frontend/node/
-/tagger/build/tagger/
-/launcher/ai/**
-/launcher/web/**
-/launcher/tagger/
-/tagger/build/
-/launcher/build/
-/bakabooru.exe
-/ai/build/
+/backend/web_service/src/main/resources/static/
+/backend/ai_service/build/tagger/
+/backend/ai_service/build/

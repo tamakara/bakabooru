@@ -12,9 +12,8 @@
   </parent>
 
   <modules>
-    <module>web</module>
-    <module>ai</module>
-    <module>launcher</module>
+    <module>frontend</module>
+    <module>backend</module>
   </modules>
 
   <groupId>com.tamakara</groupId>

@@ -1,0 +1,12 @@
+# 不要复制 node_modules
+node_modules
+.pnpm-store
+
+# 其他不需要的东西
+dist
+.git
+.idea
+.vscode
+*.log
+npm-debug.log
+pnpm-debug.log

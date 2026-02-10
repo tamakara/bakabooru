@@ -1,2 +1,0 @@
-ALTER TABLE images ADD COLUMN view_count BIGINT DEFAULT 0;
-

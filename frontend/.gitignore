@@ -1,0 +1,14 @@
+# IDE files
+.idea
+*.iml
+.vscode
+
+# env files
+.env
+.env.local
+.env.*.local
+
+# build files
+/node/
+/node_modules/
+/dist/
