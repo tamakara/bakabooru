@@ -46,4 +46,4 @@ Output: {{
 system_prompt = ("system", system_prompt_content)
 user_prompt = ("user", "Input: {user_input}\nOutput: ")
 
-query_parse_prompt = ChatPromptTemplate.from_messages([system_prompt, user_prompt])
+parse_query_prompt = ChatPromptTemplate.from_messages([system_prompt, user_prompt])

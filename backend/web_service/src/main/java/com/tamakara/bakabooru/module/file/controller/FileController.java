@@ -80,8 +80,8 @@ public class FileController {
         }
 
         try {
-            int quality = systemSettingService.getIntSetting("file.thumbnail.quality", 80);
-            int maxSize = systemSettingService.getIntSetting("file.thumbnail.max-size", 800);
+            int quality = systemSettingService.getIntSetting("file.thumbnail.quality");
+            int maxSize = systemSettingService.getIntSetting("file.thumbnail.max-size");
             Path file = storageService.getThumbnailPath(hash, quality, maxSize);
             Resource resource = new UrlResource(file.toUri());
 

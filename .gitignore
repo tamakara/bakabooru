@@ -8,8 +8,12 @@
 .env.local
 .env.*.local
 
-# data files
+# build files
 /data/
 /backend/web_service/src/main/resources/static/
+/backend/web_service/target
 /backend/ai_service/build/tagger/
 /backend/ai_service/build/
+/frontend/node/
+/frontend/node_modules/
+/frontend/dist/

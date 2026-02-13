@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.schema.parse_query_schema import QueryParseRequest
+from app.schema.parse_query_schema import ParseQueryRequest
 from app.services.parse_query.parse_query_service import ParseQueryService
 
 router = APIRouter()
@@ -8,8 +8,8 @@ router = APIRouter()
 service = ParseQueryService()
 
 
-@router.post("/query_parse", response_model=str)
-def parse_query(body: QueryParseRequest):
+@router.post("/parse_query", response_model=str)
+def parse_query(body: ParseQueryRequest):
     return service.parse(
         query=body.query,
         llm_url=body.llm_url,

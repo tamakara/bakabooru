@@ -14,7 +14,7 @@ public class SignatureService {
     private final SystemSettingService systemSettingService;
 
     private String getEncodedPassword() {
-        return systemSettingService.getSetting("auth.password", "");
+        return systemSettingService.getSetting("auth.password");
     }
 
     public String generateSignedUrl(String path, long expires) {

@@ -60,17 +60,4 @@ public class Image {
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
     private List<String> tags = new ArrayList<>();
-
-    // ==========================================
-    // 4. 高级：向量数据 (pgvector)
-    // ==========================================
-    /**
-     * 注意：直接映射 vector 类型比较复杂，通常建议：
-     * A. 只要存取，不涉及复杂计算：映射为 List<Float>
-     * B. 需要复杂计算：通常由 Python 端或原生 SQL 处理
-     * 这里演示最简单的存储映射。
-     */
-    @Column(columnDefinition = "vector(384)") // 假设你的模型维度是 384
-    @JdbcTypeCode(SqlTypes.ARRAY)             // 作为一个数组处理
-    private List<Float> embedding;
 }

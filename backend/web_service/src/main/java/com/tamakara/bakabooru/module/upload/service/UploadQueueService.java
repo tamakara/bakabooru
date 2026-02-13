@@ -71,13 +71,13 @@ public class UploadQueueService {
 
     private void validateFile(MultipartFile file) {
         // 检查大小
-        long maxSize = systemSettingService.getLongSetting("upload.max-file-size", 52428800); // 默认 50MB
+        long maxSize = systemSettingService.getLongSetting("upload.max-file-size"); // 默认 50MB
         if (file.getSize() > maxSize) {
             throw new RuntimeException("文件过大。最大允许: " + maxSize);
         }
 
         // 检查扩展名
-        String allowedExtensions = systemSettingService.getSetting("upload.allowed-extensions", "jpg,png,webp,gif,jpeg");
+        String allowedExtensions = systemSettingService.getSetting("upload.allowed-extensions");
         String filename = file.getOriginalFilename();
         if (filename != null) {
             String ext = FileUtils.getExtension(filename).toLowerCase().replace(".", "");

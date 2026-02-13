@@ -1,4 +1,4 @@
-INSERT OR IGNORE INTO tags (name, type)
+INSERT IGNORE INTO tags (name, type)
 VALUES ('year_2005', 'year'),
 ('year_2006', 'year'),
 ('year_2007', 'year'),

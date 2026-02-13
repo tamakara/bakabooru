@@ -35,52 +35,39 @@ public class SystemSettingService {
         }
     }
 
-    public String getSetting(String key, String defaultValue) {
-        return settingsCache.getOrDefault(key, defaultValue);
+    public String getSetting(String key) {
+        return settingsCache.get(key);
     }
 
-    public Boolean getBooleanSetting(String key, Boolean defaultValue) {
+    public Boolean getBooleanSetting(String key) {
         String val = settingsCache.get(key);
-        if (val == null) return defaultValue;
         return "true".equalsIgnoreCase(val);
     }
 
-    public int getIntSetting(String key, int defaultValue) {
+    public int getIntSetting(String key) {
         String val = settingsCache.get(key);
-        if (val == null) return defaultValue;
         try {
             return Integer.parseInt(val);
         } catch (NumberFormatException e) {
-            return defaultValue;
+            throw new RuntimeException("Invalid integer setting for key: " + key);
         }
     }
 
-    public long getLongSetting(String key, long defaultValue) {
+    public long getLongSetting(String key) {
         String val = settingsCache.get(key);
-        if (val == null) return defaultValue;
         try {
             return Long.parseLong(val);
         } catch (NumberFormatException e) {
-            return defaultValue;
+            throw new RuntimeException("Invalid long setting for key: " + key);
         }
     }
 
-    public double getDoubleSetting(String key, double defaultValue) {
+    public double getDoubleSetting(String key) {
         String val = settingsCache.get(key);
-        if (val == null) return defaultValue;
         try {
             return Double.parseDouble(val);
         } catch (NumberFormatException e) {
-            return defaultValue;
-        }
-    }
-
-    @Transactional
-    public void updateSettings(Map<String, String> newSettings) {
-        for (Map.Entry<String, String> entry : newSettings.entrySet()) {
-            SystemSetting setting = new SystemSetting(entry.getKey(), entry.getValue());
-            systemSettingRepository.save(setting);
-            settingsCache.put(entry.getKey(), entry.getValue());
+            throw new RuntimeException("Invalid double setting for key: " + key);
         }
     }
 
@@ -89,8 +76,32 @@ public class SystemSettingService {
     }
 
     @Transactional
+    public void updateSetting(String key, String value) {
+        SystemSetting setting = new SystemSetting(key, value);
+        systemSettingRepository.save(setting);
+        settingsCache.put(key, value);
+    }
+
+    @Transactional
+    public void updateSettings(Map<String, String> newSettings) {
+        for (Map.Entry<String, String> entry : newSettings.entrySet()) {
+            updateSetting(entry.getKey(), entry.getValue());
+        }
+    }
+
+    @Transactional
     public void resetSettings() {
-        systemSettingRepository.deleteAll();
-        init();
+        Map<String, String> defaultSettings = new HashMap<>();
+        defaultSettings.put("upload.allowed-extensions", "jpg,png,webp,gif,jpeg");
+        defaultSettings.put("upload.concurrency", "3");
+        defaultSettings.put("upload.poll-interval", "1000");
+        defaultSettings.put("file.thumbnail.quality", "80");
+        defaultSettings.put("file.thumbnail.max-size", "800");
+        defaultSettings.put("tag.threshold", "0.6");
+        defaultSettings.put("llm.url", "https://dashscope.aliyuncs.com/compatible-mode/v1");
+        defaultSettings.put("llm.model", "deepseek-v3.2");
+        defaultSettings.put("llm.api-key", "");
+        updateSettings(defaultSettings);
+        refreshCache();
     }
 }

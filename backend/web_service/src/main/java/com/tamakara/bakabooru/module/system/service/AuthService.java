@@ -17,7 +17,7 @@ public class AuthService {
     private final SystemSettingService systemSettingService;
 
     private String getEncodedPassword() {
-        return systemSettingService.getSetting("auth.password", "");
+        return systemSettingService.getSetting("auth.password");
     }
 
     public boolean isPasswordSet() {
@@ -26,7 +26,7 @@ public class AuthService {
     }
 
     public boolean isInitialized() {
-        return systemSettingService.getBooleanSetting("auth.initialized", false);
+        return systemSettingService.getBooleanSetting("auth.initialized");
     }
 
     public String login(String password) {

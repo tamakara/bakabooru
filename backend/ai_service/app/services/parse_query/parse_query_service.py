@@ -3,7 +3,7 @@ from langchain_openai import ChatOpenAI
 
 from app.schema.parse_query_schema import ParsedTags
 from app.services.parse_query.tag_matcher import TagMatcher
-from app.services.parse_query.prompt import query_parse_prompt as prompt
+from app.services.parse_query.prompt import parse_query_prompt as prompt
 
 
 class ParseQueryService:

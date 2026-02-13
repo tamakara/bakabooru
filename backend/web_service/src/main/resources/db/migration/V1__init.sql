@@ -8,7 +8,7 @@ CREATE TABLE images
 (
     id         BIGSERIAL PRIMARY KEY,
     file_name  TEXT                NOT NULL,
-    extension  VARCHAR(10)         NOT NULL,
+    extension  TEXT                NOT NULL,
     size       BIGINT              NOT NULL,
     width      INTEGER             NOT NULL,
     height     INTEGER             NOT NULL,
@@ -27,15 +27,18 @@ CREATE INDEX idx_images_hash ON images (hash);
 --- 标签字典表
 CREATE TABLE tags
 (
-    id   SERIAL PRIMARY KEY,
-    name TEXT UNIQUE NOT NULL,
-    type VARCHAR(20) NOT NULL
+    id        SERIAL PRIMARY KEY,
+    name      TEXT UNIQUE NOT NULL,
+    type      TEXT        NOT NULL,
+    embedding vector(384)
 );
 CREATE INDEX idx_tags_name ON tags (name);
+CREATE INDEX idx_tags_embedding ON tags USING hnsw (embedding vector_cosine_ops);
 
 --- 系统设置表
 CREATE TABLE system_settings
 (
-    setting_key   VARCHAR(100) PRIMARY KEY,
+    setting_key   TEXT PRIMARY KEY,
     setting_value TEXT
 );
+

@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class QueryParseRequestDto {
+public class ParseQueryRequestDto {
     private String query;
     @JsonProperty("llm_url")
     private String llmUrl;

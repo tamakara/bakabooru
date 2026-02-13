@@ -68,7 +68,7 @@ public class TagService {
     }
 
     public Map<String, List<String>> tagImage(String imagePath) {
-        double threshold = systemSettingService.getDoubleSetting("tag.threshold", 0.61);
+        double threshold = systemSettingService.getDoubleSetting("tag.threshold");
         TagImageRequestDto requestBody = new TagImageRequestDto();
         requestBody.setImagePath(imagePath);
         requestBody.setThreshold(threshold);

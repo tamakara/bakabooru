@@ -2,7 +2,7 @@ package com.tamakara.bakabooru.module.gallery.controller;
 
 import com.tamakara.bakabooru.module.gallery.dto.ImageDto;
 import com.tamakara.bakabooru.module.gallery.dto.SearchRequestDto;
-import com.tamakara.bakabooru.module.gallery.service.QueryParseService;
+import com.tamakara.bakabooru.module.gallery.service.ParseQueryService;
 import com.tamakara.bakabooru.module.gallery.service.SearchService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -13,8 +13,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
-
 @RestController
 @RequestMapping("/api/search")
 @RequiredArgsConstructor
@@ -22,7 +20,7 @@ import java.util.Map;
 public class SearchController {
 
     private final SearchService searchService;
-    private final QueryParseService queryParseService;
+    private final ParseQueryService parseQueryService;
 
     @PostMapping
     @Operation(summary = "搜索图片", description = "使用标签进行高级搜索")
@@ -36,6 +34,6 @@ public class SearchController {
         if (query == null || query.isBlank()) {
             throw new IllegalArgumentException("Query cannot be empty");
         }
-        return queryParseService.queryParse(query);
+        return parseQueryService.parseQuery(query);
     }
 }
