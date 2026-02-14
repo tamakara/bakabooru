@@ -33,8 +33,12 @@ public class ImageService {
     private final ImageMapper imageMapper;
     private final StorageService storageService;
     private final TagService tagService;
-    private final SignatureService signatureService;
 
+
+    @Transactional
+    public void addImage(Image image) {
+        imageRepository.save(image);
+    }
 
     public boolean existImageByHash(String hash) {
         return imageRepository.findByHash(hash).isPresent();

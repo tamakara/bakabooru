@@ -73,7 +73,7 @@ public class TagService {
         return tag;
     }
 
-    public Map<String, List<String>> tagImage(String objectName, double threshold) {
+    public  Map<String,Double> tagImage(String objectName, double threshold) {
 
         TagImageRequestDto requestBody = new TagImageRequestDto();
         requestBody.setImagePath(imagePath);

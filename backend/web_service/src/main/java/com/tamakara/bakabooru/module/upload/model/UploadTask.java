@@ -8,7 +8,8 @@ import java.time.LocalDateTime;
 public class UploadTask {
     private String id;
     private String filename;
-    private long size;
+    private Long size;
+    private String tempFilePath;
     private String errorMessage;
 }
 

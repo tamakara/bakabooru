@@ -1,5 +1,6 @@
 package com.tamakara.bakabooru.module.upload.controller;
 
+import com.tamakara.bakabooru.module.upload.dto.TasksInfoDto;
 import com.tamakara.bakabooru.module.upload.model.UploadTask;
 import com.tamakara.bakabooru.module.upload.service.UploadTaskService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,27 +20,27 @@ public class UploadController {
     private final UploadTaskService uploadTaskService;
 
     @PostMapping
-    @Operation(summary = "上传文件", description = "上传单个文件并开始处理")
-    public UploadTask uploadFile(@RequestParam("file") MultipartFile file) {
-        return uploadTaskService.createTask(file);
+    @Operation(summary = "上传图片", description = "上传单个图片并创建任务")
+    public void uploadFile(@RequestParam("file") MultipartFile file) {
+        uploadTaskService.createTask(file);
     }
 
     @GetMapping("/tasks")
-    @Operation(summary = "获取上传任务列表", description = "获取所有上传任务的状态")
-    public List<UploadTask> listTasks() {
-        return uploadTaskService.getAllTasks();
-    }
-
-    @GetMapping("/tasks/{id}")
-    @Operation(summary = "获取上传任务", description = "获取特定上传任务的状态")
-    public UploadTask getTask(@PathVariable String id) {
-        return uploadTaskService.getTask(id);
+    @Operation(summary = "获取任务列表信息", description = "获取务列表信息的状态")
+    public TasksInfoDto getTasksInfo() {
+        return uploadTaskService.getTasksInfo();
     }
 
     @DeleteMapping("/tasks/{id}")
     @Operation(summary = "删除上传任务", description = "删除特定上传任务")
     public void deleteTask(@PathVariable String id) {
         uploadTaskService.deleteTask(id);
+    }
+
+    @PostMapping
+    @Operation(summary = "重试上传任务", description = "重试特定上传任务")
+    public void retryTask(@RequestParam String id) {
+        uploadTaskService.retryTask(id);
     }
 
     @DeleteMapping("/tasks")

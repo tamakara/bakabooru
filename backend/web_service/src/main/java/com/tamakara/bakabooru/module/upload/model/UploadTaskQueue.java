@@ -120,9 +120,4 @@ public class UploadTaskQueue {
         Long size = redisTemplate.opsForList().size(KEY_QUEUE);
         return size != null ? size : 0;
     }
-
-    public long getFailedCount() {
-        Long size = redisTemplate.opsForList().size(KEY_FAILED_QUEUE);
-        return size != null ? size : 0;
-    }
 }
