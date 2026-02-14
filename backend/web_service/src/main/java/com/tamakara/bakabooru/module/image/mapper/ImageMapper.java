@@ -1,8 +1,8 @@
-package com.tamakara.bakabooru.module.gallery.mapper;
+package com.tamakara.bakabooru.module.image.mapper;
 
-import com.tamakara.bakabooru.module.file.service.SignatureService;
+import com.tamakara.bakabooru.module.storage.service.SignatureService;
 import com.tamakara.bakabooru.module.gallery.dto.ImageDto;
-import com.tamakara.bakabooru.module.gallery.entity.Image;
+import com.tamakara.bakabooru.module.image.entity.Image;
 import com.tamakara.bakabooru.module.tag.mapper.TagMapper;
 import org.mapstruct.*;
 

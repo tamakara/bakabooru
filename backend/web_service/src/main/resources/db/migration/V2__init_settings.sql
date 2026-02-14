@@ -1,13 +1,12 @@
-INSERT IGNORE INTO system_settings (setting_key, setting_value)
-VALUES ('upload.allowed-extensions', 'jpg,png,webp,gif,jpeg'),
-       ('upload.concurrency', '3'),
+INSERT INTO system_settings (setting_key, setting_value)
+VALUES ('system.tag-initialized', 'false'),
+       ('system.auth-initialized', 'false'),
+       ('system.auth-password', ''),
+
        ('upload.poll-interval', '1000'),
        ('file.thumbnail.quality', '80'),
        ('file.thumbnail.max-size', '800'),
-       ('tag.threshold', '0.6'),
-       ('tag.initialized', 'false'),
-       ('auth.password', ''),
-       ('auth.initialized', 'false'),
-       ('llm.url', ''),
-       ('llm.model', ''),
+       ('tag.threshold', '0.61'),
+       ('llm.url', 'https://dashscope.aliyuncs.com/compatible-mode/v1'),
+       ('llm.model', 'deepseek-v3.2'),
        ('llm.api-key', '');

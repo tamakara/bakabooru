@@ -1,6 +1,5 @@
-package com.tamakara.bakabooru.module.gallery.entity;
+package com.tamakara.bakabooru.module.image.entity;
 
-import com.tamakara.bakabooru.module.tag.entity.Tag;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,9 +11,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Table(name = "images")

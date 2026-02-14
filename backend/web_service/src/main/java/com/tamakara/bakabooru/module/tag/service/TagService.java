@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TagService {
 
-    private final SystemSettingService systemSettingService;
     private final AiService aiService;
     private final TagRepository tagRepository;
     private final TagMapper tagMapper;
@@ -67,8 +66,15 @@ public class TagService {
         return tagRepository.findByName(name).orElse(null);
     }
 
-    public Map<String, List<String>> tagImage(String imagePath) {
-        double threshold = systemSettingService.getDoubleSetting("tag.threshold");
+    @Transactional
+    public Tag addTag(String name, String type) {
+        Tag tag = new Tag(name, type);
+        tagRepository.save(tag);
+        return tag;
+    }
+
+    public Map<String, List<String>> tagImage(String objectName, double threshold) {
+
         TagImageRequestDto requestBody = new TagImageRequestDto();
         requestBody.setImagePath(imagePath);
         requestBody.setThreshold(threshold);

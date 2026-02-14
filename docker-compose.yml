@@ -21,7 +21,6 @@ services:
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
     networks: [ bakabooru-net ]
-    # 健康检查：确保数据库完全启动后，后端才开始连接
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
       interval: 5s
@@ -35,14 +34,13 @@ services:
     image: minio/minio
     container_name: bakabooru_minio
     restart: always
-    # 启动服务并设置控制台地址
     command: server /data --console-address ":9001"
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     ports:
-      - "9000:9000" # API 端口 (供后端和客户端上传)
-      - "9001:9001" # Web 控制台端口 (浏览器访问)
+      - "9000:9000"
+      - "9001:9001"
     volumes:
       - ./data/minio:/data
     networks: [ bakabooru-net ]
@@ -52,7 +50,6 @@ services:
       timeout: 20s
       retries: 3
 
-  # [辅助] 自动创建 MinIO Bucket
   minio-createbuckets:
     image: minio/mc
     depends_on:
@@ -68,21 +65,48 @@ services:
       "
 
   # ===================================================
-  # 3. 核心业务：Web Service (Java Spring Boot)
+  # 3. 基础设施：Redis
+  # ===================================================
+  redis:
+    image: redis:alpine
+    container_name: bakabooru_redis
+    restart: always
+    # 启动 Redis 并启用密码验证
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./data/redis:/data
+    networks: [ bakabooru-net ]
+    healthcheck:
+      # 使用 redis-cli ping 检查健康状态 (需要带上密码)
+      test: [ "CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # ===================================================
+  # 4. 核心业务：Web Service (Java Spring Boot)
   # ===================================================
   backend-web-service:
     build: ./backend/web_service
     container_name: bakabooru_backend_web_service
     restart: always
     environment:
+      PUBLIC_HOST: ${PUBLIC_URL}
       # DB 配置
       DB_HOST: db
       DB_PORT: 5432
       DB_NAME: ${POSTGRES_DB}
       DB_USER: ${POSTGRES_USER}
       DB_PASS: ${POSTGRES_PASSWORD}
+      # Redis 配置
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
       # MinIO 配置
-      MINIO_ENDPOINT: http://minio:9000
+      MINIO_HOST: minio
+      MINIO_PORT: 9000
       MINIO_ACCESS_KEY: ${MINIO_ROOT_USER}
       MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
       MINIO_BUCKET_NAME: ${MINIO_BUCKET_NAME}
@@ -100,26 +124,32 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
+      # 确保 Redis 健康后再启动后端
+      redis:
+        condition: service_healthy
 
   # ===================================================
-  # 4. AI计算：AI Service (Python FastAPI)
+  # 5. AI计算：AI Service (Python FastAPI)
   # ===================================================
   backend-ai-service:
     build: ./backend/ai_service
     container_name: bakabooru_backend_ai_service
     restart: always
     environment:
-      # DB 配置
       DB_HOST: db
       DB_PORT: 5432
       DB_USER: ${POSTGRES_USER}
       DB_PASS: ${POSTGRES_PASSWORD}
       DB_NAME: ${POSTGRES_DB}
-      # MinIO 配置
-      MINIO_ENDPOINT: minio:9000
+      MINIO_HOST: minio
+      MINIO_PORT: 9000
       MINIO_ACCESS_KEY: ${MINIO_ROOT_USER}
       MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
       MINIO_BUCKET_NAME: ${MINIO_BUCKET_NAME}
+      # 如果 AI 服务也需要 Redis，请解除以下注释
+      # REDIS_HOST: redis
+      # REDIS_PORT: 6379
+      # REDIS_PASSWORD: ${REDIS_PASSWORD}
     volumes:
       - ./data/model_cache:/model_cache
     networks: [bakabooru-net]
@@ -134,7 +164,7 @@ services:
         condition: service_healthy
 
   # ===================================================
-  # 5. 交互界面：Frontend (Nginx)
+  # 6. 交互界面：Frontend (Nginx)
   # ===================================================
   frontend:
     build: ./frontend

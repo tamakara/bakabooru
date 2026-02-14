@@ -1,13 +1,12 @@
 package com.tamakara.bakabooru.module.tag.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
 @Data
+@NoArgsConstructor
 @Entity
 @Table(name = "tags")
 public class Tag {
@@ -21,5 +20,10 @@ public class Tag {
 
     @Column(nullable = false)
     private String type;
+
+    public Tag(String name, String type) {
+        this.name = name;
+        this.type = type;
+    }
 }
 

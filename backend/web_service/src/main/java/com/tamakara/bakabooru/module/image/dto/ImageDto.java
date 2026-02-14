@@ -1,4 +1,4 @@
-package com.tamakara.bakabooru.module.gallery.dto;
+package com.tamakara.bakabooru.module.image.dto;
 
 import com.tamakara.bakabooru.module.tag.dto.TagDto;
 import lombok.Data;

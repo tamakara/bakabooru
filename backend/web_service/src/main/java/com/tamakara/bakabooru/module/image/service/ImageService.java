@@ -1,11 +1,9 @@
-package com.tamakara.bakabooru.module.gallery.service;
+package com.tamakara.bakabooru.module.image.service;
 
-import com.tamakara.bakabooru.module.file.service.SignatureService;
-import com.tamakara.bakabooru.module.file.service.StorageService;
-import com.tamakara.bakabooru.module.gallery.dto.ImageDto;
-import com.tamakara.bakabooru.module.gallery.entity.Image;
-import com.tamakara.bakabooru.module.gallery.mapper.ImageMapper;
-import com.tamakara.bakabooru.module.gallery.repository.ImageRepository;
+import com.tamakara.bakabooru.module.image.dto.ImageDto;
+import com.tamakara.bakabooru.module.image.entity.Image;
+import com.tamakara.bakabooru.module.image.mapper.ImageMapper;
+import com.tamakara.bakabooru.module.storage.service.StorageService;
 import com.tamakara.bakabooru.module.tag.dto.TagDto;
 import com.tamakara.bakabooru.module.tag.entity.Tag;
 import com.tamakara.bakabooru.module.tag.service.TagService;
@@ -14,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.tamakara.bakabooru.module.image.repository.ImageRepository;
 
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -23,7 +22,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -37,7 +35,11 @@ public class ImageService {
     private final TagService tagService;
     private final SignatureService signatureService;
 
-    @Transactional(readOnly = true)
+
+    public boolean existImageByHash(String hash) {
+        return imageRepository.findByHash(hash).isPresent();
+    }
+
     public Page<ImageDto> listImages(Pageable pageable) {
         return imageRepository.findAll(pageable).map(image -> imageMapper.toDto(image, signatureService));
     }
@@ -145,7 +147,7 @@ public class ImageService {
 
         try (ZipOutputStream zos = new ZipOutputStream(outputStream)) {
             for (Image image : images) {
-               Path file = storageService.getImagePath(image.getHash());
+                Path file = storageService.getImagePath(image.getHash());
                 if (Files.exists(file)) {
                     // 文件名: title_id.extension
                     String entryName = String.format("%s_%d.%s",
