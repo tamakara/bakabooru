@@ -8,7 +8,7 @@ import java.util.Map;
 @Data
 public class TagImageResponseDto {
     private boolean success;
-    private Map<String, List<String>> data;
+    private Map<String,Double> data;
     private String error;
 }
 

@@ -1,15 +1,12 @@
-package com.tamakara.bakabooru.module.upload.controller;
+package com.tamakara.bakabooru.controller;
 
-import com.tamakara.bakabooru.module.upload.dto.TasksInfoDto;
-import com.tamakara.bakabooru.module.upload.model.UploadTask;
-import com.tamakara.bakabooru.module.upload.service.UploadTaskService;
+import com.tamakara.bakabooru.module.gallery.dto.TasksInfoDto;
+import com.tamakara.bakabooru.module.gallery.service.UploadTaskService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/upload")
@@ -31,12 +28,6 @@ public class UploadController {
         return uploadTaskService.getTasksInfo();
     }
 
-    @DeleteMapping("/tasks/{id}")
-    @Operation(summary = "删除上传任务", description = "删除特定上传任务")
-    public void deleteTask(@PathVariable String id) {
-        uploadTaskService.deleteTask(id);
-    }
-
     @PostMapping
     @Operation(summary = "重试上传任务", description = "重试特定上传任务")
     public void retryTask(@RequestParam String id) {
@@ -44,8 +35,8 @@ public class UploadController {
     }
 
     @DeleteMapping("/tasks")
-    @Operation(summary = "清空上传任务", description = "清空所有上传任务")
-    public void clearTasks() {
-        uploadTaskService.clearTasks();
+    @Operation(summary = "清空失败任务", description = "清空所有失败任务")
+    public void clearFailedTasks() {
+        uploadTaskService.clearFailedTasks();
     }
 }

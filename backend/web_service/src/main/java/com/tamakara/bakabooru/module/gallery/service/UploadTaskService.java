@@ -1,20 +1,20 @@
-package com.tamakara.bakabooru.module.upload.service;
+package com.tamakara.bakabooru.module.gallery.service;
 
+import com.tamakara.bakabooru.module.gallery.model.ImageInfo;
+import com.tamakara.bakabooru.module.gallery.model.UploadTask;
+import com.tamakara.bakabooru.module.gallery.model.UploadTaskQueue;
+import com.tamakara.bakabooru.module.gallery.dto.TasksInfoDto;
 import com.tamakara.bakabooru.module.image.entity.Image;
 import com.tamakara.bakabooru.module.image.service.ImageService;
 import com.tamakara.bakabooru.module.storage.service.StorageService;
 import com.tamakara.bakabooru.module.system.service.SystemSettingService;
+import com.tamakara.bakabooru.module.tag.entity.ImageTagRelation;
 import com.tamakara.bakabooru.module.tag.service.TagService;
-import com.tamakara.bakabooru.module.upload.dto.TasksInfoDto;
-import com.tamakara.bakabooru.module.upload.model.ImageInfo;
-import com.tamakara.bakabooru.module.upload.model.UploadTask;
-import com.tamakara.bakabooru.module.upload.model.UploadTaskQueue;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -92,7 +92,12 @@ public class UploadTaskService {
         String title = FilenameUtils.getBaseName(filename);
 
         File tempFile = new File(task.getTempFilePath());
-        storageService.uploadFile("temp/" + taskId, tempFile);
+
+        try {
+            storageService.uploadFile("temp/" + taskId, tempFile);
+        } catch (Exception e) {
+            throw new RuntimeException("上传文件失败: " + e.getMessage(), e);
+        }
 
         try {
             String hash;
@@ -112,10 +117,16 @@ public class UploadTaskService {
                 throw new RuntimeException("暂不支持动图");
             }
 
-            Map<String, Double> tags;
+            Set<ImageTagRelation> tagRelations = new HashSet<>();
             try {
                 double threshold = systemSettingService.getDoubleSetting("tag.threshold");
-                tags = tagService.tagImage(objectName, threshold);
+                Map<String, Double> tags = tagService.tagImage(objectName, threshold);
+                for (String name : tags.keySet()) {
+                    ImageTagRelation relation = new ImageTagRelation();
+                    relation.setScore(tags.get(name));
+                    relation.setTag(tagService.getTagByName(name));
+                    tagRelations.add(relation);
+                }
             } catch (Exception e) {
                 throw new RuntimeException("标签生成失败: " + e.getMessage(), e);
             }
@@ -128,14 +139,14 @@ public class UploadTaskService {
             image.setWidth(imageInfo.getWidth());
             image.setHeight(imageInfo.getHeight());
             image.setHash(hash);
-            image.setTags(tags);
+            image.setTagRelations(tagRelations);
 
             imageService.addImage(image);
             storageService.copyFile(objectName, "original/" + hash);
         } catch (Exception e) {
             throw new RuntimeException("图片信息获取失败: " + e.getMessage(), e);
         } finally {
-            storageService.removeFile(objectName);
+            storageService.deleteFile(objectName);
             tempFile.delete();
         }
     }
@@ -158,11 +169,9 @@ public class UploadTaskService {
     }
 
     /**
-     * 删除失败任务
+     * 清空失败任务
      */
-    public void deleteTask(String id) {
-        UploadTask task = uploadTaskQueue.getTask(id);
-        new File(task.getTempFilePath()).delete();
-        uploadTaskQueue.deleteFailedTask(id);
+    public void clearFailedTasks() {
+        uploadTaskQueue.clearFailedTasks();
     }
 }

@@ -1,25 +1,27 @@
 package com.tamakara.bakabooru.module.image.service;
 
 import com.tamakara.bakabooru.module.image.dto.ImageDto;
-import com.tamakara.bakabooru.module.image.dto.ImageSearchDto;
+import com.tamakara.bakabooru.module.image.dto.ImageTagDto;
 import com.tamakara.bakabooru.module.image.entity.Image;
 import com.tamakara.bakabooru.module.image.mapper.ImageMapper;
 import com.tamakara.bakabooru.module.storage.service.StorageService;
+import com.tamakara.bakabooru.module.system.service.SystemSettingService;
 import com.tamakara.bakabooru.module.tag.dto.TagDto;
 import com.tamakara.bakabooru.module.tag.entity.Tag;
 import com.tamakara.bakabooru.module.tag.service.TagService;
-import jakarta.persistence.criteria.*;
+import jdk.jfr.Name;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
+import net.coobird.thumbnailator.Thumbnails;
+import org.mapstruct.Named;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.tamakara.bakabooru.module.image.repository.ImageRepository;
 
+import java.io.File;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.zip.ZipEntry;
@@ -33,6 +35,40 @@ public class ImageService {
     private final ImageMapper imageMapper;
     private final StorageService storageService;
     private final TagService tagService;
+    private final SystemSettingService systemSettingService;
+
+    @Named("toImageUrl")
+    public String getImageUrl(Image image) {
+        String objectName = "original/" + image.getHash();
+        if (!storageService.existFile(objectName)) {
+            throw new RuntimeException("文件不存在: " + objectName);
+        }
+        String finename = image.getId() + "_" + image.getTitle() + "." + image.getExtension();
+        return storageService.getFileUrl(objectName, finename, 24);
+    }
+
+    @Named("toThumbnailUrl")
+    public String getThumbnailUrl(Image image) {
+        int size = systemSettingService.getIntSetting("file.thumbnail.size");
+        String thumbnailObjectName = "thumbnail/" + size + "/" + image.getHash();
+
+        if (!storageService.existFile(thumbnailObjectName)) {
+            try {
+                String imageObjectName = "original/" + image.getHash();
+                File tempFile = storageService.getFile(imageObjectName);
+                Thumbnails.of(tempFile)
+                        .size(size, size)
+                        .outputFormat("jpg")
+                        .toFile(tempFile);
+                storageService.uploadFile(thumbnailObjectName, tempFile);
+                tempFile.delete();
+            } catch (Exception e) {
+                throw new RuntimeException("生成缩略图失败: " + e.getMessage(), e);
+            }
+        }
+
+        return storageService.getFileUrl(thumbnailObjectName, image.getHash(), 24);
+    }
 
     @Transactional
     public void addImage(Image image) {
@@ -43,32 +79,6 @@ public class ImageService {
         return imageRepository.findByHash(hash).isPresent();
     }
 
-    public Page<ImageDto> listImages(Pageable pageable) {
-        return imageRepository.findAll(pageable).map(image -> imageMapper.toDto(image, signatureService));
-    }
-
-    @Transactional
-    public ImageDto getImage(Long id) {
-        Image image = imageRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("找不到图片"));
-
-        image.setViewCount(image.getViewCount() == null ? 1 : image.getViewCount() + 1);
-        imageRepository.save(image);
-
-        return imageMapper.toDto(image, signatureService);
-    }
-
-    @Transactional
-    public void deleteImage(Long id) {
-        Image image = imageRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("找不到图片"));
-
-        // storageService.delete(image.getPath()); // 不要删除文件，因为它可能被其他人使用（去重）
-        // 或者检查是否被使用。目前，让我们保留文件。
-
-        imageRepository.delete(image);
-    }
-
     @Transactional
     public ImageDto updateImage(Long id, ImageDto dto) {
         Image image = imageRepository.findById(id)
@@ -77,47 +87,17 @@ public class ImageService {
         if (dto.getTitle() != null) {
             image.setTitle(dto.getTitle());
         }
-        image.setUpdatedAt(LocalDateTime.now());
-        return imageMapper.toDto(imageRepository.save(image), signatureService);
+        image.setUpdatedAt(Instant.now());
+        return imageMapper.toDto(imageRepository.save(image));
     }
 
     @Transactional
-    public ImageDto regenerateTags(Long id) {
+    public ImageDto addTag(Long id, Long tagId) {
         Image image = imageRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("找不到图片"));
-
-        // 生成标签
-        Map<String, List<String>> newTagsMap = tagService.tagImage("image/" + image.getHash());
-
-        // 处理新标签
-        Set<Tag> newTags = new HashSet<>();
-        for (Map.Entry<String, List<String>> entry : newTagsMap.entrySet()) {
-            String type = entry.getKey();
-            List<String> names = entry.getValue();
-            for (String name : names) {
-                Tag tag = tagService.findOrCreateTag(name, type);
-                newTags.add(tag);
-            }
-        }
-
-        image.setTags(newTags);
-        image.setUpdatedAt(LocalDateTime.now());
-        return imageMapper.toDto(imageRepository.save(image), signatureService);
-    }
-
-    @Transactional
-    public ImageDto addTag(Long id, TagDto tagDto) {
-        Image image = imageRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("找不到图片"));
-
-        Tag tag = tagService.findTag(tagDto.getName());
-        if (tag == null) {
-            throw new RuntimeException("标签不存在，无法添加: " + tagDto.getName());
-        }
-        image.getTags().add(tag);
-        image.setUpdatedAt(LocalDateTime.now());
-
-        return imageMapper.toDto(imageRepository.save(image), signatureService);
+        Tag tag = tagService.getTagById(tagId);
+        image.addTag(tag, 1.0);
+        return imageMapper.toDto(imageRepository.save(image));
     }
 
     @Transactional
@@ -126,10 +106,22 @@ public class ImageService {
                 .orElseThrow(() -> new RuntimeException("找不到图片"));
 
         image.getTags().removeIf(tag -> tag.getId().equals(tagId));
-        image.setUpdatedAt(LocalDateTime.now());
+        image.setUpdatedAt(Instant.now());
 
-        return imageMapper.toDto(imageRepository.save(image), signatureService);
+        return imageMapper.toDto(imageRepository.save(image));
     }
+
+    @Transactional
+    public void deleteImage(Long id) {
+        Image image = imageRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("找不到图片"));
+
+        String objectName = "original/" + image.getHash();
+        storageService.deleteFile(objectName);
+
+        imageRepository.delete(image);
+    }
+
 
     @Transactional
     public void deleteImages(List<Long> ids) {
@@ -137,33 +129,30 @@ public class ImageService {
             try {
                 deleteImage(id);
             } catch (Exception e) {
-                // ignore
+                throw new RuntimeException("删除图片失败 (ID: " + id + "): " + e.getMessage(), e);
             }
         });
     }
 
-    public void downloadImages(List<Long> ids, OutputStream outputStream) throws java.io.IOException {
+    @Transactional(readOnly = true)
+    public void downloadImages(List<Long> ids, OutputStream outputStream) {
         List<Image> images = imageRepository.findAllById(ids);
-        if (images.isEmpty()) {
-            return;
-        }
+        if (images.isEmpty()) return;
 
         try (ZipOutputStream zos = new ZipOutputStream(outputStream)) {
             for (Image image : images) {
-                Path file = storageService.getImagePath(image.getHash());
-                if (Files.exists(file)) {
-                    // 文件名: title_id.extension
-                    String entryName = String.format("%s_%d.%s",
-                            image.getTitle().replaceAll("[\\\\/:*?\"<>|]", "_"),
-                            image.getId(),
-                            image.getExtension());
-
+                String objectName = "original/" + image.getHash();
+                File file = storageService.getFile(objectName);
+                if (file.exists()) {
+                    String entryName = image.getId() + "_" + image.getTitle() + "." + image.getExtension();
                     ZipEntry zipEntry = new ZipEntry(entryName);
                     zos.putNextEntry(zipEntry);
-                    Files.copy(file, zos);
+                    Files.copy(file.toPath(), zos);
                     zos.closeEntry();
                 }
             }
+        } catch (Exception e) {
+            throw new RuntimeException("打包下载失败: " + e.getMessage(), e);
         }
     }
 }

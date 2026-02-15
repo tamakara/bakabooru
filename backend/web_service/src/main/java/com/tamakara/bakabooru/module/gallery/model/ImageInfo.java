@@ -1,16 +1,12 @@
-package com.tamakara.bakabooru.module.upload.model;
+package com.tamakara.bakabooru.module.gallery.model;
 
 import lombok.Getter;
-import lombok.ToString;
-import org.apache.commons.codec.digest.DigestUtils;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Iterator;
 
 /**

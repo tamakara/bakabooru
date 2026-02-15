@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
@@ -42,7 +43,6 @@ public class StorageService {
         }
     }
 
-
     public void copyFile(String sourceObject, String targetObject) {
         try {
             String bucket = minioConfig.getBucketName();
@@ -60,7 +60,7 @@ public class StorageService {
         }
     }
 
-    public void removeFile(String objectName) {
+    public void deleteFile(String objectName) {
         try {
             String bucket = minioConfig.getBucketName();
 
@@ -75,9 +75,47 @@ public class StorageService {
         }
     }
 
-    public String getFileUrl(String objectName, String originalFilename, int expiresHours) {
+    public Boolean existFile(String objectName) {
         try {
-            String encodedFilename = URLEncoder.encode(originalFilename, StandardCharsets.UTF_8)
+            String bucket = minioConfig.getBucketName();
+            minioClient.statObject(
+                    StatObjectArgs.builder()
+                            .bucket(bucket)
+                            .object(objectName)
+                            .build()
+            );
+            return true;
+        } catch (ErrorResponseException e) {
+            if (e.errorResponse().code().equals("NoSuchKey")) {
+                return false;
+            }
+            throw new RuntimeException("检查文件存在失败 [ " + objectName + "]: " + e.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException("检查文件存在失败 [ " + objectName + "]: " + e.getMessage());
+        }
+    }
+
+    public File getFile(String objectName) {
+        try {
+            String bucket = minioConfig.getBucketName();
+            InputStream inputStream = minioClient.getObject(
+                    GetObjectArgs.builder()
+                            .bucket(bucket)
+                            .object(objectName)
+                            .build()
+            );
+
+            File tempFile = File.createTempFile("minio-", ".tmp");
+            Files.copy(inputStream, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            return tempFile;
+        } catch (Exception e) {
+            throw new RuntimeException("获取文件失败 [ " + objectName + "]: " + e.getMessage());
+        }
+    }
+
+    public String getFileUrl(String objectName, String filename, int expiresHours) {
+        try {
+            String encodedFilename = URLEncoder.encode(filename, StandardCharsets.UTF_8)
                     .replace("+", "%20");
 
             Map<String, String> extraParams = new HashMap<>();
@@ -99,6 +137,4 @@ public class StorageService {
             throw new RuntimeException("获取文件URL失败: " + e.getMessage());
         }
     }
-
-
 }

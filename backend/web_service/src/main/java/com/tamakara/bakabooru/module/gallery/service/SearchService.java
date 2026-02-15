@@ -2,26 +2,21 @@ package com.tamakara.bakabooru.module.gallery.service;
 
 import com.tamakara.bakabooru.module.gallery.dto.SearchRequestDto;
 import com.tamakara.bakabooru.module.image.dto.ImageDto;
-import com.tamakara.bakabooru.module.image.dto.ImageSearchDto;
-import com.tamakara.bakabooru.module.image.entity.Image;
+import com.tamakara.bakabooru.module.image.dto.SearchDto;
 import com.tamakara.bakabooru.module.image.mapper.ImageMapper;
 import com.tamakara.bakabooru.module.image.service.ImageSearchService;
 import com.tamakara.bakabooru.module.image.service.ImageService;
-import com.tamakara.bakabooru.module.tag.entity.Tag;
-import jakarta.persistence.criteria.*;
+import com.tamakara.bakabooru.module.storage.service.StorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Service
@@ -33,7 +28,7 @@ public class SearchService {
 
     @Transactional(readOnly = true)
     public Page<ImageDto> search(SearchRequestDto request) {
-        ImageSearchDto imageSearchDto = new ImageSearchDto();
+        SearchDto searchDto = new SearchDto();
         if (request.getKeyword() == null) {
             request.setKeyword("");
         } else {
@@ -76,7 +71,7 @@ public class SearchService {
                 throw new RuntimeException("Random seed must be provided for random sorting");
             }
             sort = Sort.unsorted();
-            imageSearchDto.setRandomSeed(request.getRandomSeed());
+            searchDto.setRandomSeed(request.getRandomSeed());
         } else if (!StringUtils.hasText(sortProperty)) {
             sort = Sort.by(direction, sortProperty);
         } else {
@@ -84,23 +79,25 @@ public class SearchService {
         }
 
         Pageable pageable = PageRequest.of(page, size, sort);
-        imageSearchDto.setPageable(pageable);
+        searchDto.setPageable(pageable);
 
-        imageSearchDto.setWidthMin(request.getWidthMin());
-        imageSearchDto.setWidthMax(request.getWidthMax());
-        imageSearchDto.setHeightMin(request.getHeightMin());
-        imageSearchDto.setHeightMax(request.getHeightMax());
-        imageSearchDto.setSizeMin(request.getSizeMin());
-        imageSearchDto.setSizeMax(request.getSizeMax());
+        searchDto.setWidthMin(request.getWidthMin());
+        searchDto.setWidthMax(request.getWidthMax());
+        searchDto.setHeightMin(request.getHeightMin());
+        searchDto.setHeightMax(request.getHeightMax());
+        searchDto.setSizeMin(request.getSizeMin());
+        searchDto.setSizeMax(request.getSizeMax());
 
         Set<String> positiveTags = new HashSet<>();
         Set<String> negativeTags = new HashSet<>();
         parseTags(request.getTags(), positiveTags, negativeTags);
 
-        imageSearchDto.setPositiveTags(positiveTags);
-        imageSearchDto.setNegativeTags(negativeTags);
+        searchDto.setPositiveTags(positiveTags);
+        searchDto.setNegativeTags(negativeTags);
 
-        return imageSearchService.searchImages(imageSearchDto).map(imageMapper::toDto);
+        return imageSearchService
+                .searchImages(searchDto)
+                .map(imageMapper::toDto);
     }
 
     private void parseTags(String search, Set<String> positive, Set<String> negative) {

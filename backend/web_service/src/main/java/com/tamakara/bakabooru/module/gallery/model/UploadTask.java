@@ -1,8 +1,6 @@
-package com.tamakara.bakabooru.module.upload.model;
+package com.tamakara.bakabooru.module.gallery.model;
 
 import lombok.Data;
-
-import java.time.LocalDateTime;
 
 @Data
 public class UploadTask {

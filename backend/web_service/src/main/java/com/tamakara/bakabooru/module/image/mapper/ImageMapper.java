@@ -2,21 +2,15 @@ package com.tamakara.bakabooru.module.image.mapper;
 
 import com.tamakara.bakabooru.module.image.dto.ImageDto;
 import com.tamakara.bakabooru.module.image.entity.Image;
+import com.tamakara.bakabooru.module.image.service.ImageService;
 import com.tamakara.bakabooru.module.tag.mapper.TagMapper;
 import org.mapstruct.*;
 
-@Mapper(componentModel = "spring", uses = {TagMapper.class})
+import java.util.List;
+
+@Mapper(componentModel = "spring", uses = {ImageService.class})
 public interface ImageMapper {
-    @Mapping(target = "url", ignore = true)
-    @Mapping(target = "thumbnailUrl", ignore = true)
+    @Mapping(target = "imageUrl", source = "image", qualifiedByName = "toImageUrl")
+    @Mapping(target = "thumbnailUrl", source = "image", qualifiedByName = "toThumbnailUrl")
     ImageDto toDto(Image image);
-
-    @AfterMapping
-    default void setUrl(@MappingTarget ImageDto dto, Image image) {
-        if (image.getHash() != null) {
-            dto.setUrl();
-            dto.setThumbnailUrl();
-        }
-    }
 }
-

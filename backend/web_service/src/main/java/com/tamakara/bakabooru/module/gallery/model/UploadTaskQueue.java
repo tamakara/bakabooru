@@ -1,9 +1,10 @@
-package com.tamakara.bakabooru.module.upload.model;
+package com.tamakara.bakabooru.module.gallery.model;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -82,18 +83,18 @@ public class UploadTaskQueue {
         }
     }
 
-    /**
-     * 【新增】彻底删除失败任务
-     */
-    public void deleteFailedTask(String id) {
-        // 1. 从失败队列移除
-        redisTemplate.opsForList().remove(KEY_FAILED_QUEUE, 1, id);
-        // 2. 删除数据
-        removeTaskData(id);
+    public void clearFailedTasks() {
+        List<UploadTask> failedTasks = getFailedTasks();
+        if (failedTasks.isEmpty()) return;
+        for(UploadTask task : failedTasks) {
+            new File(task.getTempFilePath()).delete();
+            redisTemplate.delete(KEY_DATA_PREFIX + task.getId());
+        }
+        redisTemplate.delete(KEY_FAILED_QUEUE);
     }
 
     /**
-     * 【新增】获取所有失败的任务列表 (供前端展示)
+     * 获取所有失败的任务列表
      */
     public List<UploadTask> getFailedTasks() {
         List<Object> ids = redisTemplate.opsForList().range(KEY_FAILED_QUEUE, 0, -1);

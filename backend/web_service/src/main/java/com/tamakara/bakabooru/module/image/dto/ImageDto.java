@@ -1,9 +1,9 @@
 package com.tamakara.bakabooru.module.image.dto;
 
-import com.tamakara.bakabooru.module.tag.dto.TagDto;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -17,9 +17,9 @@ public class ImageDto {
     private Integer height;
     private String hash;
     private Long viewCount;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private Set<TagDto> tags;
-    private String url;
+    private Instant createdAt;
+    private Instant updatedAt;
+    private List<ImageTagDto> tags;
+    private String imageUrl;
     private String thumbnailUrl;
 }

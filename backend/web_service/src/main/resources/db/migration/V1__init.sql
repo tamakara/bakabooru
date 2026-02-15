@@ -1,8 +1,6 @@
 -- 启用向量扩展
 CREATE EXTENSION IF NOT EXISTS vector;
 
--- 创建数据库表
-
 --- 图片表
 CREATE TABLE images
 (
@@ -13,21 +11,19 @@ CREATE TABLE images
     width      INTEGER   NOT NULL,
     height     INTEGER   NOT NULL,
     title      TEXT      NOT NULL,
-    hash       CHAR(64)  NOT NULL,
+    hash       CHAR(64)  NOT NULL UNIQUE,
     view_count BIGINT    NOT NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
     tags       JSONB     NOT NULL,
     embedding  vector(512)
 );
-CREATE INDEX idx_images_embedding ON images USING hnsw (embedding vector_cosine_ops);
 CREATE INDEX idx_images_tags ON images USING GIN (tags);
-CREATE UNIQUE INDEX idx_images_hash ON images (hash);
 
 --- 标签字典表
 CREATE TABLE tags
 (
-    id        SERIAL PRIMARY KEY,
+    id        BIGSERIAL PRIMARY KEY,
     name      TEXT UNIQUE NOT NULL,
     type      TEXT        NOT NULL,
     embedding vector(384)
@@ -35,10 +31,11 @@ CREATE TABLE tags
 CREATE INDEX idx_tags_name ON tags (name);
 CREATE INDEX idx_tags_embedding ON tags USING hnsw (embedding vector_cosine_ops);
 
---- 系统设置表
-CREATE TABLE system_settings
+CREATE TABLE image_tag_relation
 (
-    setting_key   TEXT PRIMARY KEY,
-    setting_value TEXT
+    id       BIGSERIAL PRIMARY KEY,
+    image_id BIGINT           NOT NULL REFERENCES images (id),
+    tag_id   INTEGER          NOT NULL REFERENCES tags (id),
+    score    DOUBLE PRECISION NOT NULL,
+    UNIQUE (image_id, tag_id)
 );
-

@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class TagImageRequestDto {
-    @JsonProperty("image_path")
-    private String imagePath;
+    @JsonProperty("object_name")
+    private String objectName;
 
     @JsonProperty("threshold")
     private Double threshold;

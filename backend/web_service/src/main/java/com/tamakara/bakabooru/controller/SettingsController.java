@@ -1,4 +1,4 @@
-package com.tamakara.bakabooru.module.system.controller;
+package com.tamakara.bakabooru.controller;
 
 import com.tamakara.bakabooru.module.storage.service.StorageService;
 import com.tamakara.bakabooru.module.system.service.SystemSettingService;
@@ -16,7 +16,6 @@ import java.util.Map;
 public class SettingsController {
 
     private final SystemSettingService systemSettingService;
-    private final StorageService storageService;
 
     @GetMapping
     @Operation(summary = "获取所有设置")
@@ -28,11 +27,5 @@ public class SettingsController {
     @Operation(summary = "更新设置")
     public void updateSettings(@RequestBody Map<String, String> settings) {
         systemSettingService.updateSettings(settings);
-    }
-
-    @PostMapping("/clear-cache")
-    @Operation(summary = "清空缓存")
-    public void clearCache() {
-        storageService.clearCache();
     }
 }

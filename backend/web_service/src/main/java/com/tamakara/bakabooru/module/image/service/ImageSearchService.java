@@ -1,6 +1,6 @@
 package com.tamakara.bakabooru.module.image.service;
 
-import com.tamakara.bakabooru.module.image.dto.ImageSearchDto;
+import com.tamakara.bakabooru.module.image.dto.SearchDto;
 import com.tamakara.bakabooru.module.image.entity.Image;
 import com.tamakara.bakabooru.module.image.repository.ImageRepository;
 import com.tamakara.bakabooru.module.tag.entity.Tag;
@@ -23,26 +23,26 @@ public class ImageSearchService {
     private final ImageRepository imageRepository;
 
     @Transactional(readOnly = true)
-    public Page<Image> searchImages(ImageSearchDto dto) {
+    public Page<Image> searchImages(SearchDto searchDto) {
         Specification<Image> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
             // 1. 包含标签 (AND 逻辑: 必须同时拥有所有 positiveTags)
-            if (dto.getPositiveTags() != null && !dto.getPositiveTags().isEmpty()) {
-                for (String tag : dto.getPositiveTags()) {
+            if (searchDto.getPositiveTags() != null && !searchDto.getPositiveTags().isEmpty()) {
+                for (String tag : searchDto.getPositiveTags()) {
                     predicates.add(createTagExistsPredicate(cb, query, root, tag, true));
                 }
             }
 
             // 2. 排除标签 (NOT 逻辑: 不能包含任何一个 negativeTags)
-            if (dto.getNegativeTags() != null && !dto.getNegativeTags().isEmpty()) {
+            if (searchDto.getNegativeTags() != null && !searchDto.getNegativeTags().isEmpty()) {
                 // 多个排除标签可以用一个 NOT EXISTS + IN 解决，效率更高
-                predicates.add(createTagExistsPredicate(cb, query, root, dto.getNegativeTags(), false));
+                predicates.add(createTagExistsPredicate(cb, query, root, searchDto.getNegativeTags(), false));
             }
 
             // 3. 关键字模糊搜索 (带 null/empty 检查)
-            if (StringUtils.hasText(dto.getKeyword())) {
-                String pattern = "%" + dto.getKeyword().trim().toLowerCase() + "%";
+            if (StringUtils.hasText(searchDto.getKeyword())) {
+                String pattern = "%" + searchDto.getKeyword().trim().toLowerCase() + "%";
                 predicates.add(cb.or(
                         cb.like(cb.lower(root.get("title")), pattern),
                         cb.like(cb.lower(root.get("fileName")), pattern)
@@ -50,16 +50,16 @@ public class ImageSearchService {
             }
 
             // 4. 数值区间搜索重构 (提取方法减少重复代码)
-            addRangePredicate(predicates, cb, root.get("width"), dto.getWidthMin(), dto.getWidthMax());
-            addRangePredicate(predicates, cb, root.get("height"), dto.getHeightMin(), dto.getHeightMax());
-            addRangePredicate(predicates, cb, root.get("size"), dto.getSizeMin(), dto.getSizeMax());
+            addRangePredicate(predicates, cb, root.get("width"), searchDto.getWidthMin(), searchDto.getWidthMax());
+            addRangePredicate(predicates, cb, root.get("height"), searchDto.getHeightMin(), searchDto.getHeightMax());
+            addRangePredicate(predicates, cb, root.get("size"), searchDto.getSizeMin(), searchDto.getSizeMax());
 
             // 5. 排序处理
             // 在 searchImages 方法内部
             if (query != null && query.getResultType() != Long.class && query.getResultType() != long.class) {
-                if (StringUtils.hasText(dto.getRandomSeed())) { // 检查 String 是否有值
+                if (StringUtils.hasText(searchDto.getRandomSeed())) { // 检查 String 是否有值
                     // 将 String 转为 hashCode，确保参与运算的是 Integer
-                    int seedInt = dto.getRandomSeed().hashCode();
+                    int seedInt = searchDto.getRandomSeed().hashCode();
                     applyRandomOrder(root, query, cb, seedInt);
                 }
             }
@@ -67,7 +67,7 @@ public class ImageSearchService {
             return cb.and(predicates.toArray(new Predicate[0]));
         };
 
-        return imageRepository.findAll(spec, dto.getPageable());
+        return imageRepository.findAll(spec, searchDto.getPageable());
     }
 
     /**

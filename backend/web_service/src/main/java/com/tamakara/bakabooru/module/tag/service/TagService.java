@@ -51,32 +51,20 @@ public class TagService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional
-    public Tag findOrCreateTag(String name, String type) {
+    public Tag getTagById(Long id) {
+        return tagRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("标签不存在: " + id));
+    }
+
+    public Tag getTagByName(String name) {
         return tagRepository.findByName(name)
-                .orElseGet(() -> {
-                    Tag tag = new Tag();
-                    tag.setName(name);
-                    tag.setType(type);
-                    return tagRepository.save(tag);
-                });
+                .orElseThrow(() -> new RuntimeException("标签不存在: " + name));
     }
 
-    public Tag findTag(String name) {
-        return tagRepository.findByName(name).orElse(null);
-    }
-
-    @Transactional
-    public Tag addTag(String name, String type) {
-        Tag tag = new Tag(name, type);
-        tagRepository.save(tag);
-        return tag;
-    }
-
-    public  Map<String,Double> tagImage(String objectName, double threshold) {
+    public Map<String, Double> tagImage(String objectName, double threshold) {
 
         TagImageRequestDto requestBody = new TagImageRequestDto();
-        requestBody.setImagePath(imagePath);
+        requestBody.setObjectName(objectName);
         requestBody.setThreshold(threshold);
 
         try {

@@ -1,5 +1,8 @@
 package com.tamakara.bakabooru.module.image.entity;
 
+import com.tamakara.bakabooru.module.image.dto.ImageTagDto;
+import com.tamakara.bakabooru.module.tag.entity.ImageTagRelation;
+import com.tamakara.bakabooru.module.tag.entity.Tag;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
@@ -11,13 +14,12 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @Entity
 @Table(name = "images")
@@ -52,15 +54,40 @@ public class Image {
     @Column(nullable = false)
     private Long viewCount = 0L;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "jsonb", nullable = false)
-    private Map<String, Float> tags;
+    @OneToMany(mappedBy = "image", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ImageTagRelation> tagRelations = new HashSet<>();
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @LastModifiedDate
     @Column(nullable = false)
-    private LocalDateTime updatedAt;
+    private Instant updatedAt;
+
+    public List<ImageTagDto> getTags() {
+        List<ImageTagDto> tags = new ArrayList<>();
+        for (ImageTagRelation relation : tagRelations) {
+            Tag tag = relation.getTag();
+            tags.add(new ImageTagDto(tag.getId(), tag.getName(), tag.getType(), relation.getScore()));
+        }
+        tags.sort(Comparator.comparing(ImageTagDto::getScore));
+        return tags;
+    }
+
+    public void addTag(Tag tag, Double score) {
+        ImageTagRelation relation = new ImageTagRelation(this, tag, score);
+        this.tagRelations.add(relation);
+    }
+
+    public void deleteTag(Tag tag) {
+        for (Iterator<ImageTagRelation> iterator = tagRelations.iterator(); iterator.hasNext(); ) {
+            ImageTagRelation relation = iterator.next();
+            if (relation.getImage().equals(this) && relation.getTag().equals(tag)) {
+                iterator.remove();
+                relation.setImage(null);
+                relation.setTag(null);
+            }
+        }
+    }
 }

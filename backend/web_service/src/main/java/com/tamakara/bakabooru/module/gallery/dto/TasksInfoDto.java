@@ -1,6 +1,6 @@
-package com.tamakara.bakabooru.module.upload.dto;
+package com.tamakara.bakabooru.module.gallery.dto;
 
-import com.tamakara.bakabooru.module.upload.model.UploadTask;
+import com.tamakara.bakabooru.module.gallery.model.UploadTask;
 import lombok.Data;
 
 import java.util.List;

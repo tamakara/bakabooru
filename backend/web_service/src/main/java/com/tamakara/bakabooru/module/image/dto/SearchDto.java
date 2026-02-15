@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 @Data
-public class ImageSearchDto {
+public class SearchDto {
     private String keyword;
     private String randomSeed;
     private Pageable pageable;
