@@ -1,7 +1,7 @@
 package com.tamakara.bakabooru.module.gallery.service;
 
 import com.tamakara.bakabooru.module.ai.dto.ParseQueryRequestDto;
-import com.tamakara.bakabooru.module.ai.service.AiService;
+import com.tamakara.bakabooru.module.ai.client.AiServiceClient;
 import com.tamakara.bakabooru.module.system.service.SystemSettingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class ParseQueryService {
 
-    private final AiService aiService;
+    private final AiServiceClient aiServiceClient;
     private final SystemSettingService systemSettingService;
 
     public String parseQuery(String query) {
@@ -32,6 +32,6 @@ public class ParseQueryService {
         requestDto.setLlmModel(llmModel);
         requestDto.setLlmApiKey(llmApiKey);
 
-        return aiService.parseQuery(requestDto);
+        return aiServiceClient.parseQuery(requestDto);
     }
 }

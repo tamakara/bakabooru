@@ -1,32 +1,32 @@
-package com.tamakara.bakabooru.module.ai.service;
+package com.tamakara.bakabooru.module.ai.client;
 
 import com.tamakara.bakabooru.module.ai.dto.ParseQueryRequestDto;
 import com.tamakara.bakabooru.module.ai.dto.TagImageRequestDto;
 import com.tamakara.bakabooru.module.ai.dto.TagImageResponseDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
-@Service
-public class AiService {
+@Component
+public class AiServiceClient {
 
     private final WebClient webClient;
 
-    public AiService(
+    public AiServiceClient(
             @Value("${app.ai-service.url}") String aiServiceUrl,
             WebClient.Builder webClientBuilder
     ) {
         this.webClient = webClientBuilder.baseUrl(aiServiceUrl).build();
     }
 
-    public String initTags() {
+    public Void initTags() {
         return webClient
                 .post()
                 .uri("/init_tags")
                 .contentType(MediaType.APPLICATION_JSON)
                 .retrieve()
-                .bodyToMono(String.class)
+                .bodyToMono(Void.class)
                 .block();
     }
 

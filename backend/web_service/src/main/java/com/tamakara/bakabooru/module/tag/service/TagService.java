@@ -2,15 +2,13 @@ package com.tamakara.bakabooru.module.tag.service;
 
 import com.tamakara.bakabooru.module.ai.dto.TagImageRequestDto;
 import com.tamakara.bakabooru.module.ai.dto.TagImageResponseDto;
-import com.tamakara.bakabooru.module.ai.service.AiService;
-import com.tamakara.bakabooru.module.system.service.SystemSettingService;
+import com.tamakara.bakabooru.module.ai.client.AiServiceClient;
 import com.tamakara.bakabooru.module.tag.dto.TagDto;
 import com.tamakara.bakabooru.module.tag.entity.Tag;
 import com.tamakara.bakabooru.module.tag.mapper.TagMapper;
 import com.tamakara.bakabooru.module.tag.repository.TagRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -20,7 +18,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TagService {
 
-    private final AiService aiService;
+    private final AiServiceClient aiServiceClient;
     private final TagRepository tagRepository;
     private final TagMapper tagMapper;
 
@@ -68,7 +66,7 @@ public class TagService {
         requestBody.setThreshold(threshold);
 
         try {
-            TagImageResponseDto response = aiService.tagImage(requestBody);
+            TagImageResponseDto response = aiServiceClient.tagImage(requestBody);
             return response.getData();
         } catch (Exception e) {
             throw new RuntimeException("标签生成失败: " + e.getMessage());

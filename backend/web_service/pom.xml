@@ -3,12 +3,15 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>com.tamakara</groupId>
-    <artifactId>backend</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>3.5.9</version>
+    <relativePath/>
   </parent>
 
-  <artifactId>web_service</artifactId>
+  <groupId>com.tamakara</groupId>
+  <artifactId>bakabooru</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
 
   <properties>
     <java.version>21</java.version>
@@ -164,77 +167,6 @@
               <artifactId>lombok</artifactId>
             </exclude>
           </excludes>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <workingDirectory>../..</workingDirectory>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>com.akathist.maven.plugins.launch4j</groupId>
-        <artifactId>launch4j-maven-plugin</artifactId>
-        <version>2.7.0</version>
-        <executions>
-          <execution>
-            <id>launch4j-package</id>
-            <phase>package</phase>
-            <goals>
-              <goal>launch4j</goal>
-            </goals>
-            <configuration>
-              <headerType>console</headerType>
-              <outfile>${project.build.directory}/${project.build.finalName}.exe</outfile>
-              <jar>${project.build.directory}/${project.build.finalName}.jar</jar>
-              <jre>
-                <path>jre</path>
-                <requires64Bit>true</requires64Bit>
-                <minVersion>21</minVersion>
-                <opts>
-                  <opt>-Dfile.encoding=UTF-8</opt>
-                  <opt>-Xms512m</opt>
-                  <opt>-Xmx2g</opt>
-                </opts>
-              </jre>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>copy-web-exe</id>
-            <phase>package</phase>
-            <goals>
-              <goal>run</goal>
-            </goals>
-            <configuration>
-              <target>
-                <copy
-                  file="${project.build.directory}/${project.build.finalName}.exe"
-                  tofile="../../launcher/web/web.exe"
-                  overwrite="true"
-                />
-              </target>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <artifactId>maven-clean-plugin</artifactId>
-        <version>3.3.2</version>
-        <configuration>
-          <filesets>
-            <fileset>
-              <directory>target</directory>
-            </fileset>
-            <fileset>
-              <directory>../../launcher/web</directory>
-            </fileset>
-          </filesets>
         </configuration>
       </plugin>
     </plugins>
