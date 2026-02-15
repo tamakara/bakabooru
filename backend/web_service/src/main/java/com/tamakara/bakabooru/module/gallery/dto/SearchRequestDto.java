@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class SearchRequestDto {
-    private String tagSearch;
+    private String tags;
     private String keyword;
     private String randomSeed;
     private Integer widthMin;

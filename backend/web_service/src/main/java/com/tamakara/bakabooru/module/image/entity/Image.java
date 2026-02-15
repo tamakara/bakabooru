@@ -54,7 +54,7 @@ public class Image {
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb", nullable = false)
-    private Map<String, Double> tags;
+    private Map<String, Float> tags;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)

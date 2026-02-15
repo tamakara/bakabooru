@@ -1,7 +1,6 @@
 package com.tamakara.bakabooru.module.image.mapper;
 
-import com.tamakara.bakabooru.module.storage.service.SignatureService;
-import com.tamakara.bakabooru.module.gallery.dto.ImageDto;
+import com.tamakara.bakabooru.module.image.dto.ImageDto;
 import com.tamakara.bakabooru.module.image.entity.Image;
 import com.tamakara.bakabooru.module.tag.mapper.TagMapper;
 import org.mapstruct.*;
@@ -10,18 +9,13 @@ import org.mapstruct.*;
 public interface ImageMapper {
     @Mapping(target = "url", ignore = true)
     @Mapping(target = "thumbnailUrl", ignore = true)
-    ImageDto toDto(Image image, @Context SignatureService signatureService);
+    ImageDto toDto(Image image);
 
     @AfterMapping
-    default void setUrl(@MappingTarget ImageDto dto, Image image, @Context SignatureService signatureService) {
+    default void setUrl(@MappingTarget ImageDto dto, Image image) {
         if (image.getHash() != null) {
-            // 生成签名 URL
-            //TODO: 自定义过期时间
-            String signedUrl = signatureService.generateSignedUrl("/api/file/" + image.getHash(), 1000 * 60 * 60);
-            String signedThumbnailUrl = signatureService.generateSignedUrl("/api/file/thumb/" + image.getHash(), 1000 * 60 * 60);
-
-            dto.setUrl(signedUrl);
-            dto.setThumbnailUrl(signedThumbnailUrl);
+            dto.setUrl();
+            dto.setThumbnailUrl();
         }
     }
 }

@@ -1,15 +1,18 @@
 package com.tamakara.bakabooru.module.image.service;
 
 import com.tamakara.bakabooru.module.image.dto.ImageDto;
+import com.tamakara.bakabooru.module.image.dto.ImageSearchDto;
 import com.tamakara.bakabooru.module.image.entity.Image;
 import com.tamakara.bakabooru.module.image.mapper.ImageMapper;
 import com.tamakara.bakabooru.module.storage.service.StorageService;
 import com.tamakara.bakabooru.module.tag.dto.TagDto;
 import com.tamakara.bakabooru.module.tag.entity.Tag;
 import com.tamakara.bakabooru.module.tag.service.TagService;
+import jakarta.persistence.criteria.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.tamakara.bakabooru.module.image.repository.ImageRepository;
@@ -18,10 +21,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -33,7 +33,6 @@ public class ImageService {
     private final ImageMapper imageMapper;
     private final StorageService storageService;
     private final TagService tagService;
-
 
     @Transactional
     public void addImage(Image image) {

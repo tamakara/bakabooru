@@ -1,9 +1,9 @@
 package com.tamakara.bakabooru.module.gallery.controller;
 
-import com.tamakara.bakabooru.module.gallery.dto.ImageDto;
 import com.tamakara.bakabooru.module.gallery.dto.SearchRequestDto;
 import com.tamakara.bakabooru.module.gallery.service.ParseQueryService;
 import com.tamakara.bakabooru.module.gallery.service.SearchService;
+import com.tamakara.bakabooru.module.image.dto.ImageDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
