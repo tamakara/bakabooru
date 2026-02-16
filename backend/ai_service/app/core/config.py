@@ -4,7 +4,7 @@ from pydantic_settings import BaseSettings
 
 class Config(BaseSettings):
     # 模型缓存目录
-    MODEL_CACHE_DIR: Path = Path("./model_cache")
+    MODEL_CACHE_DIR: Path
 
     # 数据库设置
     DB_USER: str = "postgres"
@@ -15,8 +15,6 @@ class Config(BaseSettings):
 
     # 设备设置
     DEVICE: str = "cuda"
-
-    # API设置（如有需要可在此添加）
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

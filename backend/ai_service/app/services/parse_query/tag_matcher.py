@@ -1,81 +1,60 @@
-import time
-from typing import List, Optional, Tuple
-
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_core.documents import Document
+import psycopg2
+from typing import Optional, Tuple
+from pgvector.psycopg2 import register_vector
+from langchain_community.embeddings import FastEmbedEmbeddings
 
 from app.core.config import config
-from app.core.vector_store import PostgresVectorStore
 
 # 常量配置
 MODEL_REPO = "sentence-transformers/all-MiniLM-L6-v2"
-COLLECTION_NAME = "tag_vectors"
 
 
 class TagMatcher:
-    def __init__(self, device: str = "cpu"):
+    def __init__(self):
         # 1. 初始化嵌入模型
         print(f"正在加载嵌入模型: {MODEL_REPO}...")
-        self.embeddings = HuggingFaceEmbeddings(
+        self.embeddings = FastEmbedEmbeddings(
             model_name=MODEL_REPO,
-            model_kwargs={'device': device},
-            encode_kwargs={'normalize_embeddings': True},
-            cache_folder=str(config.MODEL_CACHE_DIR),
+            cache_dir=str(config.MODEL_CACHE_DIR),
         )
+        print("嵌入模型已加载")
 
-        # 2. 初始化向量存储包装器
-        self.vector_db = PostgresVectorStore(
-            embeddings=self.embeddings,
-            collection_name=COLLECTION_NAME
+    def _get_conn(self):
+        conn = psycopg2.connect(
+            host=config.DB_HOST,
+            port=config.DB_PORT,
+            user=config.DB_USER,
+            password=config.DB_PASS,
+            dbname=config.DB_NAME
         )
-        print("PGVector 连接已初始化")
-
-    def rebuild_index(self, valid_tags: List[str]):
-        """
-        全量重建索引：清空旧数据 -> 插入新数据
-        """
-        if not valid_tags:
-            print("警告: 提供的标签列表为空，跳过重建。")
-            return
-
-        print(f"正在重建 PostgreSQL 向量索引 (共 {len(valid_tags)} 个标签)...")
-        start_time = time.time()
-
-        # 1. 预处理 Tag -> Document
-        documents = [
-            Document(
-                # page_content 是用于搜索的文本 (语义)
-                page_content=tag.replace("_", " ").replace("(", "").replace(")", ""),
-                # metadata 存储原始标签，方便取回
-                metadata={"original_tag": tag}
-            ) for tag in valid_tags
-        ]
-
-        # 2. 清空旧数据 (防止重复)
-        self.vector_db.clear_collection()
-        print("旧索引已清理。")
-
-        # 3. 批量插入新数据
-        self.vector_db.add_documents(documents)
-
-        print(f"索引已写入数据库，耗时: {time.time() - start_time:.2f}s")
+        register_vector(conn)
+        return conn
 
     def match(self, query: str, threshold: float = 0.6) -> Optional[Tuple[str, float]]:
         """
         在数据库中执行向量相似度搜索
         """
         clean_q = query.replace("_", " ").replace("(", "").replace(")", "").lower()
+        query_embedding = self.embeddings.embed_query(clean_q) # Returns List[float]
 
-        # 执行搜索
-        search_res = self.vector_db.search(clean_q, k=1)
+        conn = self._get_conn()
+        cur = conn.cursor()
 
-        if search_res:
-            doc, distance = search_res[0]
+        try:
+            # Calculate cosine distance: <=>
+            # similarity = 1 - distance
+            # We want similarity >= threshold  =>  1 - distance >= threshold  =>  distance <= 1 - threshold
 
-            # 假设 LangChain 默认行为 (Cosine Distance), similarity = 1 - distance
-            similarity = 1 - distance
+            cur.execute(
+                "SELECT name, 1 - (embedding <=> %s) as similarity FROM tags WHERE 1 - (embedding <=> %s) >= %s ORDER BY similarity DESC LIMIT 1",
+                (query_embedding, query_embedding, threshold)
+            )
+            row = cur.fetchone()
 
-            if similarity >= threshold:
-                return doc.metadata["original_tag"], float(similarity)
+            if row:
+                return row[0], row[1]
+            return None
+        finally:
+            cur.close()
+            conn.close()
 
-        return None

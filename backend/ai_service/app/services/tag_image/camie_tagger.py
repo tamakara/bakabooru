@@ -6,7 +6,6 @@ from typing import Dict, List, Optional
 
 import numpy as np
 import onnxruntime as ort
-import torchvision.transforms as transforms
 from PIL import Image
 from huggingface_hub import hf_hub_download
 
@@ -19,7 +18,7 @@ METADATA_FILE_NAME = "camie-tagger-v2-metadata.json"
 class CamieTagger:
     """
     CamieTagger-V2 封装类：实现动漫风格图像的自动打标。
-    支持自动下载模型、GPU加速推理以及按类别归纳标签。
+    已移除 PyTorch/Torchvision 依赖，使用纯 NumPy 进行预处理。
     """
 
     def __init__(self, device: str = "cuda", cache_dir: Optional[Path] = None, local_only: bool = False):
@@ -41,11 +40,10 @@ class CamieTagger:
         # 3. 初始化 ONNX 推理会话
         self._init_session(paths['model'], device)
 
-        # 4. 定义标准 ImageNet 归一化转换 (模型训练时使用的标准)
-        self.transform = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-        ])
+        # 4. 定义 ImageNet 归一化参数 (用于 NumPy 手动计算)
+        # 形状调整为 (1, 1, 3) 以便在 HWC 格式下进行广播计算
+        self.mean = np.array([0.485, 0.456, 0.406], dtype=np.float32).reshape(1, 1, 3)
+        self.std = np.array([0.229, 0.224, 0.225], dtype=np.float32).reshape(1, 1, 3)
 
         print("CamieTagger 初始化完成。")
 
@@ -97,6 +95,7 @@ class CamieTagger:
             providers.append('CUDAExecutionProvider')
         elif device.lower() != 'cpu':
             raise ValueError(f"不支持的设备类型: {device}. 可选 'cpu' 或 'cuda'.")
+        # CPU 总是作为备选
         providers.append('CPUExecutionProvider')
 
         try:
@@ -108,20 +107,20 @@ class CamieTagger:
     def _preprocess_image(self, image: Image.Image) -> np.ndarray:
         """
         核心图像预处理：等比例缩放 -> 补丁填充 (Padding) -> 归一化。
-        :param image: PIL Image 对象
+        使用 NumPy 替代 torchvision，实现 0 PyTorch 依赖。
         :return: 推理所需的 4D numpy 数组 (1, C, H, W)
         """
-        # 统一转为 RGB
+        # 1. 统一转为 RGB
         if image.mode != 'RGB':
             if image.mode == 'RGBA':
                 # 创建一个纯色背景
                 background = Image.new("RGB", image.size, (255, 255, 255))
-                background.paste(image, mask=image.split()[3])  # 使用 alpha 通道作为掩码粘贴
+                background.paste(image, mask=image.split()[3])
                 image = background
             else:
                 image = image.convert('RGB')
 
-        # 等比例缩放逻辑
+        # 2. 等比例缩放逻辑
         w, h = image.size
         ratio = w / h
         if ratio > 1:
@@ -133,14 +132,29 @@ class CamieTagger:
 
         image = image.resize((new_w, new_h), Image.Resampling.LANCZOS)
 
-        # 填充到模型要求的正方形尺寸 (使用 ImageNet 平均值背景色)
+        # 3. 填充到模型要求的正方形尺寸 (使用 ImageNet 平均值背景色)
         pad_color = (124, 116, 104)
         new_img = Image.new('RGB', (self.img_size, self.img_size), pad_color)
         new_img.paste(image, ((self.img_size - new_w) // 2, (self.img_size - new_h) // 2))
 
-        # 归一化并增加 Batch 维度
-        img_tensor = self.transform(new_img)
-        return img_tensor.unsqueeze(0).numpy()
+        # 4. 手动实现 ToTensor 和 Normalize
+        # PIL Image -> NumPy Array (H, W, 3) uint8 [0, 255]
+        img_np = np.array(new_img, dtype=np.float32)
+
+        # 归一化到 [0, 1]
+        img_np /= 255.0
+
+        # 标准化 (Input - Mean) / Std
+        # 注意：这里利用 NumPy 广播机制在 (H, W, 3) 上直接操作
+        img_np = (img_np - self.mean) / self.std
+
+        # 调整维度顺序 (H, W, C) -> (C, H, W)
+        img_np = img_np.transpose(2, 0, 1)
+
+        # 增加 Batch 维度 (C, H, W) -> (1, C, H, W)
+        img_np = np.expand_dims(img_np, axis=0)
+
+        return img_np
 
     def tag(self, image: Image.Image, threshold: float = 0.61, top_k: int = 50) -> Dict[str, List[Dict]]:
         """
@@ -152,22 +166,26 @@ class CamieTagger:
         """
         print("开始推理...")
 
-        # 加载图片
+        # 加载图片校验
         if not isinstance(image, Image.Image):
-            raise TypeError("参数 'image' 必须是 PIL.Image.Image 类型。请在传入前使用 Image.open() 加载图片。")
+            raise TypeError("参数 'image' 必须是 PIL.Image.Image 类型。")
 
         # 1. 预处理
         input_data = self._preprocess_image(image)
 
         # 2. 推理
         start = time.time()
-        outputs = self.session.run(None, {self.session.get_inputs()[0].name: input_data})
+        # ONNX Runtime 输入名通常可以通过 get_inputs 获取
+        input_name = self.session.get_inputs()[0].name
+        outputs = self.session.run(None, {input_name: input_data})
         latency = time.time() - start
 
         # 3. 后处理逻辑
         # v2 模型通常有两个输出：[0] 是初始预测，[1] 是优化后的预测
         logits = outputs[1] if len(outputs) >= 2 else outputs[0]
-        probs = 1.0 / (1.0 + np.exp(-logits[0]))  # Sigmoid 激活
+
+        # NumPy 实现 Sigmoid: 1 / (1 + exp(-x))
+        probs = 1.0 / (1.0 + np.exp(-logits[0]))
 
         # 筛选与归类
         tags_by_cat = defaultdict(list)

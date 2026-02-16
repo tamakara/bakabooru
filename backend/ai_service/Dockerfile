@@ -1,5 +1,5 @@
 # 1.使用 Python 3.11 Slim
-FROM python:3.11-slim
+FROM python:3.12-slim
 
 # 2. 设置环境变量：防止生成 .pyc 文件，确保日志实时输出
 ENV PYTHONDONTWRITEBYTECODE=1 \

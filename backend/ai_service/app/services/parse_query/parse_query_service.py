@@ -9,7 +9,7 @@ from app.services.parse_query.prompt import parse_query_prompt as prompt
 class ParseQueryService:
     def __init__(self):
         print("正在初始化 TagMatcher...")
-        self.matcher = TagMatcher(device="cpu")
+        self.matcher = TagMatcher()
 
     def parse(self, query: str, llm_url: str, llm_model: str, llm_api_key: str) -> str:
         # 初始化模型

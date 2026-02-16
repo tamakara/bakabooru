@@ -19,7 +19,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./data/postgres:/var/lib/postgresql/data
+      - ${DATA_DIR}/postgres:/var/lib/postgresql/data
     networks: [ bakabooru-net ]
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
@@ -34,7 +34,7 @@ services:
     image: minio/minio
     container_name: bakabooru_minio
     restart: always
-    command: server /data --console-address ":9001"
+    command: server ${DATA_DIR} --console-address ":9001"
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
@@ -42,7 +42,7 @@ services:
       - "9000:9000"
       - "9001:9001"
     volumes:
-      - ./data/minio:/data
+      - ${DATA_DIR}/minio:/data
     networks: [ bakabooru-net ]
     healthcheck:
       test: [ "CMD-SHELL", "timeout 5s bash -c '</dev/tcp/localhost/9000' || exit 1" ]
@@ -76,7 +76,7 @@ services:
     ports:
       - "6379:6379"
     volumes:
-      - ./data/redis:/data
+      - ${DATA_DIR}/redis:/data
     networks: [ bakabooru-net ]
     healthcheck:
       # 使用 redis-cli ping 检查健康状态 (需要带上密码)
@@ -86,7 +86,44 @@ services:
       retries: 3
 
   # ===================================================
-  # 4. 核心业务：Web Service (Java Spring Boot)
+  # 4. AI计算：AI Service (Python FastAPI)
+  # ===================================================
+  backend-ai-service:
+    build: ./backend/ai_service
+    container_name: bakabooru_backend_ai_service
+    restart: always
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: ${POSTGRES_USER}
+      DB_PASS: ${POSTGRES_PASSWORD}
+      DB_NAME: ${POSTGRES_DB}
+      MINIO_HOST: minio
+      MINIO_PORT: 9000
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
+      MINIO_BUCKET_NAME: ${MINIO_BUCKET_NAME}
+      MODEL_CACHE_DIR: /model_cache
+      # REDIS_HOST: redis
+      # REDIS_PORT: 6379
+      # REDIS_PASSWORD: ${REDIS_PASSWORD}
+    volumes:
+      - ${DATA_DIR}/model_cache:/model_cache
+    networks: [ bakabooru-net ]
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8081/health || exit 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30m
+    depends_on:
+      db:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+
+  # ===================================================
+  # 5. 核心业务：Web Service (Java Spring Boot)
   # ===================================================
   backend-web-service:
     build: ./backend/web_service
@@ -112,7 +149,7 @@ services:
       MINIO_BUCKET_NAME: ${MINIO_BUCKET_NAME}
       # AI 服务地址
       AI_SERVICE_URL: http://backend-ai-service:8000
-    networks: [bakabooru-net]
+    networks: [ bakabooru-net ]
     healthcheck:
       test: [ "CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1" ]
       interval: 10s
@@ -124,43 +161,9 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
-      # 确保 Redis 健康后再启动后端
       redis:
         condition: service_healthy
-
-  # ===================================================
-  # 5. AI计算：AI Service (Python FastAPI)
-  # ===================================================
-  backend-ai-service:
-    build: ./backend/ai_service
-    container_name: bakabooru_backend_ai_service
-    restart: always
-    environment:
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_USER: ${POSTGRES_USER}
-      DB_PASS: ${POSTGRES_PASSWORD}
-      DB_NAME: ${POSTGRES_DB}
-      MINIO_HOST: minio
-      MINIO_PORT: 9000
-      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER}
-      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
-      MINIO_BUCKET_NAME: ${MINIO_BUCKET_NAME}
-      # 如果 AI 服务也需要 Redis，请解除以下注释
-      # REDIS_HOST: redis
-      # REDIS_PORT: 6379
-      # REDIS_PASSWORD: ${REDIS_PASSWORD}
-    volumes:
-      - ./data/model_cache:/model_cache
-    networks: [bakabooru-net]
-    healthcheck:
-      test: [ "CMD-SHELL", "curl -f http://localhost:8000/health || exit 1" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
-    depends_on:
-      backend-web-service:
+      backend-ai-service:
         condition: service_healthy
 
   # ===================================================
@@ -174,6 +177,4 @@ services:
       - "80:80"
     depends_on:
       backend-web-service:
-        condition: service_healthy
-      backend-ai-service:
         condition: service_healthy
