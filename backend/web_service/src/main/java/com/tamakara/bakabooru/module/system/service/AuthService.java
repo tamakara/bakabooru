@@ -17,7 +17,7 @@ public class AuthService {
     private final SystemSettingService systemSettingService;
 
     private String getEncodedPassword() {
-        return systemSettingService.getSetting("auth.password");
+        return systemSettingService.getSetting("system.auth-password");
     }
 
     public boolean isPasswordSet() {
@@ -26,7 +26,7 @@ public class AuthService {
     }
 
     public boolean isInitialized() {
-        return systemSettingService.getBooleanSetting("auth.initialized");
+        return systemSettingService.getBooleanSetting("system.auth-initialized");
     }
 
     public String login(String password) {
@@ -52,8 +52,8 @@ public class AuthService {
         if (password == null) password = "";
         String encoded = Base64.getEncoder().encodeToString(password.getBytes(StandardCharsets.UTF_8));
         Map<String, String> map = new HashMap<>();
-        map.put("auth.password", encoded);
-        map.put("auth.initialized", "true");
+        map.put("system.auth-password", encoded);
+        map.put("system.auth-initialized", "true");
         systemSettingService.updateSettings(map);
     }
 

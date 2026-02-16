@@ -107,12 +107,13 @@ public class ImageSearchService {
         int effectiveSeed = (seedInt == 0) ? 1 : seedInt;
 
         // 2. 公式: ABS(MOD(id * seed, MAX_INT))
-        Expression<Number> hash = cb.abs(
-                cb.function("MOD", Number.class,
-                        cb.prod(root.get("id"), effectiveSeed),
-                        cb.literal(Integer.MAX_VALUE)
-                )
-        );
+        Expression<Integer> modExpression = cb.function("MOD", Integer.class,
+                cb.prod(root.get("id"), effectiveSeed),
+                cb.literal(Integer.MAX_VALUE)
+        ).as(Integer.class);
+
+        Expression<Integer> hash = cb.abs(modExpression);
+
         query.orderBy(cb.asc(hash));
     }
 }
