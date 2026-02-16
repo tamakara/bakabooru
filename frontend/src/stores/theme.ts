@@ -5,7 +5,6 @@ import type { GlobalTheme } from 'naive-ui'
 
 export const useThemeStore = defineStore('theme', () => {
   const osTheme = useOsTheme()
-  // Check local storage or fallback to OS theme
   const savedTheme = localStorage.getItem('theme') as 'dark' | 'light' | null
 
   const isDark = ref(savedTheme

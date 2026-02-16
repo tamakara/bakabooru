@@ -27,39 +27,43 @@ import {
   ImageOutline,
   PencilOutline,
   PricetagOutline,
-  RefreshOutline,
   ResizeOutline,
   TimeOutline,
   TrashOutline
 } from '@vicons/ionicons5'
-import {galleryApi, type ImageDto, type TagDto} from '../../api/gallery.ts'
+import {galleryApi, type ImageDto, type ImageTagDto} from '../../api/gallery.ts'
 import {tagsApi} from '../../api/tags.ts'
 import {useDateFormat} from '@vueuse/core'
 
 const props = defineProps<{
   show: boolean
-  imageId: number | null
+  image: ImageDto | null
   hasPrev?: boolean
   hasNext?: boolean
 }>()
 
 const emit = defineEmits<{
   (e: 'update:show', value: boolean): void
+  (e: 'update:image', value: ImageDto | null): void
   (e: 'refresh'): void
   (e: 'prev'): void
   (e: 'next'): void
 }>()
 
 const message = useMessage()
-const image = ref<ImageDto | null>(null)
-const loading = ref(false)
 const editingName = ref(false)
 const newName = ref('')
 const newTagName = ref('')
 const tagSearchOptions = ref<AutoCompleteOption[]>([])
-const regenerating = ref(false)
 const isEditingTags = ref(false)
 const addingTag = ref(false)
+
+// 当image变化时更新编辑表单
+watch(() => props.image, (newImage) => {
+  if (newImage) {
+    newName.value = newImage.title
+  }
+}, { immediate: true })
 
 
 const tagTypeOrder = ['copyright', 'character', 'artist', 'general', 'meta', 'rating', 'year']
@@ -75,43 +79,13 @@ const tagTypeMap: Record<string, string> = {
 }
 
 const formattedSize = computed(() => {
-  if (!image.value) return ''
-  const size = image.value.size
+  if (!props.image) return ''
+  const size = props.image.size
   if (size < 1024) return size + ' B'
   if (size < 1024 * 1024) return (size / 1024).toFixed(2) + ' KB'
   return (size / (1024 * 1024)).toFixed(2) + ' MB'
 })
 
-const fetchImage = async () => {
-  if (!props.imageId) return
-  image.value = null
-  loading.value = true
-  try {
-    image.value = await galleryApi.getImage(props.imageId)
-    if (image.value) {
-      newName.value = image.value.title
-    }
-  } catch (e) {
-    message.error('加载图片详情失败')
-  } finally {
-    loading.value = false
-  }
-}
-
-watch(() => props.imageId, () => {
-  if (props.show && props.imageId) {
-    fetchImage()
-  }
-})
-
-watch(() => props.show, (val) => {
-  if (val && props.imageId) {
-    fetchImage()
-  } else {
-    // keeping image data slightly longer for transition or clear it
-    // image.value = null
-  }
-})
 
 const handlePrev = () => {
   if (props.hasPrev) emit('prev')
@@ -142,12 +116,13 @@ const handleClose = () => {
 
 
 const saveName = async () => {
-  if (!image.value || !newName.value || newName.value === image.value.title) {
+  if (!props.image || !newName.value || newName.value === props.image.title) {
     editingName.value = false
     return
   }
   try {
-    image.value = await galleryApi.updateImage(image.value.id, {title: newName.value})
+    const updated = await galleryApi.updateImage(props.image.id, {title: newName.value})
+    emit('update:image', updated)
     message.success('名称已更新')
     emit('refresh')
   } catch (e) {
@@ -158,9 +133,9 @@ const saveName = async () => {
 }
 
 const handleDelete = async () => {
-  if (!image.value) return
+  if (!props.image) return
   try {
-    await galleryApi.deleteImage(image.value.id)
+    await galleryApi.deleteImage(props.image.id)
     message.success('图片已删除')
     emit('refresh')
     handleClose()
@@ -169,18 +144,6 @@ const handleDelete = async () => {
   }
 }
 
-const handleRegenerate = async () => {
-  if (!image.value) return
-  regenerating.value = true
-  try {
-    image.value = await galleryApi.regenerateTags(image.value.id)
-    message.success('标签已重新生成')
-  } catch (e) {
-    message.error('重新生成标签失败')
-  } finally {
-    regenerating.value = false
-  }
-}
 
 const handleTagSearch = async (value: string) => {
   newTagName.value = value
@@ -206,7 +169,7 @@ const handleAddTag = async (value?: string | any) => {
   let tagName = typeof value === 'string' ? value : newTagName.value
   tagName = tagName?.trim()
 
-  if (!image.value || !tagName) {
+  if (!props.image || !tagName) {
     return
   }
 
@@ -220,16 +183,14 @@ const handleAddTag = async (value?: string | any) => {
       return
     }
 
-    if (image.value.tags.some(t => t.id === targetTag.id)) {
+    if (props.image.tags.some(t => t.id === targetTag.id)) {
       message.warning('该标签已添加')
       newTagName.value = ''
       return
     }
 
-    image.value = await galleryApi.addTag(image.value.id, {
-      name: targetTag.name,
-      type: targetTag.type
-    })
+    const updated = await galleryApi.addTag(props.image.id, targetTag.id)
+    emit('update:image', updated)
     message.success('标签添加成功')
     newTagName.value = ''
     tagSearchOptions.value = []
@@ -263,10 +224,11 @@ const handleEnter = (e: KeyboardEvent) => {
   handleAddTag()
 }
 
-const handleRemoveTag = async (tag: TagDto) => {
-  if (!image.value) return
+const handleRemoveTag = async (tag: ImageTagDto) => {
+  if (!props.image) return
   try {
-    image.value = await galleryApi.removeTag(image.value.id, tag.id)
+    const updated = await galleryApi.removeTag(props.image.id, tag.id)
+    emit('update:image', updated)
     message.success('标签已移除')
   } catch (e) {
     message.error('移除标签失败')
@@ -274,22 +236,22 @@ const handleRemoveTag = async (tag: TagDto) => {
 }
 
 const handleDownload = () => {
-  if (!image.value) return
+  if (!props.image) return
   const link = document.createElement('a')
-  link.href = image.value.url
-  link.download = image.value.fileName || (image.value.title + '.' + image.value.extension)
+  link.href = props.image.imageUrl
+  link.download = props.image.fileName || (props.image.title + '.' + props.image.extension)
   document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)
 }
 
 const groupedTags = computed(() => {
-  if (!image.value || !image.value.tags) return {}
+  if (!props.image || !props.image.tags) return {}
 
-  const groups: Record<string, TagDto[]> = {}
+  const groups: Record<string, ImageTagDto[]> = {}
   tagTypeOrder.forEach(t => groups[t] = [])
 
-  image.value.tags.forEach(tag => {
+  props.image.tags.forEach(tag => {
     const type = tag.type || 'general'
     if (groups[type]) {
       groups[type].push(tag)
@@ -337,14 +299,11 @@ const getTagColor = (type: string) => {
         <!-- 主图片区域 -->
         <div
             class="flex-none w-full h-[60vh] lg:h-full lg:flex-1 lg:w-auto flex items-center justify-center bg-black overflow-hidden group sticky top-0 lg:relative z-0">
-          <div v-if="loading" class="absolute inset-0 flex items-center justify-center z-20">
-            <div class="w-10 h-10 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
-          </div>
 
           <n-image
-              v-if="image"
-              :src="image.url"
-              :alt="image.title"
+              v-if="props.image"
+              :src="props.image.imageUrl"
+              :alt="props.image.title"
               class="w-full h-full flex items-center justify-center"
               object-fit="contain"
               :img-props="{ class: 'max-h-full max-w-full object-contain' }"
@@ -369,7 +328,7 @@ const getTagColor = (type: string) => {
             class="flex-none w-full lg:w-[400px] lg:h-full bg-gray-900 border-t lg:border-t-0 lg:border-l border-gray-800 flex flex-col relative shadow-2xl z-20 min-h-[40vh]">
 
           <!-- 顶部操作栏 -->
-          <div v-if="image" class="p-4 border-b border-gray-800 bg-gray-900 shrink-0">
+          <div v-if="props.image" class="p-4 border-b border-gray-800 bg-gray-900 shrink-0">
             <div class="grid grid-cols-3 gap-2">
               <n-popconfirm @positive-click="handleDelete" placement="bottom">
                 <template #trigger>
@@ -399,14 +358,14 @@ const getTagColor = (type: string) => {
             </div>
           </div>
 
-          <div v-if="image" class="flex-1 lg:overflow-y-auto p-6 flex flex-col custom-scrollbar">
+          <div v-if="props.image" class="flex-1 lg:overflow-y-auto p-6 flex flex-col custom-scrollbar">
             <!-- 标题部分 -->
             <div class="flex flex-col gap-2">
               <div class="text-sm text-gray-400 uppercase font-bold tracking-wider">标题</div>
               <div v-if="!editingName" @click="editingName = true"
                    class="text-xl lg:text-2xl font-semibold cursor-pointer hover:text-primary-400 break-words transition-colors"
                    title="点击编辑">
-                {{ image.title }}
+                {{ props.image.title }}
               </div>
               <n-input v-else v-model:value="newName" @blur="saveName" @keyup.enter="saveName" autofocus
                        placeholder="输入名称" size="large"/>
@@ -423,14 +382,14 @@ const getTagColor = (type: string) => {
                       <span class="text-gray-500 text-xs flex items-center gap-1">
                          <n-icon :component="ResizeOutline"/> 尺寸
                       </span>
-                  <span class="text-gray-200 font-mono">{{ image.width }} × {{ image.height }}</span>
+                  <span class="text-gray-200 font-mono">{{ props.image.width }} × {{ props.image.height }}</span>
                 </div>
                 <!-- View Count -->
                 <div class="flex flex-col gap-1">
                       <span class="text-gray-500 text-xs flex items-center gap-1">
                          <n-icon :component="EyeOutline"/> 查看次数
                       </span>
-                  <span class="text-gray-200 font-mono">{{ image.viewCount || 0 }}</span>
+                  <span class="text-gray-200 font-mono">{{ props.image.viewCount || 0 }}</span>
                 </div>
                 <!-- File Size -->
                 <div class="flex flex-col gap-1">
@@ -444,14 +403,14 @@ const getTagColor = (type: string) => {
                       <span class="text-gray-500 text-xs flex items-center gap-1">
                          <n-icon :component="ImageOutline"/> 格式
                       </span>
-                  <span class="text-gray-200 uppercase font-mono">{{ image.extension }}</span>
+                  <span class="text-gray-200 uppercase font-mono">{{ props.image.extension }}</span>
                 </div>
                 <!-- Date -->
                 <div class="flex flex-col gap-1">
                       <span class="text-gray-500 text-xs flex items-center gap-1">
                          <n-icon :component="TimeOutline"/> 创建时间
                       </span>
-                  <span class="text-gray-200 font-mono">{{ useDateFormat(image.createdAt, 'YYYY-MM-DD').value }}</span>
+                  <span class="text-gray-200 font-mono">{{ useDateFormat(props.image.createdAt, 'YYYY-MM-DD').value }}</span>
                 </div>
               </div>
 
@@ -465,10 +424,10 @@ const getTagColor = (type: string) => {
                     <template #trigger>
                        <span
                            class="text-gray-300 text-xs lg:text-sm truncate font-mono bg-black/30 p-2 rounded border border-gray-700/50 select-all block">{{
-                           image.fileName
+                           props.image.fileName
                          }}</span>
                     </template>
-                    {{ image.fileName }}
+                    {{ props.image.fileName }}
                   </n-tooltip>
                 </div>
 
@@ -480,10 +439,10 @@ const getTagColor = (type: string) => {
                     <template #trigger>
                        <span
                            class="text-gray-300 text-xs lg:text-sm truncate font-mono bg-black/30 p-2 rounded border border-gray-700/50 select-all block">{{
-                           image.hash
+                           props.image.hash
                          }}</span>
                     </template>
-                    {{ image.hash }}
+                    {{ props.image.hash }}
                   </n-tooltip>
                 </div>
               </div>
@@ -510,18 +469,6 @@ const getTagColor = (type: string) => {
                       <n-icon :component="PencilOutline"/>
                     </template>
                   </n-button>
-                  <n-button
-                      size="tiny"
-                      secondary
-                      circle
-                      type="info"
-                      :loading="regenerating"
-                      @click="handleRegenerate"
-                  >
-                    <template #icon>
-                      <n-icon :component="RefreshOutline"/>
-                    </template>
-                  </n-button>
                 </div>
               </div>
 
@@ -545,7 +492,7 @@ const getTagColor = (type: string) => {
                 </n-input-group>
               </div>
 
-              <div v-if="image.tags?.length" class="flex flex-col gap-3">
+              <div v-if="props.image.tags?.length" class="flex flex-col gap-3">
                 <template v-for="type in tagTypeOrder" :key="type">
                   <div v-if="groupedTags[type]?.length" class="flex flex-col gap-1">
                     <div class="text-xs text-gray-500 uppercase font-semibold tracking-wider ml-1">

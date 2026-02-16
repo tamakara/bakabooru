@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {useQuery} from '@tanstack/vue-query'
 import {searchApi} from '../api/search'
-import {galleryApi} from '../api/gallery'
+import {galleryApi, type ImageDto} from '../api/gallery'
 import {computed, h, nextTick, reactive, ref, watch} from 'vue'
 import {
   NButton,
@@ -44,7 +44,7 @@ import {v4 as uuidv4} from 'uuid';
 // 表单状态
 const formState = reactive({
   keyword: '',
-  tagSearch: '',
+  tags: '',
   sortBy: 'RANDOM',
   sortDirection: 'DESC',
   widthMin: null as number | null,
@@ -62,7 +62,7 @@ async function handleQueryParse() {
   if (!query.value.trim()) return
   try {
     isQueryParsing.value = true
-    formState.tagSearch = await searchApi.queryParse(query.value)
+    formState.tags = await searchApi.queryParse(query.value)
     message.success('配置已更新，请点击搜索')
   } catch (e: any) {
     message.error('解析失败: ' + (e.message || '未知错误'))
@@ -99,7 +99,7 @@ function handleSearch() {
 
 function handleReset() {
   formState.keyword = ''
-  formState.tagSearch = ''
+  formState.tags = ''
   formState.sortBy = 'RANDOM'
   formState.sortDirection = 'DESC'
   formState.widthMin = null
@@ -127,7 +127,7 @@ const {
 
     return searchApi.search({
       keyword: activeSearchState.value.keyword,
-      tagSearch: activeSearchState.value.tagSearch,
+      tags: activeSearchState.value.tags,
       randomSeed: activeSearchState.value.randomSeed,
       widthMin: activeSearchState.value.widthMin ?? undefined,
       widthMax: activeSearchState.value.widthMax ?? undefined,
@@ -155,11 +155,11 @@ const totalCount = computed(() => data.value?.totalElements || 0)
 
 // 详情弹窗
 const showDetail = ref(false)
-const selectedDetailImageId = ref<number | null>(null)
+const selectedDetailImage = ref<ImageDto | null>(null)
 
 const currentDetailIndex = computed(() => {
-  if (!selectedDetailImageId.value || images.value.length === 0) return -1
-  return images.value.findIndex((img: any) => img.id === selectedDetailImageId.value)
+  if (!selectedDetailImage.value || images.value.length === 0) return -1
+  return images.value.findIndex((img: any) => img.id === selectedDetailImage.value?.id)
 })
 
 const hasPrevDetail = computed(() => currentDetailIndex.value > 0)
@@ -169,7 +169,7 @@ function handlePrevDetail() {
   if (hasPrevDetail.value) {
     const prev = images.value[currentDetailIndex.value - 1]
     if (prev) {
-      selectedDetailImageId.value = prev.id
+      selectedDetailImage.value = prev
     }
   }
 }
@@ -178,13 +178,13 @@ function handleNextDetail() {
   if (hasNextDetail.value) {
     const next = images.value[currentDetailIndex.value + 1]
     if (next) {
-      selectedDetailImageId.value = next.id
+      selectedDetailImage.value = next
     }
   }
 }
 
-function openDetail(image: any) {
-  selectedDetailImageId.value = image.id
+function openDetail(image: ImageDto) {
+  selectedDetailImage.value = image
   showDetail.value = true
 }
 
@@ -333,7 +333,7 @@ const dialog = useDialog()
 
 function downloadSingleImage(image: any) {
   const link = document.createElement('a')
-  link.href = image.url
+  link.href = image.imageUrl
   link.download = image.fileName || (image.title + '.' + image.extension)
   document.body.appendChild(link)
   link.click()
@@ -411,7 +411,6 @@ async function handleBatchDownload() {
         :collapsed-width="0"
         :collapsed="collapsed"
         @update:collapsed="(v) => collapsed = v"
-        :show-trigger="isMobile ? false : 'bar'"
         :native-scrollbar="false"
         :class="isMobile ? 'z-50 absolute h-full shadow-xl' : 'z-10'"
         :width="280"
@@ -464,7 +463,7 @@ async function handleBatchDownload() {
 
             <n-form-item label="标签搜索">
               <tag-search-input
-                  v-model:value="formState.tagSearch"
+                  v-model:value="formState.tags"
                   placeholder="输入标签，空格分隔，-排除"
                   :autosize="{minRows:1, maxRows:5}"
                   @search="handleSearch"
@@ -647,7 +646,7 @@ async function handleBatchDownload() {
               @contextmenu="handleContextMenu($event, image)"
           >
             <img
-                :src="image.thumbnailUrl || image.url"
+                :src="image.thumbnailUrl || image.imageUrl"
                 :alt="image.title || 'image'"
                 class="w-full h-full object-cover transition-transform duration-300 transform select-none"
                 :class="{ 'scale-90': selectedIds.has(image.id) }"
@@ -692,7 +691,7 @@ async function handleBatchDownload() {
 
     <ImageDetail
         v-model:show="showDetail"
-        :image-id="selectedDetailImageId"
+        v-model:image="selectedDetailImage"
         :has-prev="hasPrevDetail"
         :has-next="hasNextDetail"
         @prev="handlePrevDetail"

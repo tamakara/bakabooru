@@ -41,8 +41,5 @@ WORKDIR /app
 # 注意：这里假设你的 jar 包在 target 目录下
 COPY --from=builder /app/target/*.jar app.jar
 
-# 暴露端口
-EXPOSE 8080
-
 # 启动命令 (Java 21 默认开启了 ZGC 等优化，无需额外参数)
 ENTRYPOINT ["java", "-jar", "app.jar"]

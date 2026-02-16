@@ -23,15 +23,28 @@ export interface ImageDto {
   createdAt: string
   updatedAt: string
   /** 原始图片访问URL */
-  url: string
+  imageUrl: string
   /** 缩略图访问URL */
   thumbnailUrl: string
   /** 关联标签列表 */
-  tags: TagDto[]
+  tags: ImageTagDto[]
 }
 
 /**
- * 标签数据传输对象
+ * 图片标签数据传输对象
+ */
+export interface ImageTagDto {
+  id: number
+  /** 标签名称 */
+  name: string
+  /** 标签类型 (copyright, character, artist, etc.) */
+  type: string
+  /** AI标签置信度分数 */
+  score?: number
+}
+
+/**
+ * 标签数据传输对象 (用于标签管理)
  */
 export interface TagDto {
   id: number
@@ -56,14 +69,6 @@ export interface Page<T> {
 }
 
 export const galleryApi = {
-  /**
-   * 获取单张图片详情
-   * @param id 图片ID
-   */
-  getImage: async (id: number) => {
-    const response = await apiClient.get<ImageDto>(`/images/${id}`)
-    return response.data
-  },
 
   /**
    * 删除图片
@@ -83,23 +88,13 @@ export const galleryApi = {
     return response.data
   },
 
-
-  /**
-   * 重新生成图片标签
-   * @param id 图片ID
-   */
-  regenerateTags: async (id: number) => {
-    const response = await apiClient.post<ImageDto>(`/images/${id}/tags/regenerate`)
-    return response.data
-  },
-
   /**
    * 添加标签到图片
    * @param id 图片ID
-   * @param tag 标签信息
+   * @param tagId 标签ID
    */
-  addTag: async (id: number, tag: Partial<TagDto>) => {
-    const response = await apiClient.post<ImageDto>(`/images/${id}/tags`, tag)
+  addTag: async (id: number, tagId: number) => {
+    const response = await apiClient.post<ImageDto>(`/images/${id}/tags/${tagId}`)
     return response.data
   },
 

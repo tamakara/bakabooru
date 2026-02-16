@@ -2,7 +2,7 @@ import apiClient from './client'
 import type { Page, ImageDto } from './gallery'
 
 export interface SearchRequestDto {
-  tagSearch?: string
+  tags?: string
   keyword?: string
   randomSeed?: string
   widthMin?: number
@@ -23,7 +23,11 @@ export const searchApi = {
   },
 
   queryParse: async (query: string): Promise<string> => {
-    const response = await apiClient.post<string>('/search/parse', { query })
+    const response = await apiClient.post<string>('/search/parse', query, {
+      headers: {
+        'Content-Type': 'text/plain'
+      }
+    })
     return response.data
   }
 }

@@ -1,19 +1,11 @@
 import {defineStore} from 'pinia'
 import {ref} from 'vue'
 import PQueue from 'p-queue'
-import {useQuery} from '@tanstack/vue-query'
 import {uploadApi} from '../api/upload'
-import {systemApi} from '../api/system'
 
 export const useQueueStore = defineStore('queue', () => {
-  // 获取系统设置
-  const {data: settings} = useQuery({
-    queryKey: ['settings'],
-    queryFn: systemApi.getSettings
-  })
-
-  // 最大同时上传数量
-  const concurrency = parseInt(settings.value?.['upload.concurrency'] ?? '3')
+  // 固定并发数
+  const concurrency = 3
 
   // 上传队列
   const queue = new PQueue({concurrency})
@@ -32,17 +24,16 @@ export const useQueueStore = defineStore('queue', () => {
   queue.on('add', updateStats)
   queue.on('next', updateStats)
   queue.on('idle', updateStats)
-  queue.on('active', updateStats) // 当任务开始处理时触发
+  queue.on('active', updateStats)
 
   // 添加文件到上传队列
-  const addFileToQueue = async (file: File, enableTagging: boolean) => {
+  const addFileToQueue = async (file: File) => {
     await queue.add(async () => {
-      updateStats() // 确保状态更新
+      updateStats()
       try {
-        await uploadApi.uploadFile(file, enableTagging)
+        await uploadApi.uploadFile(file)
       } catch (error) {
         console.error(`Upload failed for ${file.name}:`, error)
-        // 这里可以扩展添加客户端错误通知
       } finally {
         updateStats()
       }
