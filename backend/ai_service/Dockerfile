@@ -23,4 +23,4 @@ COPY . .
 
 # 6. 启动命令
 # 注意：host 必须是 0.0.0.0，否则外部 (Java) 连不进来
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8081"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0"]

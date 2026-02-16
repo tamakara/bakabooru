@@ -17,7 +17,6 @@ public class TagInitializer implements ApplicationRunner {
     private final SystemSettingService systemSettingService;
     private final AiServiceClient aiServiceClient;
 
-    @Async
     @Override
     public void run(ApplicationArguments args) {
         boolean isTagInitialized = systemSettingService.getBooleanSetting("system.tag-initialized");

@@ -104,14 +104,11 @@ services:
       MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
       MINIO_BUCKET_NAME: ${MINIO_BUCKET_NAME}
       MODEL_CACHE_DIR: /model_cache
-      # REDIS_HOST: redis
-      # REDIS_PORT: 6379
-      # REDIS_PASSWORD: ${REDIS_PASSWORD}
     volumes:
       - ${DATA_DIR}/model_cache:/model_cache
     networks: [ bakabooru-net ]
     healthcheck:
-      test: [ "CMD-SHELL", "curl -f http://localhost:8081/health || exit 1" ]
+      test: [ "CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -151,11 +148,11 @@ services:
       AI_SERVICE_URL: http://backend-ai-service:8000
     networks: [ bakabooru-net ]
     healthcheck:
-      test: [ "CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1" ]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 40s
+      start_period: 30m
     depends_on:
       db:
         condition: service_healthy
@@ -175,6 +172,7 @@ services:
     restart: always
     ports:
       - "80:80"
+    networks: [ bakabooru-net ]
     depends_on:
       backend-web-service:
         condition: service_healthy
