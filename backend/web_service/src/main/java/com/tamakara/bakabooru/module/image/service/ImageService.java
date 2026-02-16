@@ -1,29 +1,21 @@
 package com.tamakara.bakabooru.module.image.service;
 
 import com.tamakara.bakabooru.module.image.dto.ImageDto;
-import com.tamakara.bakabooru.module.image.dto.ImageTagDto;
 import com.tamakara.bakabooru.module.image.entity.Image;
 import com.tamakara.bakabooru.module.image.mapper.ImageMapper;
+import com.tamakara.bakabooru.module.image.repository.ImageRepository;
 import com.tamakara.bakabooru.module.storage.service.StorageService;
-import com.tamakara.bakabooru.module.system.service.SystemSettingService;
-import com.tamakara.bakabooru.module.tag.dto.TagDto;
 import com.tamakara.bakabooru.module.tag.entity.Tag;
 import com.tamakara.bakabooru.module.tag.service.TagService;
-import jdk.jfr.Name;
 import lombok.RequiredArgsConstructor;
-import net.coobird.thumbnailator.Thumbnails;
-import org.mapstruct.Named;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.tamakara.bakabooru.module.image.repository.ImageRepository;
 
 import java.io.File;
 import java.io.OutputStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -35,40 +27,6 @@ public class ImageService {
     private final ImageMapper imageMapper;
     private final StorageService storageService;
     private final TagService tagService;
-    private final SystemSettingService systemSettingService;
-
-    @Named("toImageUrl")
-    public String getImageUrl(Image image) {
-        String objectName = "original/" + image.getHash();
-        if (!storageService.existFile(objectName)) {
-            throw new RuntimeException("文件不存在: " + objectName);
-        }
-        String finename = image.getId() + "_" + image.getTitle() + "." + image.getExtension();
-        return storageService.getFileUrl(objectName, finename, 24);
-    }
-
-    @Named("toThumbnailUrl")
-    public String getThumbnailUrl(Image image) {
-        int size = systemSettingService.getIntSetting("file.thumbnail.size");
-        String thumbnailObjectName = "thumbnail/" + size + "/" + image.getHash();
-
-        if (!storageService.existFile(thumbnailObjectName)) {
-            try {
-                String imageObjectName = "original/" + image.getHash();
-                File tempFile = storageService.getFile(imageObjectName);
-                Thumbnails.of(tempFile)
-                        .size(size, size)
-                        .outputFormat("jpg")
-                        .toFile(tempFile);
-                storageService.uploadFile(thumbnailObjectName, tempFile);
-                tempFile.delete();
-            } catch (Exception e) {
-                throw new RuntimeException("生成缩略图失败: " + e.getMessage(), e);
-            }
-        }
-
-        return storageService.getFileUrl(thumbnailObjectName, image.getHash(), 24);
-    }
 
     @Transactional
     public void addImage(Image image) {

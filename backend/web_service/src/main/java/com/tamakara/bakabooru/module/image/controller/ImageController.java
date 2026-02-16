@@ -1,8 +1,7 @@
-package com.tamakara.bakabooru.controller;
+package com.tamakara.bakabooru.module.image.controller;
 
 import com.tamakara.bakabooru.module.image.dto.ImageDto;
 import com.tamakara.bakabooru.module.image.service.ImageService;
-import com.tamakara.bakabooru.module.tag.dto.TagDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

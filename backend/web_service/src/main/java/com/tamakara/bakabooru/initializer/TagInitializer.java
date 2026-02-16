@@ -20,7 +20,7 @@ public class TagInitializer implements ApplicationRunner {
     @Async
     @Override
     public void run(ApplicationArguments args) {
-        boolean isTagInitialized = systemSettingService.getBooleanSetting("tag.initialized");
+        boolean isTagInitialized = systemSettingService.getBooleanSetting("system.tag-initialized");
 
         if (isTagInitialized) return;
 
@@ -28,7 +28,7 @@ public class TagInitializer implements ApplicationRunner {
 
         try {
             aiServiceClient.initTags();
-            systemSettingService.updateSetting("tag.initialized", "true");
+            systemSettingService.updateSetting("system.tag-initialized", "true");
             log.info("标签向量初始化完成。");
         } catch (Exception e) {
             log.error("发生网络异常或超时", e);

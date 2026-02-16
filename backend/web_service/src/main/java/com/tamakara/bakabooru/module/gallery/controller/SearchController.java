@@ -1,4 +1,4 @@
-package com.tamakara.bakabooru.controller;
+package com.tamakara.bakabooru.module.gallery.controller;
 
 import com.tamakara.bakabooru.module.gallery.dto.SearchRequestDto;
 import com.tamakara.bakabooru.module.gallery.service.ParseQueryService;

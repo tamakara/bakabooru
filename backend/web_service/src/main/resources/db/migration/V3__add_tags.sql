@@ -1,4 +1,4 @@
-INSERT IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('year_2005', 'year'),
 ('year_2006', 'year'),
 ('year_2007', 'year'),
@@ -100,7 +100,7 @@ VALUES ('year_2005', 'year'),
 ('open_mouth', 'general'),
 ('orange_hair', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('orange_vest', 'general'),
 ('pink_thighhighs', 'general'),
 ('polka_dot', 'general'),
@@ -202,7 +202,7 @@ VALUES ('orange_vest', 'general'),
 ('upper_body', 'general'),
 ('white_shirt', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('against_wall', 'general'),
 ('blonde_hair', 'general'),
 ('blue_neckerchief', 'general'),
@@ -304,7 +304,7 @@ VALUES ('against_wall', 'general'),
 ('tress_ribbon', 'general'),
 ('trigram', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('umbrella', 'general'),
 ('white_dress', 'general'),
 ('wide_sleeves', 'general'),
@@ -406,7 +406,7 @@ VALUES ('umbrella', 'general'),
 ('dressing', 'general'),
 ('flat_chest', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('panty_pull', 'general'),
 ('sideboob', 'general'),
 ('zoom_layer', 'general'),
@@ -508,7 +508,7 @@ VALUES ('panty_pull', 'general'),
 ('star_(symbol)', 'general'),
 ('stud_earrings', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('white_gloves', 'general'),
 ('cherry', 'general'),
 ('dessert', 'general'),
@@ -610,7 +610,7 @@ VALUES ('white_gloves', 'general'),
 ('striped_bra', 'general'),
 ('tokkuri', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('unworn_panties', 'general'),
 ('wakamezake', 'general'),
 ('grass', 'general'),
@@ -712,7 +712,7 @@ VALUES ('unworn_panties', 'general'),
 ('orange_flower', 'general'),
 ('orange_tulip', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('symmetrical_docking', 'general'),
 ('tulip', 'general'),
 ('bespectacled', 'general'),
@@ -814,7 +814,7 @@ VALUES ('symmetrical_docking', 'general'),
 ('braided_bun', 'general'),
 ('collared_dress', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('facing_viewer', 'general'),
 ('frilled_apron', 'general'),
 ('hair_bun', 'general'),
@@ -916,7 +916,7 @@ VALUES ('facing_viewer', 'general'),
 ('cherry_blossoms', 'general'),
 ('eating', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('pink_skirt', 'general'),
 ('sandwich', 'general'),
 ('white_outline', 'general'),
@@ -1018,7 +1018,7 @@ VALUES ('pink_skirt', 'general'),
 ('multicolored_hair', 'general'),
 ('spoken_heart', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('light_purple_hair', 'general'),
 ('red_necktie', 'general'),
 ('white_flower', 'general'),
@@ -1120,7 +1120,7 @@ VALUES ('light_purple_hair', 'general'),
 ('cleavage_cutout', 'general'),
 ('clothing_cutout', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('cutoffs', 'general'),
 ('denim', 'general'),
 ('denim_shorts', 'general'),
@@ -1222,7 +1222,7 @@ VALUES ('cutoffs', 'general'),
 ('halterneck', 'general'),
 ('ocean', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('sea_spray', 'general'),
 ('string_bikini', 'general'),
 ('beads', 'general'),
@@ -1324,7 +1324,7 @@ VALUES ('sea_spray', 'general'),
 ('greaves', 'general'),
 ('hands_on_hilt', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('high_heel_boots', 'general'),
 ('planted', 'general'),
 ('planted_sword', 'general'),
@@ -1426,7 +1426,7 @@ VALUES ('high_heel_boots', 'general'),
 ('orange_skirt', 'general'),
 ('dark_blue_hair', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('skirt_pull', 'general'),
 ('brown_theme', 'general'),
 ('ear_tag', 'general'),
@@ -1528,7 +1528,7 @@ VALUES ('skirt_pull', 'general'),
 ('afterimage', 'general'),
 ('curry', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('kamaboko', 'general'),
 ('meat', 'general'),
 ('narutomaki', 'general'),
@@ -1630,7 +1630,7 @@ VALUES ('kamaboko', 'general'),
 ('cart', 'general'),
 ('feathers', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('guard', 'general'),
 ('holding_dagger', 'general'),
 ('abs', 'general'),
@@ -1732,7 +1732,7 @@ VALUES ('guard', 'general'),
 ('cargo_pants', 'general'),
 ('pants_pull', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('pulling_another''s_clothes', 'general'),
 ('bubble_bath', 'general'),
 ('covering_crotch', 'general'),
@@ -1834,7 +1834,7 @@ VALUES ('pulling_another''s_clothes', 'general'),
 ('leash', 'general'),
 ('patterned_background', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('red_collar', 'general'),
 ('bare_hips', 'general'),
 ('hand_on_own_head', 'general'),
@@ -1936,7 +1936,7 @@ VALUES ('red_collar', 'general'),
 ('cheek-to-breast', 'general'),
 ('scared', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('tile_floor', 'general'),
 ('tiles', 'general'),
 ('blade_catching', 'general'),
@@ -2038,7 +2038,7 @@ VALUES ('tile_floor', 'general'),
 ('novel_cover', 'general'),
 ('nun', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('rimless_eyewear', 'general'),
 ('shirt_tucked_in', 'general'),
 ('summer_uniform', 'general'),
@@ -2140,7 +2140,7 @@ VALUES ('rimless_eyewear', 'general'),
 ('fur_collar', 'general'),
 ('ototachibana_academy_school_uniform', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('content_rating', 'general'),
 ('doujin_cover', 'general'),
 ('email_address', 'general'),
@@ -2242,7 +2242,7 @@ VALUES ('content_rating', 'general'),
 ('tied_drawstring', 'general'),
 ('checkered_skirt', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('between_breasts', 'general'),
 ('kunai', 'general'),
 ('predicament_bondage', 'general'),
@@ -2344,7 +2344,7 @@ VALUES ('between_breasts', 'general'),
 ('music', 'general'),
 ('singing', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('avalon_(fate/stay_night)', 'general'),
 ('excalibur_(fate/stay_night)', 'general'),
 ('footwear_ribbon', 'general'),
@@ -2446,7 +2446,7 @@ VALUES ('avalon_(fate/stay_night)', 'general'),
 ('voyeurism', 'general'),
 ('white_fur', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('grabbing_own_breast', 'general'),
 ('symmetry', 'general'),
 ('brown_shorts', 'general'),
@@ -2548,7 +2548,7 @@ VALUES ('grabbing_own_breast', 'general'),
 ('thong', 'general'),
 ('untied_panties', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('blurry_background', 'general'),
 ('footwear_bow', 'general'),
 ('holding_polearm', 'general'),
@@ -2650,7 +2650,7 @@ VALUES ('blurry_background', 'general'),
 ('t-shirt', 'general'),
 ('orange_shirt', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('shirt_tug', 'general'),
 ('mechanical_ears', 'general'),
 ('heart_brooch', 'general'),
@@ -2752,7 +2752,7 @@ VALUES ('shirt_tug', 'general'),
 ('unworn_shirt', 'general'),
 ('sideburns_stubble', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('stubble', 'general'),
 ('facial_tattoo', 'general'),
 ('fur-trimmed_boots', 'general'),
@@ -2854,7 +2854,7 @@ VALUES ('stubble', 'general'),
 ('spring_onion', 'general'),
 ('backwards_hat', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('basket', 'general'),
 ('earphones', 'general'),
 ('groceries', 'general'),
@@ -2956,7 +2956,7 @@ VALUES ('basket', 'general'),
 ('cross-laced_dress', 'general'),
 ('incoming_food', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('layered_sleeves', 'general'),
 ('broken', 'general'),
 ('single_horn', 'general'),
@@ -3058,7 +3058,7 @@ VALUES ('layered_sleeves', 'general'),
 ('frilled_footwear', 'general'),
 ('head_down', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('health_bar', 'general'),
 ('no_tsuba', 'general'),
 ('ready_to_draw', 'general'),
@@ -3160,7 +3160,7 @@ VALUES ('health_bar', 'general'),
 ('single_earring', 'general'),
 ('incense', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('kayari_buta', 'general'),
 ('orange_jacket', 'general'),
 ('unworn_jacket', 'general'),
@@ -3262,7 +3262,7 @@ VALUES ('kayari_buta', 'general'),
 ('hogwarts_school_uniform', 'general'),
 ('striped_necktie', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('tail_raised', 'general'),
 ('sideways', 'general'),
 ('head_bump', 'general'),
@@ -3364,7 +3364,7 @@ VALUES ('tail_raised', 'general'),
 ('banana', 'general'),
 ('monkey_and_banana_problem', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('explosion', 'general'),
 ('jet', 'general'),
 ('envelope', 'general'),
@@ -3466,7 +3466,7 @@ VALUES ('explosion', 'general'),
 ('drain_(object)', 'general'),
 ('toilet_paper', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('toilet_use', 'general'),
 ('frilled_one-piece_swimsuit', 'general'),
 ('anchor', 'general'),
@@ -3568,7 +3568,7 @@ VALUES ('toilet_use', 'general'),
 ('tablecloth', 'general'),
 ('hand_on_sheath', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('finger_gun', 'general'),
 ('holding_another''s_arm', 'general'),
 ('shoulder_blades', 'general'),
@@ -3670,7 +3670,7 @@ VALUES ('finger_gun', 'general'),
 ('denim_skirt', 'general'),
 ('desert', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('orange_gloves', 'general'),
 ('aria_company_uniform', 'general'),
 ('comiket', 'general'),
@@ -3772,7 +3772,7 @@ VALUES ('orange_gloves', 'general'),
 ('race_queen', 'general'),
 ('tokyo_big_sight', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('drill', 'general'),
 ('green_serafuku', 'general'),
 ('black_stripes', 'general'),
@@ -3874,7 +3874,7 @@ VALUES ('drill', 'general'),
 ('bird_on_hand', 'general'),
 ('pine_tree', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('tengu-geta', 'general'),
 ('tokin_hat', 'general'),
 ('lapel_pin', 'general'),
@@ -3976,7 +3976,7 @@ VALUES ('tengu-geta', 'general'),
 ('torn_shorts', 'general'),
 ('unworn_hairband', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('two-tone_hair', 'general'),
 ('flute', 'general'),
 ('holding_flute', 'general'),
@@ -4078,7 +4078,7 @@ VALUES ('two-tone_hair', 'general'),
 ('food_as_clothes', 'general'),
 ('rainbow_order', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('checkered_dress', 'general'),
 ('fruit_tart', 'general'),
 ('lemon', 'general'),
@@ -4180,7 +4180,7 @@ VALUES ('checkered_dress', 'general'),
 ('kimono_lift', 'general'),
 ('reach-around', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('cum_overflow', 'general'),
 ('dougi', 'general'),
 ('tiger_dojo', 'general'),
@@ -4282,7 +4282,7 @@ VALUES ('cum_overflow', 'general'),
 ('puff_of_air', 'general'),
 ('ribbon_choker', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('hill', 'general'),
 ('super_mushroom', 'general'),
 ('super_star_(mario)', 'general'),
@@ -4384,7 +4384,7 @@ VALUES ('hill', 'general'),
 ('spatula', 'general'),
 ('spilling', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('stove', 'general'),
 ('crossed_ankles', 'general'),
 ('kibina_high_school_uniform', 'general'),
@@ -4486,7 +4486,7 @@ VALUES ('stove', 'general'),
 ('ikari_gendou_(cosplay)', 'general'),
 ('ikari_shinji_(cosplay)', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('katsuragi_misato_(cosplay)', 'general'),
 ('souryuu_asuka_langley_(cosplay)', 'general'),
 ('gothic_princess_(idolmaster)', 'general'),
@@ -4588,7 +4588,7 @@ VALUES ('katsuragi_misato_(cosplay)', 'general'),
 ('boston_terrier', 'general'),
 ('stand_(jojo)', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('terrier_(dog)', 'general'),
 ('looking_at_penis', 'general'),
 ('penis_awe', 'general'),
@@ -4690,7 +4690,7 @@ VALUES ('terrier_(dog)', 'general'),
 ('spider_lily', 'general'),
 ('cropped_shoulders', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('orange_sweater', 'general'),
 ('red_legwear', 'general'),
 ('yellow_theme', 'general'),
@@ -4792,7 +4792,7 @@ VALUES ('orange_sweater', 'general'),
 ('listening_to_music', 'general'),
 ('lipstick_writing', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('sol_badguy_(cosplay)', 'general'),
 ('glitter', 'general'),
 ('cupboard', 'general'),
@@ -4894,7 +4894,7 @@ VALUES ('sol_badguy_(cosplay)', 'general'),
 ('ball_and_chain_(weapon)', 'general'),
 ('hsien-ko_(cosplay)', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('spike_ball', 'general'),
 ('borrowed_clothes', 'general'),
 ('hand_on_own_ear', 'general'),
@@ -4996,7 +4996,7 @@ VALUES ('spike_ball', 'general'),
 ('fff_threesome', 'general'),
 ('group_incest', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('frilled_gloves', 'general'),
 ('basin', 'general'),
 ('character_profile', 'general'),
@@ -5098,7 +5098,7 @@ VALUES ('frilled_gloves', 'general'),
 ('chrysanthemum_print', 'general'),
 ('armored_boots', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('park_bench', 'general'),
 ('caught', 'general'),
 ('picnic', 'general'),
@@ -5200,7 +5200,7 @@ VALUES ('park_bench', 'general'),
 ('thick_neck', 'general'),
 ('uppercut', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('veiny_pectorals', 'general'),
 ('anal_beads', 'general'),
 ('licking_cum', 'general'),
@@ -5302,7 +5302,7 @@ VALUES ('veiny_pectorals', 'general'),
 ('horn_cover', 'general'),
 ('breast_cutout', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('heavy_breathing', 'general'),
 ('team_magma', 'general'),
 ('bursting_breasts', 'general'),
@@ -5404,7 +5404,7 @@ VALUES ('heavy_breathing', 'general'),
 ('mother_and_son', 'general'),
 ('tail_wrap', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('hat_on_chest', 'general'),
 ('amputee', 'general'),
 ('armless_amputee', 'general'),
@@ -5506,7 +5506,7 @@ VALUES ('hat_on_chest', 'general'),
 ('bar_soap', 'general'),
 ('holding_soap', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('median_furrow', 'general'),
 ('sweater_dress', 'general'),
 ('cross-shaped_pupils', 'general'),
@@ -5608,7 +5608,7 @@ VALUES ('median_furrow', 'general'),
 ('skin_fang', 'general'),
 ('family_portrait', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('skeleton', 'general'),
 ('blade_to_throat', 'general'),
 ('beam', 'general'),
@@ -5710,7 +5710,7 @@ VALUES ('skeleton', 'general'),
 ('white_lily', 'general'),
 ('covering_another''s_eyes', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('multiple_panties', 'general'),
 ('anal_fingering', 'general'),
 ('swing', 'general'),
@@ -5812,7 +5812,7 @@ VALUES ('multiple_panties', 'general'),
 ('riding_bicycle', 'general'),
 ('warming_hands', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('orange_tail', 'general'),
 ('dragoon', 'general'),
 ('purple_armor', 'general'),
@@ -5914,7 +5914,7 @@ VALUES ('orange_tail', 'general'),
 ('cane', 'general'),
 ('detective', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('magnifying_glass', 'general'),
 ('ear_tug', 'general'),
 ('striped_footwear', 'general'),
@@ -6016,7 +6016,7 @@ VALUES ('magnifying_glass', 'general'),
 ('ears_through_headwear', 'general'),
 ('leg_armor', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('blue_sleeves', 'general'),
 ('horse', 'general'),
 ('horse_penis', 'general'),
@@ -6118,7 +6118,7 @@ VALUES ('blue_sleeves', 'general'),
 ('water_bottle', 'general'),
 ('low_wings', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('ebony_&_ivory', 'general'),
 ('rebellion_(sword)', 'general'),
 ('shell_casing', 'general'),
@@ -6220,7 +6220,7 @@ VALUES ('ebony_&_ivory', 'general'),
 ('clothes_pin', 'general'),
 ('cross_pendant', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('globus_cruciger', 'general'),
 ('gold_necklace', 'general'),
 ('holding_microphone_stand', 'general'),
@@ -6322,7 +6322,7 @@ VALUES ('globus_cruciger', 'general'),
 ('bouncing_penis', 'general'),
 ('intravaginal_futanari', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('mascot', 'general'),
 ('stereo', 'general'),
 ('shrugging', 'general'),
@@ -6424,7 +6424,7 @@ VALUES ('mascot', 'general'),
 ('hand_on_leg', 'general'),
 ('purple_one-piece_swimsuit', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('strawberry_panties', 'general'),
 ('deepthroat', 'general'),
 ('sos_galactic_patrol', 'general'),
@@ -6526,7 +6526,7 @@ VALUES ('strawberry_panties', 'general'),
 ('heavy_machine_gun', 'general'),
 ('roundel', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('sailor', 'general'),
 ('paw_print_background', 'general'),
 ('bolo_tie', 'general'),
@@ -6628,7 +6628,7 @@ VALUES ('sailor', 'general'),
 ('curved_penis', 'general'),
 ('extra_penises', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('forced_orgasm', 'general'),
 ('strapless_bottom', 'general'),
 ('front-to-back', 'general'),
@@ -6730,7 +6730,7 @@ VALUES ('forced_orgasm', 'general'),
 ('ribbed_sleeves', 'general'),
 ('band', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('sitting_on_face', 'general'),
 ('cum_on_armpits', 'general'),
 ('kupaa', 'general'),
@@ -6832,7 +6832,7 @@ VALUES ('sitting_on_face', 'general'),
 ('tickling_stomach', 'general'),
 ('blue_helmet', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('double-sided_polearm', 'general'),
 ('glaive_(polearm)', 'general'),
 ('power_armor', 'general'),
@@ -6934,7 +6934,7 @@ VALUES ('double-sided_polearm', 'general'),
 ('holding_to_chest', 'general'),
 ('aqua_bra', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('armored_gloves', 'general'),
 ('thigh_sex', 'general'),
 ('reverse_upright_straddle', 'general'),
@@ -7036,7 +7036,7 @@ VALUES ('armored_gloves', 'general'),
 ('pink_pants', 'general'),
 ('quiff', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('frilled_wristband', 'general'),
 ('argyle_cutout', 'general'),
 ('feather_trim', 'general'),
@@ -7138,7 +7138,7 @@ VALUES ('frilled_wristband', 'general'),
 ('soda', 'general'),
 ('full_armor', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('gravity_suit_(metroid)', 'general'),
 ('varia_suit', 'general'),
 ('yellow_visor', 'general'),
@@ -7240,7 +7240,7 @@ VALUES ('gravity_suit_(metroid)', 'general'),
 ('covering_another''s_mouth', 'general'),
 ('hand_gagged', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('hand_over_another''s_mouth', 'general'),
 ('leather_skirt', 'general'),
 ('inflatable_raft', 'general'),
@@ -7342,7 +7342,7 @@ VALUES ('hand_over_another''s_mouth', 'general'),
 ('spread_toes', 'general'),
 ('drinking_fountain', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('finger_to_face', 'general'),
 ('alternate_universe', 'general'),
 ('wryyyyyyyyyyyyyyyyyyyy', 'general'),
@@ -7444,7 +7444,7 @@ VALUES ('finger_to_face', 'general'),
 ('chocolate_bar', 'general'),
 ('holding_candy', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('holding_lollipop', 'general'),
 ('wrapped_candy', 'general'),
 ('meiji_schoolgirl_uniform', 'general'),
@@ -7546,7 +7546,7 @@ VALUES ('holding_lollipop', 'general'),
 ('mechanization', 'general'),
 ('minimized', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('long_toenails', 'general'),
 ('heraldry', 'general'),
 ('split_theme', 'general'),
@@ -7648,7 +7648,7 @@ VALUES ('long_toenails', 'general'),
 ('inaba_tewi_(cosplay)', 'general'),
 ('yagokoro_eirin_(cosplay)', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('pouring', 'general'),
 ('print_mug', 'general'),
 ('pepper_mill', 'general'),
@@ -7750,7 +7750,7 @@ VALUES ('pouring', 'general'),
 ('polearm_behind_back', 'general'),
 ('silence_glaive', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('ashford_academy_school_uniform', 'general'),
 ('eye_focus', 'general'),
 ('eye_reflection', 'general'),
@@ -7852,7 +7852,7 @@ VALUES ('ashford_academy_school_uniform', 'general'),
 ('chandelier', 'general'),
 ('bra_peek', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('sanshoku_dango', 'general'),
 ('fluorescent_lamp', 'general'),
 ('netnavi', 'general'),
@@ -7954,7 +7954,7 @@ VALUES ('sanshoku_dango', 'general'),
 ('evoker', 'general'),
 ('paint_tube', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('grenade_launcher', 'general'),
 ('shared_ribbon', 'general'),
 ('tactical_surface_fighter', 'general'),
@@ -8056,7 +8056,7 @@ VALUES ('grenade_launcher', 'general'),
 ('naked_sweater', 'general'),
 ('hagoita', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('lace-trimmed_kimono', 'general'),
 ('obidome', 'general'),
 ('tsumami_kanzashi', 'general'),
@@ -8158,7 +8158,7 @@ VALUES ('lace-trimmed_kimono', 'general'),
 ('vertical-striped_bra', 'general'),
 ('infirmary', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('school_nurse', 'general'),
 ('gallows', 'general'),
 ('noose', 'general'),
@@ -8260,7 +8260,7 @@ VALUES ('school_nurse', 'general'),
 ('upright_restraints', 'general'),
 ('penetration_through_clothes', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('pink_leotard_(dq)', 'general'),
 ('labia_stretching', 'general'),
 ('air_mattress', 'general'),
@@ -8362,7 +8362,7 @@ VALUES ('pink_leotard_(dq)', 'general'),
 ('ornate', 'general'),
 ('plate_armor', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('spiked_helmet', 'general'),
 ('teamwork', 'general'),
 ('tusks', 'general'),
@@ -8464,7 +8464,7 @@ VALUES ('spiked_helmet', 'general'),
 ('torn_swimsuit', 'general'),
 ('hat_flower', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('pillbox_hat', 'general'),
 ('x_navel', 'general'),
 ('motteke!_serafuku', 'general'),
@@ -8566,7 +8566,7 @@ VALUES ('pillbox_hat', 'general'),
 ('half-soles', 'general'),
 ('clear_sky', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('beach_volleyball', 'general'),
 ('panties_under_shorts', 'general'),
 ('upshorts', 'general'),
@@ -8668,7 +8668,7 @@ VALUES ('beach_volleyball', 'general'),
 ('fake_beard', 'general'),
 ('theater', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('bear_costume', 'general'),
 ('catsuit', 'general'),
 ('oral_invitation', 'general'),
@@ -8770,7 +8770,7 @@ VALUES ('bear_costume', 'general'),
 ('hunting', 'general'),
 ('pencil_case', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('antique_firearm', 'general'),
 ('firelock', 'general'),
 ('flintlock', 'general'),
@@ -8872,7 +8872,7 @@ VALUES ('antique_firearm', 'general'),
 ('hatsune_miku_(cosplay)', 'general'),
 ('amplifier', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('holding_with_feet', 'general'),
 ('playstation_portable', 'general'),
 ('musical_note_print', 'general'),
@@ -8974,7 +8974,7 @@ VALUES ('holding_with_feet', 'general'),
 ('forked_tongue', 'general'),
 ('headless', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('o-ring_belt', 'general'),
 ('unworn_bikini_bottom', 'general'),
 ('3:', 'general'),
@@ -9076,7 +9076,7 @@ VALUES ('o-ring_belt', 'general'),
 ('graviton_beam_emitter', 'general'),
 ('shaking', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('character_age', 'general'),
 ('blue_wings', 'general'),
 ('fan_speaking', 'general'),
@@ -9178,7 +9178,7 @@ VALUES ('character_age', 'general'),
 ('hagoromo', 'general'),
 ('nose_picking', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('skateboard', 'general'),
 ('unworn_mask', 'general'),
 ('detached_hair', 'general'),
@@ -9280,7 +9280,7 @@ VALUES ('skateboard', 'general'),
 ('dj', 'general'),
 ('awning', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('guard_rail', 'general'),
 ('four_of_a_kind_(touhou)', 'general'),
 ('light_trail', 'general'),
@@ -9382,7 +9382,7 @@ VALUES ('guard_rail', 'general'),
 ('bent_v', 'general'),
 ('nemes', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('nissan', 'general'),
 ('nissan_skyline', 'general'),
 ('nissan_skyline_gt-r', 'general'),
@@ -9484,7 +9484,7 @@ VALUES ('nissan', 'general'),
 ('cocktail_umbrella', 'general'),
 ('hotel', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('wrist_extended', 'general'),
 ('koa_(phrase)', 'general'),
 ('honeycomb_(pattern)', 'general'),
@@ -9586,7 +9586,7 @@ VALUES ('wrist_extended', 'general'),
 ('drawing', 'general'),
 ('lone_nape_hair', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('balancing_on_finger', 'general'),
 ('dystopia', 'general'),
 ('holding_cannon', 'general'),
@@ -9688,7 +9688,7 @@ VALUES ('balancing_on_finger', 'general'),
 ('tri_braids', 'general'),
 ('tri_tails', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('hand_grip', 'general'),
 ('holding_hand_grip', 'general'),
 ('backpack_basket', 'general'),
@@ -9790,7 +9790,7 @@ VALUES ('hand_grip', 'general'),
 ('aqua_gloves', 'general'),
 ('purple_sleeves', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('stg44', 'general'),
 ('tank', 'general'),
 ('polka_dot_dress', 'general'),
@@ -9892,7 +9892,7 @@ VALUES ('stg44', 'general'),
 ('assisted_paizuri', 'general'),
 ('star_trail', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('bird_on_leg', 'general'),
 ('covering_own_ears', 'general'),
 ('hand_gesture', 'general'),
@@ -9994,7 +9994,7 @@ VALUES ('bird_on_leg', 'general'),
 ('vertical-striped_jacket', 'general'),
 ('yellow_cardigan', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('nebula', 'general'),
 ('cuirass', 'general'),
 ('wrinkled_fabric', 'general'),
@@ -10096,7 +10096,7 @@ VALUES ('nebula', 'general'),
 ('bucket_of_water', 'general'),
 ('tied_dress', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('wiping', 'general'),
 ('berry_(pokemon)', 'general'),
 ('pecha_berry', 'general'),
@@ -10198,7 +10198,7 @@ VALUES ('wiping', 'general'),
 ('line_marker', 'general'),
 ('luna_(sailor_moon)_(cosplay)', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('star_panties', 'general'),
 ('spool', 'general'),
 ('brick_road', 'general'),
@@ -10300,7 +10300,7 @@ VALUES ('star_panties', 'general'),
 ('white_day', 'general'),
 ('union_jack_bikini', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('game_link_cable', 'general'),
 ('round_window', 'general'),
 ('flower_wreath', 'general'),
@@ -10402,7 +10402,7 @@ VALUES ('game_link_cable', 'general'),
 ('rolling_pin', 'general'),
 ('art_deco', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('drill_hand', 'general'),
 ('yakumo_yukari_(cosplay)', 'general'),
 ('afterburner', 'general'),
@@ -10504,7 +10504,7 @@ VALUES ('drill_hand', 'general'),
 ('holding_gourd', 'general'),
 ('s.m.s.', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('blue_blindfold', 'general'),
 ('doppelganger', 'general'),
 ('sprain', 'general'),
@@ -10606,7 +10606,7 @@ VALUES ('blue_blindfold', 'general'),
 ('color_contrast', 'general'),
 ('hand_on_floor', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('oversized_hat', 'general'),
 ('austrian_flag', 'general'),
 ('blending', 'general'),
@@ -10708,7 +10708,7 @@ VALUES ('oversized_hat', 'general'),
 ('irony', 'general'),
 ('cooperative_buttjob', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('protest', 'general'),
 ('shogi', 'general'),
 ('heavy_metal', 'general'),
@@ -10810,7 +10810,7 @@ VALUES ('protest', 'general'),
 ('cherry_tomato', 'general'),
 ('scuffed', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('snap-fit_buckle', 'general'),
 ('snail', 'general'),
 ('fundoshi_aside', 'general'),
@@ -10912,7 +10912,7 @@ VALUES ('snap-fit_buckle', 'general'),
 ('pyramid_(structure)', 'general'),
 ('domestic_violence', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('necktie_on_head', 'general'),
 ('ragequit', 'general'),
 ('table_flip', 'general'),
@@ -11014,7 +11014,7 @@ VALUES ('necktie_on_head', 'general'),
 ('bathrobe', 'general'),
 ('onsen_symbol', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('wrists_extended', 'general'),
 ('blowing', 'general'),
 ('waving_arm', 'general'),
@@ -11116,7 +11116,7 @@ VALUES ('wrists_extended', 'general'),
 ('cheshire_cat_(alice_in_wonderland)_(cosplay)', 'general'),
 ('white_rabbit_(alice_in_wonderland)_(cosplay)', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('beard_ribbon', 'general'),
 ('long_beard', 'general'),
 ('danmaku_comments', 'general'),
@@ -11218,7 +11218,7 @@ VALUES ('beard_ribbon', 'general'),
 ('\(^o^)/', 'general'),
 ('sauna', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('towel_around_waist', 'general'),
 ('radio_antenna', 'general'),
 ('print_eyepatch', 'general'),
@@ -11320,7 +11320,7 @@ VALUES ('towel_around_waist', 'general'),
 ('magic_carpet', 'general'),
 ('purple_neckerchief', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('school_hat', 'general'),
 ('crest_worm', 'general'),
 ('beyond_the_nobles_(idolmaster)', 'general'),
@@ -11422,7 +11422,7 @@ VALUES ('school_hat', 'general'),
 ('lion_(macross_frontier)', 'general'),
 ('pussy_focus', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('glass_ceiling', 'general'),
 ('greenhouse', 'general'),
 ('plaid_hairband', 'general'),
@@ -11524,7 +11524,7 @@ VALUES ('glass_ceiling', 'general'),
 ('brown_bra', 'general'),
 ('hatching', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('rabbit_on_head', 'general'),
 ('jacket_tug', 'general'),
 ('panther_ears', 'general'),
@@ -11626,7 +11626,7 @@ VALUES ('rabbit_on_head', 'general'),
 ('alcohol_enema', 'general'),
 ('licking_dildo', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('chest_tattoo', 'general'),
 ('ouroboros', 'general'),
 ('pon_de_lion_(cosplay)', 'general'),
@@ -11728,7 +11728,7 @@ VALUES ('chest_tattoo', 'general'),
 ('mask_over_one_eye', 'general'),
 ('mixing_console', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('fn_scar', 'general'),
 ('fn_scar_16', 'general'),
 ('gym_teacher', 'general'),
@@ -11830,7 +11830,7 @@ VALUES ('fn_scar', 'general'),
 ('grey_cat', 'general'),
 ('fruit_hair_ornament', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('peach_hair_ornament', 'general'),
 ('spinning_top', 'general'),
 ('sneezing', 'general'),
@@ -11932,7 +11932,7 @@ VALUES ('peach_hair_ornament', 'general'),
 ('foot_bath', 'general'),
 ('mechanical', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('crossed_wrists', 'general'),
 ('fabric', 'general'),
 ('dizzy_(guilty_gear)_(cosplay)', 'general'),
@@ -12034,7 +12034,7 @@ VALUES ('crossed_wrists', 'general'),
 ('green_tunic', 'general'),
 ('holding_slingshot', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('purple_tunic', 'general'),
 ('red_tunic', 'general'),
 ('slingshot_(weapon)', 'general'),
@@ -12136,7 +12136,7 @@ VALUES ('purple_tunic', 'general'),
 ('nib_pen_(object)', 'general'),
 ('in_pocket', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('pouring_onto_self', 'general'),
 ('grey_scarf', 'general'),
 ('hair_strand', 'general'),
@@ -12238,7 +12238,7 @@ VALUES ('pouring_onto_self', 'general'),
 ('amegakure_symbol', 'general'),
 ('multiple_piercings', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('rinnegan', 'general'),
 ('mad_hatter_(alice_in_wonderland)_(cosplay)', 'general'),
 ('pastels', 'general'),
@@ -12340,7 +12340,7 @@ VALUES ('rinnegan', 'general'),
 ('naked_sarashi', 'general'),
 ('hand_around_waist', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('spathiphyllum', 'general'),
 ('fake_nails', 'general'),
 ('goatse', 'general'),
@@ -12442,7 +12442,7 @@ VALUES ('spathiphyllum', 'general'),
 ('human_tug_of_war', 'general'),
 ('tanghulu', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('two-tone_wings', 'general'),
 ('straight_razor', 'general'),
 ('hikikomori', 'general'),
@@ -12544,7 +12544,7 @@ VALUES ('two-tone_wings', 'general'),
 ('hot_chocolate', 'general'),
 ('takeuchi_takashi_(style)', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('hugging_own_tail', 'general'),
 ('severed_penis', 'general'),
 ('aneros', 'general'),
@@ -12646,7 +12646,7 @@ VALUES ('hugging_own_tail', 'general'),
 ('bus', 'general'),
 ('no_entry_sign', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('organs', 'general'),
 ('maxim_tomato', 'general'),
 ('ventilation_fan', 'general'),
@@ -12748,7 +12748,7 @@ VALUES ('organs', 'general'),
 ('lunasa_prismriver_(cosplay)', 'general'),
 ('lyrica_prismriver_(cosplay)', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('merlin_prismriver_(cosplay)', 'general'),
 ('mizuhashi_parsee_(cosplay)', 'general'),
 ('moriya_suwako_(cosplay)', 'general'),
@@ -12850,7 +12850,7 @@ VALUES ('merlin_prismriver_(cosplay)', 'general'),
 ('lace_ribbon', 'general'),
 ('dizi', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('transverse_flute', 'general'),
 ('playstation_3', 'general'),
 ('power_connection', 'general'),
@@ -12952,7 +12952,7 @@ VALUES ('transverse_flute', 'general'),
 ('ashes', 'general'),
 ('gag_around_neck', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('sidelocks_tied_back', 'general'),
 ('on_piano', 'general'),
 ('heel_pop', 'general'),
@@ -13054,7 +13054,7 @@ VALUES ('sidelocks_tied_back', 'general'),
 ('female_service_cap', 'general'),
 ('blindfold_lift', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('horizontal_comic', 'general'),
 ('shrinking', 'general'),
 ('dhyana_mudra', 'general'),
@@ -13156,7 +13156,7 @@ VALUES ('horizontal_comic', 'general'),
 ('holding_legwear', 'general'),
 ('fireball', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('walkie-talkie', 'general'),
 ('bribery', 'general'),
 ('polka_dot_legwear', 'general'),
@@ -13258,7 +13258,7 @@ VALUES ('walkie-talkie', 'general'),
 ('kourindou_tengu_costume', 'general'),
 ('konnyaku_(food)', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('frisbee', 'general'),
 ('goblin_mask', 'general'),
 ('vanity_table', 'general'),
@@ -13360,7 +13360,7 @@ VALUES ('frisbee', 'general'),
 ('earclip', 'general'),
 ('brushing_another''s_teeth', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('egg_hair_ornament', 'general'),
 ('merchandise', 'general'),
 ('profile_picture', 'general'),
@@ -13462,7 +13462,7 @@ VALUES ('egg_hair_ornament', 'general'),
 ('pie_in_face', 'general'),
 ('spoken_star', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('shirt_down', 'general'),
 ('lightning_glare', 'general'),
 ('holding_ears', 'general'),
@@ -13564,7 +13564,7 @@ VALUES ('shirt_down', 'general'),
 ('transparent_flower', 'general'),
 ('blue_sclera', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('whisp', 'general'),
 ('interview', 'general'),
 ('stitched_neck', 'general'),
@@ -13666,7 +13666,7 @@ VALUES ('whisp', 'general'),
 ('offering_hand', 'general'),
 ('icicle_fall', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('severed_arm', 'general'),
 ('epiphyllum', 'general'),
 ('eiserne_jungfrau', 'general'),
@@ -13768,7 +13768,7 @@ VALUES ('severed_arm', 'general'),
 ('makarov_pm', 'general'),
 ('t91_assault_rifle', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('panda_costume', 'general'),
 ('ninja_toes', 'general'),
 ('cirno_day', 'general'),
@@ -13870,7 +13870,7 @@ VALUES ('panda_costume', 'general'),
 ('grey_flower', 'general'),
 ('grey_rose', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('daddycool''s_tan''yao_(meme)', 'general'),
 ('new_york_city', 'general'),
 ('throwing_hat', 'general'),
@@ -13972,7 +13972,7 @@ VALUES ('daddycool''s_tan''yao_(meme)', 'general'),
 ('too_many_flowers', 'general'),
 ('gunpod', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('mayan_(macross)', 'general'),
 ('floating_earring', 'general'),
 ('gauze', 'general'),
@@ -14074,7 +14074,7 @@ VALUES ('mayan_(macross)', 'general'),
 ('throne_room', 'general'),
 ('striped_male_underwear', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('pen_spinning', 'general'),
 ('sweden', 'general'),
 ('angel_french', 'general'),
@@ -14176,7 +14176,7 @@ VALUES ('pen_spinning', 'general'),
 ('green_rope', 'general'),
 ('core', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('plaid_sweater', 'general'),
 ('rattle', 'general'),
 ('maus_(tank)', 'general'),
@@ -14278,7 +14278,7 @@ VALUES ('plaid_sweater', 'general'),
 ('pink_sports_bra', 'general'),
 ('penetration_gesture', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('covering_another''s_crotch', 'general'),
 ('dorayaki', 'general'),
 ('kesa', 'general'),
@@ -14380,7 +14380,7 @@ VALUES ('covering_another''s_crotch', 'general'),
 ('poop_on_a_stick', 'general'),
 ('tiger_cub', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('blood_trail', 'general'),
 ('hannya', 'general'),
 ('namahage', 'general'),
@@ -14482,7 +14482,7 @@ VALUES ('blood_trail', 'general'),
 ('animal-themed_umbrella', 'general'),
 ('black_garter', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('futanari_pov', 'general'),
 ('junkyard', 'general'),
 ('satellite_dish', 'general'),
@@ -14584,7 +14584,7 @@ VALUES ('futanari_pov', 'general'),
 ('partially_buried', 'general'),
 ('shiroshouzoku', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('waterfall_shower', 'general'),
 ('daifuku', 'general'),
 ('religious_offering', 'general'),
@@ -14686,7 +14686,7 @@ VALUES ('waterfall_shower', 'general'),
 ('lancia_stratos', 'general'),
 ('imminent_hug', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('navel_fingering', 'general'),
 ('poking_belly', 'general'),
 ('sucking_male_nipple', 'general'),
@@ -14788,7 +14788,7 @@ VALUES ('navel_fingering', 'general'),
 ('escalator', 'general'),
 ('pedestrian_bridge', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('stuffed_fish', 'general'),
 ('paw_stick', 'general'),
 ('cream_on_body', 'general'),
@@ -14890,7 +14890,7 @@ VALUES ('stuffed_fish', 'general'),
 ('curly_sidelocks', 'general'),
 ('gentiana_(flower)', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('satin_bra', 'general'),
 ('brown_ascot', 'general'),
 ('bmw_3_series', 'general'),
@@ -14992,7 +14992,7 @@ VALUES ('satin_bra', 'general'),
 ('lunar_tear', 'general'),
 ('wringing_dress', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('pink_fur', 'general'),
 ('saliva_on_penis', 'general'),
 ('leather_suit', 'general'),
@@ -15094,7 +15094,7 @@ VALUES ('pink_fur', 'general'),
 ('shinkansen', 'general'),
 ('putting_on_boots', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('pink_moon_stick', 'general'),
 ('demoman_(tf2)_(cosplay)', 'general'),
 ('engineer_(tf2)_(cosplay)', 'general'),
@@ -15196,7 +15196,7 @@ VALUES ('pink_moon_stick', 'general'),
 ('holding_chess_piece', 'general'),
 ('iris_print', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('cocoon', 'general'),
 ('mma_gloves', 'general'),
 ('bird_nest', 'general'),
@@ -15298,7 +15298,7 @@ VALUES ('cocoon', 'general'),
 ('sitting_on_arm', 'general'),
 ('breast_zipper', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('fn_five-seven', 'general'),
 ('asura_(mythology)', 'general'),
 ('panda_girl', 'general'),
@@ -15400,7 +15400,7 @@ VALUES ('fn_five-seven', 'general'),
 ('hamster_tail', 'general'),
 ('lion_girl', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('sheep_tail', 'general'),
 ('shipping_container', 'general'),
 ('top-load_washing_machine', 'general'),
@@ -15502,7 +15502,7 @@ VALUES ('sheep_tail', 'general'),
 ('layered_bikini', 'general'),
 ('cape_umbrella', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('purple_leggings', 'general'),
 ('tenga_egg', 'general'),
 ('croquette', 'general'),
@@ -15604,7 +15604,7 @@ VALUES ('purple_leggings', 'general'),
 ('step-siblings', 'general'),
 ('alphabet', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('flirting', 'general'),
 ('they_had_lots_of_sex_afterwards_(meme)', 'general'),
 ('hands_on_another''s_knees', 'general'),
@@ -15706,7 +15706,7 @@ VALUES ('flirting', 'general'),
 ('black_spaghetti', 'general'),
 ('in_cart', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('through_ground', 'general'),
 ('black_male_underwear', 'general'),
 ('print_male_underwear', 'general'),
@@ -15808,7 +15808,7 @@ VALUES ('through_ground', 'general'),
 ('kriss_vector', 'general'),
 ('round_border', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('nursing_paizuri', 'general'),
 ('defenestration', 'general'),
 ('grapple', 'general'),
@@ -15910,7 +15910,7 @@ VALUES ('nursing_paizuri', 'general'),
 ('gunshot_wound', 'general'),
 ('straw_cape', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('print_leggings', 'general'),
 ('drawn_halo', 'general'),
 ('drawn_wings', 'general'),
@@ -16012,7 +16012,7 @@ VALUES ('print_leggings', 'general'),
 ('white_uniform', 'general'),
 ('yamato_(battleship)', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('autocannon', 'general'),
 ('radar', 'general'),
 ('range_finder', 'general'),
@@ -16114,7 +16114,7 @@ VALUES ('autocannon', 'general'),
 ('rocking_horse', 'general'),
 ('snake_tail', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('excavator', 'general'),
 ('ribbon_panties', 'general'),
 ('spirits', 'general'),
@@ -16216,7 +16216,7 @@ VALUES ('excavator', 'general'),
 ('shoulder_angel', 'general'),
 ('shoulder_devil', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('march_hare_(alice_in_wonderland)_(cosplay)', 'general'),
 ('tomoe_mami_(cosplay)', 'general'),
 ('dark_room', 'general'),
@@ -16318,7 +16318,7 @@ VALUES ('march_hare_(alice_in_wonderland)_(cosplay)', 'general'),
 ('cake_decoration', 'general'),
 ('2011_sendai_earthquake_and_tsunami', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('retort_stand', 'general'),
 ('valve', 'general'),
 ('insecticide', 'general'),
@@ -16420,7 +16420,7 @@ VALUES ('retort_stand', 'general'),
 ('baumkuchen', 'general'),
 ('weapon_on_floor', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('zinogre_(armor)', 'general'),
 ('smock', 'general'),
 ('plaid_blanket', 'general'),
@@ -16522,7 +16522,7 @@ VALUES ('zinogre_(armor)', 'general'),
 ('miyamori_school_uniform', 'general'),
 ('kv-2', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('lasso', 'general'),
 ('substitute_(pokemon)', 'general'),
 ('scorecard', 'general'),
@@ -16624,7 +16624,7 @@ VALUES ('lasso', 'general'),
 ('crossed_weapons', 'general'),
 ('armored_vehicle', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('fn_mag', 'general'),
 ('kel-tec_rfb', 'general'),
 ('orange_shawl', 'general'),
@@ -16726,7 +16726,7 @@ VALUES ('fn_mag', 'general'),
 ('ribbon-trimmed_cape', 'general'),
 ('sitting_on_piano', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('sticks', 'general'),
 ('transparent_butterfly', 'general'),
 ('baby_carry', 'general'),
@@ -16828,7 +16828,7 @@ VALUES ('sticks', 'general'),
 ('prosthetic_leg', 'general'),
 ('prosthetic_arm', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('yellow_cat', 'general'),
 ('yasuhiko_yoshikazu_(style)', 'general'),
 ('g-clef_(suite_precure)', 'general'),
@@ -16930,7 +16930,7 @@ VALUES ('yellow_cat', 'general'),
 ('burning_building', 'general'),
 ('mouth_visible_through_hair', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('satellite_cannon', 'general'),
 ('bootes_(constellation)', 'general'),
 ('cepheus_(constellation)', 'general'),
@@ -17032,7 +17032,7 @@ VALUES ('satellite_cannon', 'general'),
 ('shindan_maker', 'general'),
 ('green_wrist_cuffs', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('flying_whale', 'general'),
 ('shiny_(module)', 'general'),
 ('bikini_tug', 'general'),
@@ -17134,7 +17134,7 @@ VALUES ('flying_whale', 'general'),
 ('reverse_paizuri', 'general'),
 ('castle_dedede', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('kirby''s_house', 'general'),
 ('seaside', 'general'),
 ('ice_cream_bar', 'general'),
@@ -17236,7 +17236,7 @@ VALUES ('kirby''s_house', 'general'),
 ('escudo_sword_(rayearth)', 'general'),
 ('sig_556', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('ikebana', 'general'),
 ('hair_salon', 'general'),
 ('hand_on_window', 'general'),
@@ -17338,7 +17338,7 @@ VALUES ('ikebana', 'general'),
 ('long_sword_(sao)', 'general'),
 ('tourmaline', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('rei_no_sakura_benitsubaki_(module)', 'general'),
 ('san_no_sakura_fuuka_(module)', 'general'),
 ('urna', 'general'),
@@ -17440,7 +17440,7 @@ VALUES ('rei_no_sakura_benitsubaki_(module)', 'general'),
 ('pike_(weapon)', 'general'),
 ('tomato_costume', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('willow', 'general'),
 ('white_lips', 'general'),
 ('white_hakama', 'general'),
@@ -17542,7 +17542,7 @@ VALUES ('willow', 'general'),
 ('red_innertube', 'general'),
 ('acog', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('faceless_hood', 'general'),
 ('ducati', 'general'),
 ('at_knifepoint', 'general'),
@@ -17644,7 +17644,7 @@ VALUES ('faceless_hood', 'general'),
 ('cure_peace_(cosplay)', 'general'),
 ('text_print', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('spread_anus_under_clothes', 'general'),
 ('multiple_tongues', 'general'),
 ('prussian_flag', 'general'),
@@ -17746,7 +17746,7 @@ VALUES ('spread_anus_under_clothes', 'general'),
 ('construction_worker', 'general'),
 ('virgin_killer_sweater', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('exposed_clitoris', 'general'),
 ('imminent_paizuri', 'general'),
 ('tractor_beam', 'general'),
@@ -17848,7 +17848,7 @@ VALUES ('exposed_clitoris', 'general'),
 ('hina_arare', 'general'),
 ('baby_carrier', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('dog_hood', 'general'),
 ('futaba_anzu_(cosplay)', 'general'),
 ('shibuya_rin_(cosplay)', 'general'),
@@ -17950,7 +17950,7 @@ VALUES ('dog_hood', 'general'),
 ('mazda_rx-7', 'general'),
 ('mazda_rx-7_fd', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('tribadism_through_clothes', 'general'),
 ('bat_pasties', 'general'),
 ('mixed_martial_arts', 'general'),
@@ -18052,7 +18052,7 @@ VALUES ('tribadism_through_clothes', 'general'),
 ('stroking_beard', 'general'),
 ('checkered_footwear', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('rice_planting', 'general'),
 ('cyclone_(kamen_rider)', 'general'),
 ('mausoleum', 'general'),
@@ -18154,7 +18154,7 @@ VALUES ('rice_planting', 'general'),
 ('yellow_arm_warmers', 'general'),
 ('letter_pose', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('alternate_shiny_pokemon', 'general'),
 ('lum_berry', 'general'),
 ('seven_deadly_sins', 'general'),
@@ -18256,7 +18256,7 @@ VALUES ('alternate_shiny_pokemon', 'general'),
 ('star_bit', 'general'),
 ('umezu_kazuo_(style)', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('striped_ascot', 'general'),
 ('striped_vest', 'general'),
 ('book_stand', 'general'),
@@ -18358,7 +18358,7 @@ VALUES ('striped_ascot', 'general'),
 ('railway_gun', 'general'),
 ('schwerer_gustav', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('magpul', 'general'),
 ('red_cardigan', 'general'),
 ('hexagonal_eyewear', 'general'),
@@ -18460,7 +18460,7 @@ VALUES ('magpul', 'general'),
 ('wolf_paws', 'general'),
 ('blue_facial_hair', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('bakyu-n!!', 'general'),
 ('more_deban', 'general'),
 ('bug_hunting', 'general'),
@@ -18562,7 +18562,7 @@ VALUES ('bakyu-n!!', 'general'),
 ('track_uniform', 'general'),
 ('snake_head_tail', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('party_horn', 'general'),
 ('patterned_hair', 'general'),
 ('kawaii_boku_to_142''s_(idolmaster)', 'general'),
@@ -18664,7 +18664,7 @@ VALUES ('party_horn', 'general'),
 ('tengawara', 'general'),
 ('eating_contest', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('indonesian_text', 'general'),
 ('animal_on_weapon', 'general'),
 ('bird_on_weapon', 'general'),
@@ -18766,7 +18766,7 @@ VALUES ('indonesian_text', 'general'),
 ('karate', 'general'),
 ('feather_hair', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('panzerkampfwagen_38(t)', 'general'),
 ('steam_from_nose', 'general'),
 ('first_high_school_uniform', 'general'),
@@ -18868,7 +18868,7 @@ VALUES ('panzerkampfwagen_38(t)', 'general'),
 ('field_cap', 'general'),
 ('mole_on_neck', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('saunders_military_uniform', 'general'),
 ('kuromorimine_school_uniform', 'general'),
 ('kujo_jotaro''s_pose_(jojo)', 'general'),
@@ -18970,7 +18970,7 @@ VALUES ('saunders_military_uniform', 'general'),
 ('enter_enter_mission!', 'general'),
 ('telepathy', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('vine_whip', 'general'),
 ('chugging', 'general'),
 ('smirnoff_(vodka)', 'general'),
@@ -19072,7 +19072,7 @@ VALUES ('vine_whip', 'general'),
 ('kidokawa_seishuu', 'general'),
 ('hip_armor', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('liberator_(sao)', 'general'),
 ('long_sword', 'general'),
 ('bullet_time', 'general'),
@@ -19174,7 +19174,7 @@ VALUES ('liberator_(sao)', 'general'),
 ('dots', 'general'),
 ('sherman_firefly', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('shirt_over_head', 'general'),
 ('utx_school_uniform', 'general'),
 ('hokora_(shrine)', 'general'),
@@ -19276,7 +19276,7 @@ VALUES ('shirt_over_head', 'general'),
 ('tap_out', 'general'),
 ('back_hair', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('whirlwind', 'general'),
 ('kiosk', 'general'),
 ('wedding_cake_cutting', 'general'),
@@ -19378,7 +19378,7 @@ VALUES ('whirlwind', 'general'),
 ('brand_of_the_exalt', 'general'),
 ('panda_slippers', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('half-harpy', 'general'),
 ('body_control', 'general'),
 ('green_light', 'general'),
@@ -19480,7 +19480,7 @@ VALUES ('half-harpy', 'general'),
 ('face_of_the_people_who_sank_all_their_money_into_the_fx_(meme)', 'general'),
 ('pink_slingshot_swimsuit', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('arle_nadja_(cosplay)', 'general'),
 ('brownie_(food)', 'general'),
 ('tail_pussy', 'general'),
@@ -19582,7 +19582,7 @@ VALUES ('arle_nadja_(cosplay)', 'general'),
 ('usuzan_school_uniform', 'general'),
 ('uav', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('sangheili', 'general'),
 ('type-1_energy_sword', 'general'),
 ('shirt_under_sweater', 'general'),
@@ -19684,7 +19684,7 @@ VALUES ('sangheili', 'general'),
 ('storage_room', 'general'),
 ('flag_pistol', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('horseshoe_ornament', 'general'),
 ('toy_horse', 'general'),
 ('ashitaka_(cosplay)', 'general'),
@@ -19786,7 +19786,7 @@ VALUES ('horseshoe_ornament', 'general'),
 ('komatsuzaki_rui_(style)', 'general'),
 ('recoil', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('glowing_snowflake', 'general'),
 ('gungnir_(toaru)', 'general'),
 ('station', 'general'),
@@ -19888,7 +19888,7 @@ VALUES ('glowing_snowflake', 'general'),
 ('orange_gemstone', 'general'),
 ('terminator_armor', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('sleevejob', 'general'),
 ('monster_truck', 'general'),
 ('multiple_necklaces', 'general'),
@@ -19990,7 +19990,7 @@ VALUES ('sleevejob', 'general'),
 ('cynthia_(pokemon)_(cosplay)', 'general'),
 ('instruction_manual', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('torn_coat', 'general'),
 ('noodle_strainer', 'general'),
 ('strainer', 'general'),
@@ -20092,7 +20092,7 @@ VALUES ('torn_coat', 'general'),
 ('blanket_cape', 'general'),
 ('virgin_killer_outfit', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('christmas_sweater', 'general'),
 ('heart_bubbles', 'general'),
 ('golden_egg', 'general'),
@@ -20194,7 +20194,7 @@ VALUES ('christmas_sweater', 'general'),
 ('eggplant_costume', 'general'),
 ('mount_fuji_costume', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('year_of_the_horse', 'general'),
 ('carro_veloce_cv-33', 'general'),
 ('zebra_ears', 'general'),
@@ -20296,7 +20296,7 @@ VALUES ('year_of_the_horse', 'general'),
 ('toilet_paper_tube', 'general'),
 ('haki', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('torture_instruments', 'general'),
 ('great_knife', 'general'),
 ('takao_(cruiser)', 'general'),
@@ -20398,7 +20398,7 @@ VALUES ('torture_instruments', 'general'),
 ('whoop_catsuit', 'general'),
 ('chikuma_mask', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('footjob_from_behind', 'general'),
 ('pedal', 'general'),
 ('holding_ofuda', 'general'),
@@ -20500,7 +20500,7 @@ VALUES ('footjob_from_behind', 'general'),
 ('mihama_junior_high_school_uniform', 'general'),
 ('sea_slug', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('unzipping_with_mouth', 'general'),
 ('shark_girl', 'general'),
 ('nine_of_diamonds', 'general'),
@@ -20602,7 +20602,7 @@ VALUES ('unzipping_with_mouth', 'general'),
 ('marie_rose_(cosplay)', 'general'),
 ('peephole', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('seaport_princess_(cosplay)', 'general'),
 ('flower_in_eye', 'general'),
 ('kotori_photobomb', 'general'),
@@ -20704,7 +20704,7 @@ VALUES ('seaport_princess_(cosplay)', 'general'),
 ('bismarck_(battleship)', 'general'),
 ('truss', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('dunk_tank', 'general'),
 ('fake_video', 'general'),
 ('store_room', 'general'),
@@ -20806,7 +20806,7 @@ VALUES ('dunk_tank', 'general'),
 ('battle_of_midway', 'general'),
 ('impossible_armor', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('red_leg_warmers', 'general'),
 ('mountain_climbing', 'general'),
 ('international_precure', 'general'),
@@ -20908,7 +20908,7 @@ VALUES ('red_leg_warmers', 'general'),
 ('tickling_navel', 'general'),
 ('white_garter', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('god_tier_(homestuck)', 'general'),
 ('thunder', 'general'),
 ('chupacabra', 'general'),
@@ -21010,7 +21010,7 @@ VALUES ('god_tier_(homestuck)', 'general'),
 ('type_99_light_machine_gun', 'general'),
 ('backhand', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('cutlery', 'general'),
 ('diner', 'general'),
 ('mustard_bottle', 'general'),
@@ -21112,7 +21112,7 @@ VALUES ('cutlery', 'general'),
 ('malaysia', 'general'),
 ('wolf_mask', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('cutting_onions', 'general'),
 ('gore_magala_(armor)', 'general'),
 ('charge_blade', 'general'),
@@ -21214,7 +21214,7 @@ VALUES ('cutting_onions', 'general'),
 ('striped_underwear', 'general'),
 ('yukadon', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('leopon_(animal)', 'general'),
 ('marth_(fire_emblem)_(cosplay)', 'general'),
 ('newhalf_with_newhalf', 'general'),
@@ -21316,7 +21316,7 @@ VALUES ('leopon_(animal)', 'general'),
 ('welding', 'general'),
 ('amphibious_ground_vehicle', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('chari_de_kita_(meme)', 'general'),
 ('mark_iv_tank', 'general'),
 ('sand_on_skin', 'general'),
@@ -21418,7 +21418,7 @@ VALUES ('chari_de_kita_(meme)', 'general'),
 ('defibrillator', 'general'),
 ('non-circular_lens_flare', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('study_(room)', 'general'),
 ('oversized_insect', 'general'),
 ('elphelt_valentine_(cosplay)', 'general'),
@@ -21520,7 +21520,7 @@ VALUES ('study_(room)', 'general'),
 ('breast_crush', 'general'),
 ('baymax_(cosplay)', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('skull-shaped_hat', 'general'),
 ('mas-38', 'general'),
 ('rabbit_on_shoulder', 'general'),
@@ -21622,7 +21622,7 @@ VALUES ('skull-shaped_hat', 'general'),
 ('arashigaoka_academy_school_uniform', 'general'),
 ('olive_wreath', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('ueda_masashi_(style)', 'general'),
 ('dildo_reveal', 'general'),
 ('katori_(kancolle)_(cosplay)', 'general'),
@@ -21724,7 +21724,7 @@ VALUES ('ueda_masashi_(style)', 'general'),
 ('hamster_on_shoulder', 'general'),
 ('cocoa_bean', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('airplane_ornament', 'general'),
 ('loincloth_lift', 'general'),
 ('backless_swimsuit', 'general'),
@@ -21826,7 +21826,7 @@ VALUES ('airplane_ornament', 'general'),
 ('dalmatian', 'general'),
 ('pentagram_hair_ornament', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('see-through_veil', 'general'),
 ('hole_in_chest', 'general'),
 ('ak-12', 'general'),
@@ -21928,7 +21928,7 @@ VALUES ('see-through_veil', 'general'),
 ('nuclear_powerplant', 'general'),
 ('burst_bomb_(splatoon)', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('quiet_(metal_gear)_(cosplay)', 'general'),
 ('splat_bomb_(splatoon)', 'general'),
 ('venom_snake_(cosplay)', 'general'),
@@ -22030,7 +22030,7 @@ VALUES ('quiet_(metal_gear)_(cosplay)', 'general'),
 ('yellow_bloomers', 'general'),
 ('isuzu_motors', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('gingham_legwear', 'general'),
 ('journal', 'general'),
 ('slurping', 'general'),
@@ -22132,7 +22132,7 @@ VALUES ('gingham_legwear', 'general'),
 ('unplugged', 'general'),
 ('gullwing_doors', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('mp18', 'general'),
 ('fourth_of_july', 'general'),
 ('breeches', 'general'),
@@ -22234,7 +22234,7 @@ VALUES ('mp18', 'general'),
 ('hat_theft', 'general'),
 ('sks', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('animate_object', 'general'),
 ('hallucination', 'general'),
 ('multicolor-tinted_eyewear', 'general'),
@@ -22336,7 +22336,7 @@ VALUES ('animate_object', 'general'),
 ('starry_sky_bright_(idolmaster)', 'general'),
 ('realdoll', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('high-waist_sideboob', 'general'),
 ('pov_adoring', 'general'),
 ('strawbell_bell', 'general'),
@@ -22438,7 +22438,7 @@ VALUES ('high-waist_sideboob', 'general'),
 ('toilet_seat', 'general'),
 ('aluminum_bat', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('stuffed_squid', 'general'),
 ('matsu_symbol', 'general'),
 ('sextuplets', 'general'),
@@ -22540,7 +22540,7 @@ VALUES ('stuffed_squid', 'general'),
 ('arm_snake', 'general'),
 ('sawada_yukio_(style)', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('scribble_censor', 'general'),
 ('stellated_octahedron', 'general'),
 ('robot_dragon', 'general'),
@@ -22642,7 +22642,7 @@ VALUES ('scribble_censor', 'general'),
 ('particle_cannon_case', 'general'),
 ('snowman_print', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('knights_(ensemble_stars!)', 'general'),
 ('elbow_gauntlets', 'general'),
 ('mascot_costume', 'general'),
@@ -22744,7 +22744,7 @@ VALUES ('knights_(ensemble_stars!)', 'general'),
 ('atlas_academy_school_uniform', 'general'),
 ('vertical-striped_scarf', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('wooden_bowl', 'general'),
 ('dusting', 'general'),
 ('cushion_grab', 'general'),
@@ -22846,7 +22846,7 @@ VALUES ('wooden_bowl', 'general'),
 ('tying_panties', 'general'),
 ('himitsucalibur_(fate)', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('six_shame_faces', 'general'),
 ('against_vehicle', 'general'),
 ('stargazy_pie', 'general'),
@@ -22948,7 +22948,7 @@ VALUES ('six_shame_faces', 'general'),
 ('orangette', 'general'),
 ('skeleton_print', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('wiping_hands', 'general'),
 ('yellow_scales', 'general'),
 ('eyecon', 'general'),
@@ -23050,7 +23050,7 @@ VALUES ('wiping_hands', 'general'),
 ('leaf_skirt', 'general'),
 ('surfacing', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('polka_dot_curtains', 'general'),
 ('okita_souji_(koha-ace)_(cosplay)', 'general'),
 ('bullfighting', 'general'),
@@ -23152,7 +23152,7 @@ VALUES ('polka_dot_curtains', 'general'),
 ('gat_(hat)', 'general'),
 ('korean_traditional_hat', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('sandstorm', 'general'),
 ('contest_winner', 'general'),
 ('fujimaru_ritsuka_(female)_(cosplay)', 'general'),
@@ -23254,7 +23254,7 @@ VALUES ('sandstorm', 'general'),
 ('bubble_tea', 'general'),
 ('glove_spread', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('selene_(pokemon)_(cosplay)', 'general'),
 ('naan_bread', 'general'),
 ('individuals_(idolmaster)', 'general'),
@@ -23356,7 +23356,7 @@ VALUES ('selene_(pokemon)_(cosplay)', 'general'),
 ('oyashio_(kancolle)_(cosplay)', 'general'),
 ('peppermint', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('gladiolus', 'general'),
 ('genki_zenkai_day!_day!_day!', 'general'),
 ('torikoriko_please!!', 'general'),
@@ -23458,7 +23458,7 @@ VALUES ('gladiolus', 'general'),
 ('slut_shirt', 'general'),
 ('skirt_rolled_up', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('lelouch_vi_britannia_(cosplay)', 'general'),
 ('flandre_day', 'general'),
 ('yokohama_landmark_tower', 'general'),
@@ -23560,7 +23560,7 @@ VALUES ('lelouch_vi_britannia_(cosplay)', 'general'),
 ('team_instinct', 'general'),
 ('h&k_g41', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('imi_negev', 'general'),
 ('noble_phantasm_(fate)', 'general'),
 ('daisuki_dattara_daijoubu!', 'general'),
@@ -23662,7 +23662,7 @@ VALUES ('imi_negev', 'general'),
 ('spy', 'general'),
 ('yellow_slingshot_swimsuit', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('paintbrush_hair_ornament', 'general'),
 ('asymmetrical_ears', 'general'),
 ('hoshinomiya_girls''_high_school_uniform', 'general'),
@@ -23764,7 +23764,7 @@ VALUES ('paintbrush_hair_ornament', 'general'),
 ('chain_gun', 'general'),
 ('mirai_ticket', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('m240', 'general'),
 ('brown_sports_bra', 'general'),
 ('barricade', 'general'),
@@ -23866,7 +23866,7 @@ VALUES ('m240', 'general'),
 ('one_way_sign', 'general'),
 ('pocketbook', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('directional_arrow_hair_ornament', 'general'),
 ('gumroad_username', 'general'),
 ('pelisse', 'general'),
@@ -23968,7 +23968,7 @@ VALUES ('directional_arrow_hair_ornament', 'general'),
 ('grassy', 'general'),
 ('chauchat', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('malasada', 'general'),
 ('holding_holly', 'general'),
 ('may_(guilty_gear)_(cosplay)', 'general'),
@@ -24070,7 +24070,7 @@ VALUES ('malasada', 'general'),
 ('parchment', 'general'),
 ('diamond_ring', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('shared_hat', 'general'),
 ('cross_background', 'general'),
 ('happy_holidays', 'general'),
@@ -24172,7 +24172,7 @@ VALUES ('shared_hat', 'general'),
 ('sports_sandals', 'general'),
 ('tomorrow_(konosuba)', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('sea_bream', 'general'),
 ('hanasakigawa_school_uniform', 'general'),
 ('bowser_logo', 'general'),
@@ -24274,7 +24274,7 @@ VALUES ('sea_bream', 'general'),
 ('alpaca_tail', 'general'),
 ('plaid_cape', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('lgbt_pride', 'general'),
 ('reversible_couple', 'general'),
 ('sieglinde_(sword)', 'general'),
@@ -24376,7 +24376,7 @@ VALUES ('lgbt_pride', 'general'),
 ('gazelle_horns', 'general'),
 ('pangolin_ears', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('pangolin_tail', 'general'),
 ('possum_ears', 'general'),
 ('possum_tail', 'general'),
@@ -24478,7 +24478,7 @@ VALUES ('pangolin_tail', 'general'),
 ('alternate_vehicle', 'general'),
 ('quiche', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('waist_sash', 'general'),
 ('haneoka_school_uniform', 'general'),
 ('internet_cafe', 'general'),
@@ -24580,7 +24580,7 @@ VALUES ('waist_sash', 'general'),
 ('esp_guitars', 'general'),
 ('gradient_footwear', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('purple_tulip', 'general'),
 ('yiga_clan', 'general'),
 ('reverse_bunnysuit', 'general'),
@@ -24682,7 +24682,7 @@ VALUES ('purple_tulip', 'general'),
 ('ghost_driver', 'general'),
 ('axolotl_girl', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('nijigasaki_school_uniform', 'general'),
 ('ichigo_field_high_school_uniform', 'general'),
 ('kizuna_ai_(cosplay)', 'general'),
@@ -24784,7 +24784,7 @@ VALUES ('nijigasaki_school_uniform', 'general'),
 ('lace_collar', 'general'),
 ('antique_cannon', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('sagisawa_fumika_(cosplay)', 'general'),
 ('purple_armband', 'general'),
 ('how_to_talk_to_short_people_(meme)', 'general'),
@@ -24886,7 +24886,7 @@ VALUES ('sagisawa_fumika_(cosplay)', 'general'),
 ('barbarian', 'general'),
 ('waistband', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('polka_dot_hair', 'general'),
 ('core_(girls''_frontline)', 'general'),
 ('holding_spork', 'general'),
@@ -24988,7 +24988,7 @@ VALUES ('polka_dot_hair', 'general'),
 ('eyebrows_visible_through_headband', 'general'),
 ('stuffed_winged_unicorn', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('hk416_(girls''_frontline)_(cosplay)', 'general'),
 ('seanwich_(splatoon)', 'general'),
 ('quicksand', 'general'),
@@ -25090,7 +25090,7 @@ VALUES ('hk416_(girls''_frontline)_(cosplay)', 'general'),
 ('top!_clover_(idolmaster)', 'general'),
 ('iron_blood_(emblem)', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('too_many_bows', 'general'),
 ('striped_overalls', 'general'),
 ('basketball_jersey', 'general'),
@@ -25192,7 +25192,7 @@ VALUES ('too_many_bows', 'general'),
 ('animal_crossing_(style)', 'general'),
 ('honda_nsx', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('hollow_mask', 'general'),
 ('crystal_hair', 'general'),
 ('purple_hood', 'general'),
@@ -25294,7 +25294,7 @@ VALUES ('hollow_mask', 'general'),
 ('minimap', 'general'),
 ('solid_eye', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('no_bodysuit', 'general'),
 ('forceps', 'general'),
 ('aqua_outline', 'general'),
@@ -25396,7 +25396,7 @@ VALUES ('no_bodysuit', 'general'),
 ('shiny_forehead', 'general'),
 ('vertical-striped_bow', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('mole_on_armpit', 'general'),
 ('nekomancer_(granblue_fantasy)_(cosplay)', 'general'),
 ('arm_behind_leg', 'general'),
@@ -25498,7 +25498,7 @@ VALUES ('mole_on_armpit', 'general'),
 ('goggles_around_arm', 'general'),
 ('shima_rin_(cosplay)', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('silver_wings', 'general'),
 ('three-toned_background', 'general'),
 ('gold_horns', 'general'),
@@ -25600,7 +25600,7 @@ VALUES ('silver_wings', 'general'),
 ('animal_name', 'general'),
 ('arctic_fox', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('yellow_fire', 'general'),
 ('yellow_bandeau', 'general'),
 ('holding_scale', 'general'),
@@ -25702,7 +25702,7 @@ VALUES ('yellow_fire', 'general'),
 ('disguised_pyra_(xenoblade)', 'general'),
 ('plastic_skin', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('single_epaulette', 'general'),
 ('camping_chair', 'general'),
 ('fingers_on_another''s_face', 'general'),
@@ -25804,7 +25804,7 @@ VALUES ('single_epaulette', 'general'),
 ('mercedes-benz_g-class', 'general'),
 ('leather_bag', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('samuel_b._roberts_(kancolle)_(cosplay)', 'general'),
 ('yellow_shawl', 'general'),
 ('d''orsay_heels', 'general'),
@@ -25906,7 +25906,7 @@ VALUES ('samuel_b._roberts_(kancolle)_(cosplay)', 'general'),
 ('meccha_going!!', 'general'),
 ('pointillism', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('cbj-ms', 'general'),
 ('french_army', 'general'),
 ('is_this_a_pigeon_(meme)', 'general'),
@@ -26008,7 +26008,7 @@ VALUES ('cbj-ms', 'general'),
 ('peru', 'general'),
 ('holding_trophy', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('holding_leotard', 'general'),
 ('leotard_removed', 'general'),
 ('upside-down_bikini_top', 'general'),
@@ -26110,7 +26110,7 @@ VALUES ('holding_leotard', 'general'),
 ('mysterious_heroine_xx_(fate)_(cosplay)', 'general'),
 ('camel_girl', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('red_blood_cell_(hataraku_saibou)_(cosplay)', 'general'),
 ('holding_coffee_pot', 'general'),
 ('gaiwan', 'general'),
@@ -26212,7 +26212,7 @@ VALUES ('red_blood_cell_(hataraku_saibou)_(cosplay)', 'general'),
 ('bowsette_(cosplay)', 'general'),
 ('waist_jewel', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('rocker-chic', 'general'),
 ('leather_wrist_straps', 'general'),
 ('thick_mustache', 'general'),
@@ -26314,7 +26314,7 @@ VALUES ('rocker-chic', 'general'),
 ('cone_(geometry)', 'general'),
 ('latex_top', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('takaya_noriko_(cosplay)', 'general'),
 ('acceptor', 'general'),
 ('artoria_pendragon_(lancer_alter)_(royal_icing)_(fate)_(cosplay)', 'general'),
@@ -26416,7 +26416,7 @@ VALUES ('takaya_noriko_(cosplay)', 'general'),
 ('crown_print', 'general'),
 ('open_hat', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('burger_hair_ornament', 'general'),
 ('shooting_star_(symbol)', 'general'),
 ('zabaniya_(fate)', 'general'),
@@ -26518,7 +26518,7 @@ VALUES ('burger_hair_ornament', 'general'),
 ('blue_leg_warmers', 'general'),
 ('h-3_nozzlenose_(splatoon)', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('hat_bobbles', 'general'),
 ('terada_tera_(style)', 'general'),
 ('silver_one-piece_swimsuit', 'general'),
@@ -26620,7 +26620,7 @@ VALUES ('hat_bobbles', 'general'),
 ('glove_cutout', 'general'),
 ('center_axis_relock_stance', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('imminent_kick', 'general'),
 ('kirarigaoka_middle_school_uniform', 'general'),
 ('finger_tattoo', 'general'),
@@ -26722,7 +26722,7 @@ VALUES ('imminent_kick', 'general'),
 ('upswept_hair', 'general'),
 ('kama_(fate)_(cosplay)', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('blue_leaf', 'general'),
 ('fluffed_up', 'general'),
 ('translucent_horns', 'general'),
@@ -26824,7 +26824,7 @@ VALUES ('blue_leaf', 'general'),
 ('herbarium', 'general'),
 ('padded_armor', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('lacus_clyne_(cosplay)', 'general'),
 ('mismatched_animal_ear_colors', 'general'),
 ('nipple_weights', 'general'),
@@ -26926,7 +26926,7 @@ VALUES ('lacus_clyne_(cosplay)', 'general'),
 ('sasebo', 'general'),
 ('elephant_hat', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('mad_burnish', 'general'),
 ('lass_(pokemon)_(cosplay)', 'general'),
 ('core_medal', 'general'),
@@ -27028,7 +27028,7 @@ VALUES ('mad_burnish', 'general'),
 ('ankle_rope', 'general'),
 ('pop_art', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('darkin_(league_of_legends)', 'general'),
 ('dark_sakura_(cosplay)', 'general'),
 ('musical_note_background', 'general'),
@@ -27130,7 +27130,7 @@ VALUES ('darkin_(league_of_legends)', 'general'),
 ('mario_hat', 'general'),
 ('chest_tuft', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('lemur_girl', 'general'),
 ('saab_gripen', 'general'),
 ('svenska_flygvapnet', 'general'),
@@ -27232,7 +27232,7 @@ VALUES ('lemur_girl', 'general'),
 ('armored_bodysuit', 'general'),
 ('ring-con', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('leaf_bracelet', 'general'),
 ('luin_(fire_emblem)', 'general'),
 ('sailor_moon_redraw_challenge_(meme)', 'general'),
@@ -27334,7 +27334,7 @@ VALUES ('leaf_bracelet', 'general'),
 ('raihan_(pokemon)_(cosplay)', 'general'),
 ('leon_(pokemon)_(cosplay)', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('atlanta_(kancolle)_(cosplay)', 'general'),
 ('purple_bridal_gauntlets', 'general'),
 ('morpeko_(cosplay)', 'general'),
@@ -27436,7 +27436,7 @@ VALUES ('atlanta_(kancolle)_(cosplay)', 'general'),
 ('rhine_lab_logo', 'general'),
 ('face_powder', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('star_color_pendant', 'general'),
 ('h&k_hk433', 'general'),
 ('abyssal_hunters_logo', 'general'),
@@ -27538,7 +27538,7 @@ VALUES ('star_color_pendant', 'general'),
 ('cable-stayed_bridge', 'general'),
 ('tsukinomori_school_uniform', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('tortoiseshell-framed_eyewear', 'general'),
 ('takemoto_izumi_(style)', 'general'),
 ('roasted_marshmallow', 'general'),
@@ -27640,7 +27640,7 @@ VALUES ('tortoiseshell-framed_eyewear', 'general'),
 ('jacket_over_hoodie', 'general'),
 ('bamboo_spear', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('riding_bear', 'general'),
 ('side_up_bun', 'general'),
 ('plasma_rifle', 'general'),
@@ -27742,7 +27742,7 @@ VALUES ('riding_bear', 'general'),
 ('microphone_cord', 'general'),
 ('necktie_aside', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('lucifer_(helltaker)_(cosplay)', 'general'),
 ('butterfly_doors', 'general'),
 ('cowl_neck', 'general'),
@@ -27844,7 +27844,7 @@ VALUES ('lucifer_(helltaker)_(cosplay)', 'general'),
 ('thurible', 'general'),
 ('yubi_yubi_(inugami_korone)', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('anata_no_risou_no_heroine', 'general'),
 ('starpoint_lance_(fire_emblem)', 'general'),
 ('arowana', 'general'),
@@ -27946,7 +27946,7 @@ VALUES ('anata_no_risou_no_heroine', 'general'),
 ('living_doll_uniform', 'general'),
 ('shadow_(shadows_house)', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('cheshire_(azur_lane)_(cosplay)', 'general'),
 ('kingdom_of_victoria_logo', 'general'),
 ('angewomon_(cosplay)', 'general'),
@@ -28048,7 +28048,7 @@ VALUES ('cheshire_(azur_lane)_(cosplay)', 'general'),
 ('double-parted_hair', 'general'),
 ('mole_on_leg', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('havoc_energy_rifle', 'general'),
 ('octane_(apex_legends)_(cosplay)', 'general'),
 ('kyahan', 'general'),
@@ -28150,7 +28150,7 @@ VALUES ('havoc_energy_rifle', 'general'),
 ('the_skeld', 'general'),
 ('white_(among_us)_(cosplay)', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('orange_star_high_school', 'general'),
 ('lauren_phillips_lifting_alice_merchesi_(meme)', 'general'),
 ('two-tone_one-piece_swimsuit', 'general'),
@@ -28252,7 +28252,7 @@ VALUES ('orange_star_high_school', 'general'),
 ('statue_of_the_seven_(cosplay)', 'general'),
 ('bird_earrings', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('heart_hairband', 'general'),
 ('hoshimi_private_high_school_uniform', 'general'),
 ('decoden', 'general'),
@@ -28354,7 +28354,7 @@ VALUES ('heart_hairband', 'general'),
 ('cow_hat', 'general'),
 ('alternator', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('score', 'general'),
 ('multicolored_squares_background', 'general'),
 ('brown_poncho', 'general'),
@@ -28456,7 +28456,7 @@ VALUES ('score', 'general'),
 ('plaid_male_underwear', 'general'),
 ('plateau', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('kris_(weapon)', 'general'),
 ('amos''_bow_(genshin_impact)', 'general'),
 ('watermelon_innertube', 'general'),
@@ -28558,7 +28558,7 @@ VALUES ('kris_(weapon)', 'general'),
 ('massage_table', 'general'),
 ('monobloc_(chair)', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('vergil''s_chair_(meme)', 'general'),
 ('see-through_bridal_gauntlets', 'general'),
 ('gold_jacket', 'general'),
@@ -28660,7 +28660,7 @@ VALUES ('vergil''s_chair_(meme)', 'general'),
 ('blackberry_hair_ornament', 'general'),
 ('polka_dot_socks', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('smelly_pussy', 'general'),
 ('long_belt', 'general'),
 ('fragile_symbol', 'general'),
@@ -28762,7 +28762,7 @@ VALUES ('smelly_pussy', 'general'),
 ('trade_offer_(meme)', 'general'),
 ('oil_can', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('tactical_playboy_bunny', 'general'),
 ('ballista', 'general'),
 ('no_horny_(meme)', 'general'),
@@ -28864,7 +28864,7 @@ VALUES ('tactical_playboy_bunny', 'general'),
 ('star_guardian_pet', 'general'),
 ('lazulight', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('too_many_hands', 'general'),
 ('fibonacci_sequence', 'general'),
 ('la_chancla', 'general'),
@@ -28966,7 +28966,7 @@ VALUES ('too_many_hands', 'general'),
 ('hand_towel', 'general'),
 ('servants_holding_aphrodite''s_breasts_(meme)', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('black_hanfu', 'general'),
 ('transgender_flag', 'general'),
 ('valz', 'general'),
@@ -29068,7 +29068,7 @@ VALUES ('black_hanfu', 'general'),
 ('koharu_(blue_archive)_(cosplay)', 'general'),
 ('tiny_stars', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('hokkaidoben', 'general'),
 ('holding_shuriken', 'general'),
 ('nervous_tama-chan_pose', 'general'),
@@ -29170,7 +29170,7 @@ VALUES ('hokkaidoben', 'general'),
 ('mini_chef_hat', 'general'),
 ('aramis_high_school_uniform', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('naku_weed', 'general'),
 ('alcohol_carton', 'general'),
 ('snow_on_headwear', 'general'),
@@ -29272,7 +29272,7 @@ VALUES ('naku_weed', 'general'),
 ('dango_milk_(genshin_impact)', 'general'),
 ('body_cam', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('umamusume_tanuki', 'general'),
 ('nissan_z_(rz34)', 'general'),
 ('see-through_necktie', 'general'),
@@ -29374,7 +29374,7 @@ VALUES ('umamusume_tanuki', 'general'),
 ('happy_spa', 'general'),
 ('mixed_horns', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('bicep_strap', 'general'),
 ('broken_bridge', 'general'),
 ('character_cookie', 'general'),
@@ -29476,7 +29476,7 @@ VALUES ('bicep_strap', 'general'),
 ('holding_net', 'general'),
 ('ukrainian_clothes', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('vyshyvanka', 'general'),
 ('greek_armor', 'general'),
 ('linothorax', 'general'),
@@ -29578,7 +29578,7 @@ VALUES ('vyshyvanka', 'general'),
 ('starlight_prologue', 'general'),
 ('multiple_forms', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('new_stars_rose_(umamusume)', 'general'),
 ('disembodied_finger', 'general'),
 ('shou_(symbol)', 'general'),
@@ -29680,7 +29680,7 @@ VALUES ('new_stars_rose_(umamusume)', 'general'),
 ('lucky_strike', 'general'),
 ('robin_(bird)', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('jeweled_hat', 'general'),
 ('looking_at_crotch', 'general'),
 ('black_knife_(elden_ring)', 'general'),
@@ -29782,7 +29782,7 @@ VALUES ('jeweled_hat', 'general'),
 ('primaris_space_marine', 'general'),
 ('crew_neck', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('clover-shaped_pupils', 'general'),
 ('sauber', 'general'),
 ('heart_halo', 'general'),
@@ -29884,7 +29884,7 @@ VALUES ('clover-shaped_pupils', 'general'),
 ('asexual_flag', 'general'),
 ('dendro_symbol_(genshin_impact)', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('star_piercing', 'general'),
 ('monkey_bars', 'general'),
 ('giffard_rex', 'general'),
@@ -29986,7 +29986,7 @@ VALUES ('star_piercing', 'general'),
 ('penguin_print', 'general'),
 ('husbant_(meme)', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('triangle_hands', 'general'),
 ('sakana~_(meme)', 'general'),
 ('kirishima_uniform', 'general'),
@@ -30088,7 +30088,7 @@ VALUES ('triangle_hands', 'general'),
 ('shuriken_print', 'general'),
 ('solemn_lament_(e.g.o)', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('green_stem_(e.g.o)', 'general'),
 ('butterfly_in_eye', 'general'),
 ('bruise_on_ass', 'general'),
@@ -30190,7 +30190,7 @@ VALUES ('green_stem_(e.g.o)', 'general'),
 ('wardress_(nikke)', 'general'),
 ('white_haori', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('nikke''s_shooting_pose_(meme)', 'general'),
 ('volkswagen_golf', 'general'),
 ('goslingposting_(meme)', 'general'),
@@ -30292,7 +30292,7 @@ VALUES ('nikke''s_shooting_pose_(meme)', 'general'),
 ('waving_hands', 'general'),
 ('pinstripe_ribbon', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('gehenna_academy_logo', 'general'),
 ('bandaid_on_chest', 'general'),
 ('fur-trimmed_jumpsuit', 'general'),
@@ -30394,7 +30394,7 @@ VALUES ('gehenna_academy_logo', 'general'),
 ('purple_stripes', 'general'),
 ('fuse_(zelda)', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('finger_claws', 'general'),
 ('standing_on_roof', 'general'),
 ('indigo_academy_school_uniform', 'general'),
@@ -30496,7 +30496,7 @@ VALUES ('finger_claws', 'general'),
 ('zekkyou!?_ookami_no_mori_e_youkoso!_(project_sekai)', 'general'),
 ('dice_necklace', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('winnie_the_pooh_reading_(meme)', 'general'),
 ('rainbow_hairband', 'general'),
 ('tonari_ni_tatsu_yasashii_anata_e_(project_sekai)', 'general'),
@@ -30598,7 +30598,7 @@ VALUES ('winnie_the_pooh_reading_(meme)', 'general'),
 ('heart_hands_over_eye', 'general'),
 ('kimberly_magic_academy_school_uniform', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('splendor_of_onyx_(umamusume)', 'general'),
 ('fishnet_cutout', 'general'),
 ('dressed_shadow_(meme)', 'general'),
@@ -30700,7 +30700,7 @@ VALUES ('splendor_of_onyx_(umamusume)', 'general'),
 ('rabbit_in_eyes', 'general'),
 ('grabbing_another''s_stomach', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('pink_light', 'general'),
 ('multicolored_eyeshadow', 'general'),
 ('holding_tool', 'general'),
@@ -30802,7 +30802,7 @@ VALUES ('pink_light', 'general'),
 ('purple_car', 'general'),
 ('notification', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('flushed_face_emoji', 'general'),
 ('flushed_face_emoji_shirt_(meme)', 'general'),
 ('green_headphones', 'general'),
@@ -30904,7 +30904,7 @@ VALUES ('flushed_face_emoji', 'general'),
 ('fur-trimmed_socks', 'general'),
 ('floating_liquid', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('single_feather', 'general'),
 ('heart_ornament', 'general'),
 ('brown_wrist_cuffs', 'general'),
@@ -31006,7 +31006,7 @@ VALUES ('single_feather', 'general'),
 ('marcille_breakdance_(meme)', 'general'),
 ('stitched_tail', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('bone_weapon', 'general'),
 ('soap_shoes', 'general'),
 ('cat_covering_ears_(meme)', 'general'),
@@ -31108,7 +31108,7 @@ VALUES ('bone_weapon', 'general'),
 ('fatui_logo', 'general'),
 ('silver_ring', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('glowing_fish', 'general'),
 ('flame_tattoo', 'general'),
 ('lightstick', 'general'),
@@ -31210,7 +31210,7 @@ VALUES ('glowing_fish', 'general'),
 ('mom_and_her_daughter_(meme)', 'general'),
 ('princess_rosa_costume', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('panzerbuchse_39', 'general'),
 ('wavy_sidelocks', 'general'),
 ('gyaru_w', 'general'),
@@ -31312,7 +31312,7 @@ VALUES ('panzerbuchse_39', 'general'),
 ('occhahoi', 'general'),
 ('shikairo_days', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('shikairo_days_dance_(meme)', 'general'),
 ('hug_invitation', 'general'),
 ('absolution_(genshin_impact)', 'general'),
@@ -31414,7 +31414,7 @@ VALUES ('shikairo_days_dance_(meme)', 'general'),
 ('bone_tail', 'general'),
 ('cross-laced_collar', 'general');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('very_long_mustache', 'general'),
 ('diamond_dust_(girls_band_cry)', 'general'),
 ('skin-covered_tail', 'general'),
@@ -31516,7 +31516,7 @@ VALUES ('very_long_mustache', 'general'),
 ('hasekura_rei', 'character'),
 ('shimazu_yoshino', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('milfeulle_sakuraba', 'character'),
 ('mint_blancmanche', 'character'),
 ('ranpha_franboise', 'character'),
@@ -31618,7 +31618,7 @@ VALUES ('milfeulle_sakuraba', 'character'),
 ('yumizuka_satsuki', 'character'),
 ('kinomoto_sakura', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('kinomoto_sakura_(magic_dream_costume)', 'character'),
 ('alice_(alice_in_wonderland)', 'character'),
 ('caterpillar_(alice_in_wonderland)', 'character'),
@@ -31720,7 +31720,7 @@ VALUES ('kinomoto_sakura_(magic_dream_costume)', 'character'),
 ('deis', 'character'),
 ('momo_(breath_of_fire)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('nina_(breath_of_fire_ii)', 'character'),
 ('nina_(breath_of_fire_iv)', 'character'),
 ('nina_(breath_of_fire_v)', 'character'),
@@ -31822,7 +31822,7 @@ VALUES ('nina_(breath_of_fire_ii)', 'character'),
 ('imari_kurumi', 'character'),
 ('saeki_kaori', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('shiraki_rika', 'character'),
 ('miyama_yuuna', 'character'),
 ('98-tan', 'character'),
@@ -31924,7 +31924,7 @@ VALUES ('shiraki_rika', 'character'),
 ('kedama_(touhou)', 'character'),
 ('luna_child', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('star_sapphire', 'character'),
 ('sunny_milk', 'character'),
 ('konpaku_youki', 'character'),
@@ -32026,7 +32026,7 @@ VALUES ('star_sapphire', 'character'),
 ('nakamura_ayamo', 'character'),
 ('assassin_(ragnarok_online)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('saegusa_miko', 'character'),
 ('yae_kaori', 'character'),
 ('aoyama_motoko', 'character'),
@@ -32128,7 +32128,7 @@ VALUES ('saegusa_miko', 'character'),
 ('player_character_(lineage)', 'character'),
 ('yamanaka_ino', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('3.1-tan', 'character'),
 ('saimon_tamaki', 'character'),
 ('yuzuhara_haruka', 'character'),
@@ -32230,7 +32230,7 @@ VALUES ('3.1-tan', 'character'),
 ('minase_iori', 'character'),
 ('miura_azusa', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('takatsuki_yayoi', 'character'),
 ('maya_fey', 'character'),
 ('cloud_strife', 'character'),
@@ -32332,7 +32332,7 @@ VALUES ('takatsuki_yayoi', 'character'),
 ('rakka_(haibane)', 'character'),
 ('dix-neuf', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('seo_akira', 'character'),
 ('hakubi_washuu', 'character'),
 ('masaki_aeka_jurai', 'character'),
@@ -32434,7 +32434,7 @@ VALUES ('seo_akira', 'character'),
 ('yanagisawa_naoko', 'character'),
 ('usa_mimi', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('exiled_warrior_leina', 'character'),
 ('leina_(queen''s_blade)', 'character'),
 ('aisaka_sayo', 'character'),
@@ -32536,7 +32536,7 @@ VALUES ('exiled_warrior_leina', 'character'),
 ('lyn_(fire_emblem)', 'character'),
 ('team_magma_grunt', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('chocolate_misu', 'character'),
 ('tira_misu', 'character'),
 ('alicia_testarossa', 'character'),
@@ -32638,7 +32638,7 @@ VALUES ('chocolate_misu', 'character'),
 ('koiwai_yotsuba', 'character'),
 ('ogata_rina', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('priecia', 'character'),
 ('amane_misa', 'character'),
 ('juliet_nao_zhang', 'character'),
@@ -32740,7 +32740,7 @@ VALUES ('priecia', 'character'),
 ('kotetsu_kiyone', 'character'),
 ('kurotsuchi_nemu', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('kusajishi_yachiru', 'character'),
 ('sarugaki_hiyori', 'character'),
 ('shiba_kuukaku', 'character'),
@@ -32842,7 +32842,7 @@ VALUES ('kusajishi_yachiru', 'character'),
 ('kero_(cardcaptor_sakura)', 'character'),
 ('hattifattener', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('moomintroll', 'character'),
 ('snufkin', 'character'),
 ('kirishima_mana', 'character'),
@@ -32944,7 +32944,7 @@ VALUES ('moomintroll', 'character'),
 ('asakura_yume', 'character'),
 ('tsukishima_koko', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('shirakawa_nanaka', 'character'),
 ('yuuhi_kurenai', 'character'),
 ('naruko_(naruto)', 'character'),
@@ -33046,7 +33046,7 @@ VALUES ('shirakawa_nanaka', 'character'),
 ('kobayakawa_miyuki', 'character'),
 ('tsujimoto_natsumi', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('fairy_leviathan_(mega_man)', 'character'),
 ('fighting_fefnir_(mega_man)', 'character'),
 ('hidden_phantom_(mega_man)', 'character'),
@@ -33148,7 +33148,7 @@ VALUES ('fairy_leviathan_(mega_man)', 'character'),
 ('zangief', 'character'),
 ('hanako_(disgaea)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('yukimaru_(disgaea)', 'character'),
 ('shidou_hikaru', 'character'),
 ('henrietta_de_tristain', 'character'),
@@ -33250,7 +33250,7 @@ VALUES ('yukimaru_(disgaea)', 'character'),
 ('mew_zakuro', 'character'),
 ('anna_williams', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('kiniro_(mushihime-sama)', 'character'),
 ('mamiina_(simoun)', 'character'),
 ('yun_(simoun)', 'character'),
@@ -33352,7 +33352,7 @@ VALUES ('kiniro_(mushihime-sama)', 'character'),
 ('gotou_yuuko', 'character'),
 ('jeane_(suikoden)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('luc_(suikoden)', 'character'),
 ('viki_(suikoden)', 'character'),
 ('arisaka_hatsune', 'character'),
@@ -33454,7 +33454,7 @@ VALUES ('luc_(suikoden)', 'character'),
 ('dolfini', 'character'),
 ('papel', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('kawamura_reo', 'character'),
 ('sawaguchi_mai', 'character'),
 ('eda_(black_lagoon)', 'character'),
@@ -33556,7 +33556,7 @@ VALUES ('kawamura_reo', 'character'),
 ('ryuubi_gentoku', 'character'),
 ('shokatsuryou_koumei', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('jeremiah_gottwald', 'character'),
 ('zero_(code_geass)', 'character'),
 ('jessie_(pokemon)', 'character'),
@@ -33658,7 +33658,7 @@ VALUES ('jeremiah_gottwald', 'character'),
 ('hyunkel', 'character'),
 ('princess_sapphire', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('kokoro_(doa)', 'character'),
 ('anna_(gekkou_no_carnevale)', 'character'),
 ('emiya_kiritsugu', 'character'),
@@ -33760,7 +33760,7 @@ VALUES ('kokoro_(doa)', 'character'),
 ('minazuki_kyouko', 'character'),
 ('isurugi_mio', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('yuuno_arashiko', 'character'),
 ('haramura_nodoka', 'character'),
 ('mario', 'character'),
@@ -33862,7 +33862,7 @@ VALUES ('yuuno_arashiko', 'character'),
 ('piplup', 'character'),
 ('shedinja', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('torchic', 'character'),
 ('aino_heart', 'character'),
 ('nekomusume', 'character'),
@@ -33964,7 +33964,7 @@ VALUES ('torchic', 'character'),
 ('quattro_(nanoha)', 'character'),
 ('sein_(nanoha)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('tre_(nanoha)', 'character'),
 ('kars_(jojo)', 'character'),
 ('wakame-chan', 'character'),
@@ -34066,7 +34066,7 @@ VALUES ('tre_(nanoha)', 'character'),
 ('cho_marisa', 'character'),
 ('arsene_lupin_iii', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('ishikawa_goemon_xiii', 'character'),
 ('jigen_daisuke', 'character'),
 ('zenigata_kouichi', 'character'),
@@ -34168,7 +34168,7 @@ VALUES ('ishikawa_goemon_xiii', 'character'),
 ('asou_natsumi', 'character'),
 ('kajiwara_sora', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('heroine_(dq4)', 'character'),
 ('pixiv-tan', 'character'),
 ('cattleya_(queen''s_blade)', 'character'),
@@ -34270,7 +34270,7 @@ VALUES ('heroine_(dq4)', 'character'),
 ('kaneda_shoutarou_(akira)', 'character'),
 ('fuyumine_naoto', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('melona_(queen''s_blade)', 'character'),
 ('protean_assassin_melona', 'character'),
 ('zangyaku-san', 'character'),
@@ -34372,7 +34372,7 @@ VALUES ('melona_(queen''s_blade)', 'character'),
 ('aoba_shigeru', 'character'),
 ('gargoyle_(nadia)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('grandis_granva', 'character'),
 ('ibuki_maya', 'character'),
 ('jean_roque_lartigue', 'character'),
@@ -34474,7 +34474,7 @@ VALUES ('grandis_granva', 'character'),
 ('watatsuki_no_yorihime', 'character'),
 ('malin_(kof)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('iori_junpei', 'character'),
 ('mochizuki_ryouji', 'character'),
 ('sanada_akihiko', 'character'),
@@ -34576,7 +34576,7 @@ VALUES ('iori_junpei', 'character'),
 ('doctor_magus', 'character'),
 ('gunner_2_(sekaiju)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('bardiche_(riot_zanber_stinger)_(nanoha)', 'character'),
 ('laura_rolla', 'character'),
 ('loran_cehack', 'character'),
@@ -34678,7 +34678,7 @@ VALUES ('bardiche_(riot_zanber_stinger)_(nanoha)', 'character'),
 ('straight_cougar', 'character'),
 ('luigi', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('xelloss', 'character'),
 ('zelgadiss_graywords', 'character'),
 ('dio_brando', 'character'),
@@ -34780,7 +34780,7 @@ VALUES ('xelloss', 'character'),
 ('mikado_ryouko', 'character'),
 ('princess_of_moonbrook', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('kati_mannequin', 'character'),
 ('patrick_colasour', 'character'),
 ('chiaki_(shigofumi)', 'character'),
@@ -34882,7 +34882,7 @@ VALUES ('kati_mannequin', 'character'),
 ('paku_paku', 'character'),
 ('mai_(dragon_ball)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('assassin_cross_(ragnarok_online)', 'character'),
 ('girl_with_a_blonde_braid_(tomoshibi_hidekazu)', 'character'),
 ('nora_arento', 'character'),
@@ -34984,7 +34984,7 @@ VALUES ('assassin_cross_(ragnarok_online)', 'character'),
 ('amatsuka_rikka', 'character'),
 ('midarezaki_kyouka', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('gallows_carradine', 'character'),
 ('jet_enduro', 'character'),
 ('virginia_maxwell', 'character'),
@@ -35086,7 +35086,7 @@ VALUES ('gallows_carradine', 'character'),
 ('yellow_devil_(mega_man)', 'character'),
 ('yamcha', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('linde_(fire_emblem)', 'character'),
 ('ishtar_(fire_emblem)', 'character'),
 ('larvitar', 'character'),
@@ -35188,7 +35188,7 @@ VALUES ('linde_(fire_emblem)', 'character'),
 ('tarma_roving', 'character'),
 ('obi-wan_kenobi', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('yoda', 'character'),
 ('amber_(darker_than_black)', 'character'),
 ('etopen', 'character'),
@@ -35290,7 +35290,7 @@ VALUES ('yoda', 'character'),
 ('pallette_(mega_man)', 'character'),
 ('meddy.exe_(mega_man)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('absol', 'character'),
 ('bugsy_(pokemon)', 'character'),
 ('paul_(pokemon)', 'character'),
@@ -35392,7 +35392,7 @@ VALUES ('absol', 'character'),
 ('raising_heart_(device_mode)_(1st)', 'character'),
 ('takamachi_nanoha_(movie_1st_mode)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('mr._satan', 'character'),
 ('gabumon', 'character'),
 ('gomamon', 'character'),
@@ -35494,7 +35494,7 @@ VALUES ('mr._satan', 'character'),
 ('nemesis_(resident_evil)', 'character'),
 ('date_wingfield_reiko', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('saeki_ai', 'character'),
 ('ingrid_(taimanin_murasaki)', 'character'),
 ('yatsu_murasaki', 'character'),
@@ -35596,7 +35596,7 @@ VALUES ('saeki_ai', 'character'),
 ('spy_(tf2)', 'character'),
 ('kusakabe_satsuki', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('achakura', 'character'),
 ('kimidori-san', 'character'),
 ('kitarou', 'character'),
@@ -35698,7 +35698,7 @@ VALUES ('achakura', 'character'),
 ('hirose_koichi', 'character'),
 ('kishibe_rohan', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('nijimura_okuyasu', 'character'),
 ('elena_(ff7)', 'character'),
 ('starmie', 'character'),
@@ -35800,7 +35800,7 @@ VALUES ('nijimura_okuyasu', 'character'),
 ('caim_(drag-on_dragoon)', 'character'),
 ('furiae', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('king_slime_(dragon_quest)', 'character'),
 ('bra_(dragon_ball)', 'character'),
 ('princess_wriggle', 'character'),
@@ -35902,7 +35902,7 @@ VALUES ('king_slime_(dragon_quest)', 'character'),
 ('swinub', 'character'),
 ('wobbuffet', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('miyaguchi_hiromi', 'character'),
 ('miyaguchi_kanna', 'character'),
 ('miyaguchi_kei', 'character'),
@@ -36004,7 +36004,7 @@ VALUES ('miyaguchi_hiromi', 'character'),
 ('unown_t', 'character'),
 ('unown_y', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('big_o_(mecha)', 'character'),
 ('galient', 'character'),
 ('tuxedo_kamen', 'character'),
@@ -36106,7 +36106,7 @@ VALUES ('big_o_(mecha)', 'character'),
 ('kushala_daora', 'character'),
 ('lunastra', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('anew_returner', 'character'),
 ('bring_stabity', 'character'),
 ('hilling_care', 'character'),
@@ -36208,7 +36208,7 @@ VALUES ('anew_returner', 'character'),
 ('garnet_(sumaga)', 'character'),
 ('squall_leonhart', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('margaret_(persona)', 'character'),
 ('izumo_akatsuki', 'character'),
 ('kihara_atsurou', 'character'),
@@ -36310,7 +36310,7 @@ VALUES ('margaret_(persona)', 'character'),
 ('croconaw', 'character'),
 ('delcatty', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('deoxys', 'character'),
 ('deoxys_(attack)', 'character'),
 ('dodrio', 'character'),
@@ -36412,7 +36412,7 @@ VALUES ('deoxys', 'character'),
 ('linoone', 'character'),
 ('lombre', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('loudred', 'character'),
 ('ludicolo', 'character'),
 ('lugia', 'character'),
@@ -36514,7 +36514,7 @@ VALUES ('loudred', 'character'),
 ('seaking', 'character'),
 ('sealeo', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('seedot', 'character'),
 ('seel', 'character'),
 ('sentret', 'character'),
@@ -36616,7 +36616,7 @@ VALUES ('seedot', 'character'),
 ('miyashita', 'character'),
 ('ryougi_mana', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('kunou_kodachi', 'character'),
 ('nanasaki_ai', 'character'),
 ('cirno-nee', 'character'),
@@ -36718,7 +36718,7 @@ VALUES ('kunou_kodachi', 'character'),
 ('kumoi_ichirin', 'character'),
 ('nazrin', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('tatara_kogasa', 'character'),
 ('unzan', 'character'),
 ('kyle_dunamis', 'character'),
@@ -36820,7 +36820,7 @@ VALUES ('tatara_kogasa', 'character'),
 ('remy_(elsword)', 'character'),
 ('gundam_gp-01_zephyranthes', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('lessar', 'character'),
 ('yulie_ahtreide', 'character'),
 ('hinako_(issho_ni_training)', 'character'),
@@ -36922,7 +36922,7 @@ VALUES ('lessar', 'character'),
 ('ach', 'character'),
 ('maochao', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('yda', 'character'),
 ('fei-yen', 'character'),
 ('pauline_(mario)', 'character'),
@@ -37024,7 +37024,7 @@ VALUES ('yda', 'character'),
 ('sheer_heart_attack', 'character'),
 ('wally_(where''s_wally)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('agate_crosner', 'character'),
 ('tita_russell', 'character'),
 ('baphomet_(monster_girl_encyclopedia)', 'character'),
@@ -37126,7 +37126,7 @@ VALUES ('agate_crosner', 'character'),
 ('miyu_edelfelt', 'character'),
 ('prisma_illya', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('fujiwara_no_mokou_(young)', 'character'),
 ('holstaur_(monster_girl_encyclopedia)', 'character'),
 ('large_mouse_(monster_girl_encyclopedia)', 'character'),
@@ -37228,7 +37228,7 @@ VALUES ('fujiwara_no_mokou_(young)', 'character'),
 ('sadi-chan', 'character'),
 ('dark_samus', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('predator_(character)', 'character'),
 ('onimiko', 'character'),
 ('kuroi_mato', 'character'),
@@ -37330,7 +37330,7 @@ VALUES ('predator_(character)', 'character'),
 ('suzuki_ayane', 'character'),
 ('ben_tennyson', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('genetic_(ragnarok_online)', 'character'),
 ('iron_tager', 'character'),
 ('nago', 'character'),
@@ -37432,7 +37432,7 @@ VALUES ('genetic_(ragnarok_online)', 'character'),
 ('chibitalia_(hetalia)', 'character'),
 ('achi_cirno', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('tatara_kogasa_(umbrella)', 'character'),
 ('suou_pavlichenko', 'character'),
 ('7-tan', 'character'),
@@ -37534,7 +37534,7 @@ VALUES ('tatara_kogasa_(umbrella)', 'character'),
 ('kiryuu_moeka', 'character'),
 ('okabe_rintarou', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('tennouji_nae', 'character'),
 ('urushibara_ruka', 'character'),
 ('hyuuga_hanabi', 'character'),
@@ -37636,7 +37636,7 @@ VALUES ('tennouji_nae', 'character'),
 ('rabite_(seiken_densetsu)', 'character'),
 ('bruno_(pokemon)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('awatsuki_maaya', 'character'),
 ('wannai_kinuho', 'character'),
 ('wolverine_(x-men)', 'character'),
@@ -37738,7 +37738,7 @@ VALUES ('awatsuki_maaya', 'character'),
 ('heiwajima_shizuo', 'character'),
 ('kadota_kyouhei', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('kida_masaomi', 'character'),
 ('kishitani_shinra', 'character'),
 ('orihara_izaya', 'character'),
@@ -37840,7 +37840,7 @@ VALUES ('kida_masaomi', 'character'),
 ('sophie_(howl_no_ugoku_shiro)', 'character'),
 ('tombo_(majo_no_takkyuubin)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('kamen_rider_accel', 'character'),
 ('hassan_(dq6)', 'character'),
 ('hero_(dq6)', 'character'),
@@ -37942,7 +37942,7 @@ VALUES ('kamen_rider_accel', 'character'),
 ('hakan', 'character'),
 ('jack_sparrow', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('tachibana_himeko', 'character'),
 ('yuuki_terumi', 'character'),
 ('vinegar_doppio', 'character'),
@@ -38044,7 +38044,7 @@ VALUES ('tachibana_himeko', 'character'),
 ('kanno_naoe', 'character'),
 ('waltrud_krupinski', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('monk_4_(sekaiju)', 'character'),
 ('roselia_(pokemon)', 'character'),
 ('grand_archer_(elsword)', 'character'),
@@ -38146,7 +38146,7 @@ VALUES ('monk_4_(sekaiju)', 'character'),
 ('ushiromiya_lion', 'character'),
 ('willard_h._wright', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('n_(pokemon)', 'character'),
 ('yukana', 'character'),
 ('aerosmith_(stand)', 'character'),
@@ -38248,7 +38248,7 @@ VALUES ('n_(pokemon)', 'character'),
 ('maniwa_kamakiri', 'character'),
 ('yasuri_nanami', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('yasuri_shichika', 'character'),
 ('kratos_(god_of_war)', 'character'),
 ('alipheese_fateburn_xvi', 'character'),
@@ -38350,7 +38350,7 @@ VALUES ('yasuri_shichika', 'character'),
 ('aramaki_scaltinof', 'character'),
 ('charlotte_aulin', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('komugi_(lee)', 'character'),
 ('miku_(lee)', 'character'),
 ('cyber_elf_x_(mega_man)', 'character'),
@@ -38452,7 +38452,7 @@ VALUES ('komugi_(lee)', 'character'),
 ('cecilia_helmold', 'character'),
 ('roxas', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('fiamma_of_the_right', 'character'),
 ('gokusai_kaibi', 'character'),
 ('elena_trafalgar', 'character'),
@@ -38554,7 +38554,7 @@ VALUES ('fiamma_of_the_right', 'character'),
 ('ballista_(sekaiju)', 'character'),
 ('snake-eyed_kanako', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('wizarmon', 'character'),
 ('royal_guard_(ragnarok_online)', 'character'),
 ('liepard', 'character'),
@@ -38656,7 +38656,7 @@ VALUES ('wizarmon', 'character'),
 ('desco_(disgaea)', 'character'),
 ('cure_rhythm', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('minamino_kanade', 'character'),
 ('aizawa_eiko', 'character'),
 ('aizawa_takeru', 'character'),
@@ -38758,7 +38758,7 @@ VALUES ('minamino_kanade', 'character'),
 ('makimachi_misao', 'character'),
 ('watchog', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('chihara_minori', 'character'),
 ('sanbi_(reku)', 'character'),
 ('ivis', 'character'),
@@ -38860,7 +38860,7 @@ VALUES ('chihara_minori', 'character'),
 ('brioche_d''arquien', 'character'),
 ('cinque_izumi', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('eclair_martinozzi', 'character'),
 ('millhiore_f._biscotti', 'character'),
 ('ricotta_elmar', 'character'),
@@ -38962,7 +38962,7 @@ VALUES ('eclair_martinozzi', 'character'),
 ('boldore', 'character'),
 ('bouffalant', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('braviary', 'character'),
 ('carracosta', 'character'),
 ('castform_(normal)', 'character'),
@@ -39064,7 +39064,7 @@ VALUES ('braviary', 'character'),
 ('daniyyel+jennifer', 'character'),
 ('elsa_maria_(madoka_magica)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('walpurgisnacht_(madoka_magica)', 'character'),
 ('kokuyou_(tsugumomo)', 'character'),
 ('yamaguchi_tamon', 'character'),
@@ -39166,7 +39166,7 @@ VALUES ('walpurgisnacht_(madoka_magica)', 'character'),
 ('kanoe_yuuko', 'character'),
 ('dokugamine_riruka', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('amatsuka_seika', 'character'),
 ('decus_(tales)', 'character'),
 ('great_mazinger_(robot)', 'character'),
@@ -39268,7 +39268,7 @@ VALUES ('amatsuka_seika', 'character'),
 ('utatane_piko', 'character'),
 ('miyako_yoshika_(living)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('elize_lutus', 'character'),
 ('dianamon', 'character'),
 ('kamui_(gintama)', 'character'),
@@ -39370,7 +39370,7 @@ VALUES ('elize_lutus', 'character'),
 ('mitsuishi_kotono', 'character'),
 ('chitose_yuma', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('alisa_southerncross', 'character'),
 ('rouge_the_bat', 'character'),
 ('den_den_mushi', 'character'),
@@ -39472,7 +39472,7 @@ VALUES ('alisa_southerncross', 'character'),
 ('kawakami_tomoko', 'character'),
 ('baal_(shiomachi)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('asakura_hao', 'character'),
 ('iron_maiden_jeanne', 'character'),
 ('usui_horokeu', 'character'),
@@ -39574,7 +39574,7 @@ VALUES ('asakura_hao', 'character'),
 ('penguin_2-gou', 'character'),
 ('producer_(idolmaster_anime)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('qubeley_mk_ii', 'character'),
 ('core_fighter', 'character'),
 ('dwarf_(dragon''s_crown)', 'character'),
@@ -39676,7 +39676,7 @@ VALUES ('qubeley_mk_ii', 'character'),
 ('mirakurun', 'character'),
 ('shizuka_joestar', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('heaven''s_door', 'character'),
 ('kawajiri_kosaku', 'character'),
 ('stray_cat_(jojo)', 'character'),
@@ -39778,7 +39778,7 @@ VALUES ('heaven''s_door', 'character'),
 ('nishinosora_yoichi', 'character'),
 ('chie_(lcddem)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('sabitsuki', 'character'),
 ('usotsuki', 'character'),
 ('ground_gundam', 'character'),
@@ -39880,7 +39880,7 @@ VALUES ('sabitsuki', 'character'),
 ('fujita_saki', 'character'),
 ('mimori_suzuko', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('atarashi_ako', 'character'),
 ('matsumi_kuro', 'character'),
 ('matsumi_yuu', 'character'),
@@ -39982,7 +39982,7 @@ VALUES ('atarashi_ako', 'character'),
 ('shalnark', 'character'),
 ('uvogin', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('kouzuki_anna', 'character'),
 ('chris_lightfellow', 'character'),
 ('hugo_(suikoden_iii)', 'character'),
@@ -40084,7 +40084,7 @@ VALUES ('kouzuki_anna', 'character'),
 ('ciel_sacred', 'character'),
 ('hikage_(senran_kagura)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('mirai_(senran_kagura)', 'character'),
 ('gundam_age-1_titus', 'character'),
 ('tryndamere', 'character'),
@@ -40186,7 +40186,7 @@ VALUES ('mirai_(senran_kagura)', 'character'),
 ('daiba_canon', 'character'),
 ('major_(hellsing)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('katanako', 'character'),
 ('psychic_(7th_dragon)', 'character'),
 ('bmo', 'character'),
@@ -40288,7 +40288,7 @@ VALUES ('katanako', 'character'),
 ('chu_chu_(shoujo_kakumei_utena)', 'character'),
 ('anubis_(houtengeki)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('bungaku_shoujo_(danshi_koukousei)', 'character'),
 ('habara_(danshi_koukousei)', 'character'),
 ('ikushima_(danshi_koukousei)', 'character'),
@@ -40390,7 +40390,7 @@ VALUES ('bungaku_shoujo_(danshi_koukousei)', 'character'),
 ('izumi_curtis', 'character'),
 ('king_bradley', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('maes_hughes', 'character'),
 ('nina_tucker', 'character'),
 ('selim_bradley', 'character'),
@@ -40492,7 +40492,7 @@ VALUES ('maes_hughes', 'character'),
 ('ene_(kagerou_project)', 'character'),
 ('sakakibara_satomi', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('rotom_(other)', 'character'),
 ('noodle_(gorillaz)', 'character'),
 ('alvida_(one_piece)', 'character'),
@@ -40594,7 +40594,7 @@ VALUES ('rotom_(other)', 'character'),
 ('karahara_shima', 'character'),
 ('master_artoria', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('tokura_misaki', 'character'),
 ('lost_robin_rondo', 'character'),
 ('shizuki_soujuurou', 'character'),
@@ -40696,7 +40696,7 @@ VALUES ('tokura_misaki', 'character'),
 ('togo_ai', 'character'),
 ('tsukimiya_miyabi', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('ueda_suzuho', 'character'),
 ('ujiie_mutsumi', 'character'),
 ('umeki_otoha', 'character'),
@@ -40798,7 +40798,7 @@ VALUES ('ueda_suzuho', 'character'),
 ('ueshige_suzu', 'character'),
 ('mai_natsume', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('fatalis', 'character'),
 ('hrist_valkyrie', 'character'),
 ('momiji_(binbougami_ga!)', 'character'),
@@ -40900,7 +40900,7 @@ VALUES ('fatalis', 'character'),
 ('jayce_(league_of_legends)', 'character'),
 ('karma_(league_of_legends)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('karthus', 'character'),
 ('kennen', 'character'),
 ('kog''maw', 'character'),
@@ -41002,7 +41002,7 @@ VALUES ('karthus', 'character'),
 ('ichinose_haru', 'character'),
 ('daisy_duck', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('morgan_(female)_(fire_emblem)', 'character'),
 ('morgan_(fire_emblem)', 'character'),
 ('tsuchiya_ako', 'character'),
@@ -41104,7 +41104,7 @@ VALUES ('morgan_(female)_(fire_emblem)', 'character'),
 ('gogeta', 'character'),
 ('shiki_(senran_kagura)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('shiraki_meiko', 'character'),
 ('seth_(fire_emblem)', 'character'),
 ('battle_mage_(dungeon_and_fighter)', 'character'),
@@ -41206,7 +41206,7 @@ VALUES ('shiraki_meiko', 'character'),
 ('sakaguchi_karina', 'character'),
 ('utsugi_yuuki', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('oono_aya', 'character'),
 ('airy_(bravely_default)', 'character'),
 ('tsunemori_akane', 'character'),
@@ -41308,7 +41308,7 @@ VALUES ('oono_aya', 'character'),
 ('fukuyama_jun', 'character'),
 ('bandou_marimo', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('takamiya_nasuno', 'character'),
 ('cure_rosetta', 'character'),
 ('yotsuba_alice', 'character'),
@@ -41410,7 +41410,7 @@ VALUES ('takamiya_nasuno', 'character'),
 ('fennekin', 'character'),
 ('bad_end_happy', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('bad_end_beauty', 'character'),
 ('bad_end_march', 'character'),
 ('avicebron_(fate)', 'character'),
@@ -41512,7 +41512,7 @@ VALUES ('bad_end_beauty', 'character'),
 ('manako', 'character'),
 ('tionishia', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('zombina_(monster_musume)', 'character'),
 ('vi_(league_of_legends)', 'character'),
 ('davi_(dokidoki!_precure)', 'character'),
@@ -41614,7 +41614,7 @@ VALUES ('zombina_(monster_musume)', 'character'),
 ('ruby_rose', 'character'),
 ('harpie_channeler', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('ai-chan_(dokidoki!_precure)', 'character'),
 ('shinomiya_karen', 'character'),
 ('one_(drag-on_dragoon)', 'character'),
@@ -41716,7 +41716,7 @@ VALUES ('ai-chan_(dokidoki!_precure)', 'character'),
 ('taka_(ace_attorney)', 'character'),
 ('morimoto_(ryou)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('henry_(fire_emblem)', 'character'),
 ('lon''qu_(fire_emblem)', 'character'),
 ('morgan_(male)_(fire_emblem)', 'character'),
@@ -41818,7 +41818,7 @@ VALUES ('henry_(fire_emblem)', 'character'),
 ('sasahara_satsuki', 'character'),
 ('yukikaze_(kancolle)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('bertolt_hoover', 'character'),
 ('connie_springer', 'character'),
 ('jean_kirstein', 'character'),
@@ -41920,7 +41920,7 @@ VALUES ('bertolt_hoover', 'character'),
 ('error_musume', 'character'),
 ('girl_holding_a_cat_(kancolle)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('fumizuki_(kancolle)', 'character'),
 ('hasebe_yutaka', 'character'),
 ('yamagami_lucy', 'character'),
@@ -42022,7 +42022,7 @@ VALUES ('fumizuki_(kancolle)', 'character'),
 ('kubiwa_(kutan)', 'character'),
 ('damage_control_crew_(kancolle)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('yagami_makino', 'character'),
 ('kanzaki_mizuki', 'character'),
 ('kitaoji_sakura', 'character'),
@@ -42124,7 +42124,7 @@ VALUES ('yagami_makino', 'character'),
 ('lyn_(blade_&_soul)', 'character'),
 ('arx-7_arbalest', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('female_titan', 'character'),
 ('kamen_rider_gaim', 'character'),
 ('grisha_yeager', 'character'),
@@ -42226,7 +42226,7 @@ VALUES ('female_titan', 'character'),
 ('oshino_ougi', 'character'),
 ('helmet_musume_(kancolle)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('bort', 'character'),
 ('diamond_(houseki_no_kuni)', 'character'),
 ('cinnabar_(houseki_no_kuni)', 'character'),
@@ -42328,7 +42328,7 @@ VALUES ('bort', 'character'),
 ('iori_rinko', 'character'),
 ('flabebe_(red_flower)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('plasma-chan_(kancolle)', 'character'),
 ('naruse_ibara', 'character'),
 ('nomura_taeko', 'character'),
@@ -42430,7 +42430,7 @@ VALUES ('plasma-chan_(kancolle)', 'character'),
 ('sakuya_(p&d)', 'character'),
 ('tamadra', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('fuyusaka_iori', 'character'),
 ('minami_natsuno', 'character'),
 ('yakushiji_megumi', 'character'),
@@ -42532,7 +42532,7 @@ VALUES ('fuyusaka_iori', 'character'),
 ('kirisawa_juuzou_(character)', 'character'),
 ('makimura_kaori', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('penny_polendina', 'character'),
 ('damage_control_goddess_(kancolle)', 'character'),
 ('ni-class_destroyer', 'character'),
@@ -42634,7 +42634,7 @@ VALUES ('penny_polendina', 'character'),
 ('taihou_(kancolle)', 'character'),
 ('barbaracle', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('clawitzer', 'character'),
 ('dragalge', 'character'),
 ('drasna_(pokemon)', 'character'),
@@ -42736,7 +42736,7 @@ VALUES ('clawitzer', 'character'),
 ('admiral_shiro_(shino)', 'character'),
 ('matthew_(fire_emblem)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('cyberconnect2', 'character'),
 ('tengen_toppa_gurren-lagann_(mecha)', 'character'),
 ('iki_hiyori', 'character'),
@@ -42838,7 +42838,7 @@ VALUES ('cyberconnect2', 'character'),
 ('blue_(happinesscharge_precure!)', 'character'),
 ('glynda_goodwitch', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('vivian_(mvv)', 'character'),
 ('hosshiwa', 'character'),
 ('ryuuenji_tasuku', 'character'),
@@ -42940,7 +42940,7 @@ VALUES ('vivian_(mvv)', 'character'),
 ('akatsuki_nagisa', 'character'),
 ('sakaki_yuya', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('squalo', 'character'),
 ('tiziano', 'character'),
 ('nureha_(log_horizon)', 'character'),
@@ -43042,7 +43042,7 @@ VALUES ('squalo', 'character'),
 ('garou_(one-punch_man)', 'character'),
 ('kageyama_shigeo', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('lord_boros', 'character'),
 ('mosquito_musume', 'character'),
 ('psychos_(one-punch_man)', 'character'),
@@ -43144,7 +43144,7 @@ VALUES ('lord_boros', 'character'),
 ('mega_swampert', 'character'),
 ('primal_groudon', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('primal_kyogre', 'character'),
 ('inkling_girl', 'character'),
 ('inkling_player_character', 'character'),
@@ -43246,7 +43246,7 @@ VALUES ('primal_kyogre', 'character'),
 ('aihara_mei', 'character'),
 ('aihara_yuzu', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('sistine_fibel', 'character'),
 ('cosplay_pikachu', 'character'),
 ('pikachu_pop_star', 'character'),
@@ -43348,7 +43348,7 @@ VALUES ('sistine_fibel', 'character'),
 ('alice_(bishoujo_mangekyou)', 'character'),
 ('dorothy_(bishoujo_mangekyou)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('rana_(vocaloid)', 'character'),
 ('thief_(dungeon_and_fighter)', 'character'),
 ('grimlock', 'character'),
@@ -43450,7 +43450,7 @@ VALUES ('rana_(vocaloid)', 'character'),
 ('galaco', 'character'),
 ('katie_(sennen_sensou_aigis)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('gotou_kiichi', 'character'),
 ('mai_(senran_kagura)', 'character'),
 ('kisaragi_(criminal_girls)', 'character'),
@@ -43552,7 +43552,7 @@ VALUES ('gotou_kiichi', 'character'),
 ('mega_altaria', 'character'),
 ('mega_salamence', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('c-3po', 'character'),
 ('ping_hai_(warship_girls_r)', 'character'),
 ('ning_hai_(warship_girls_r)', 'character'),
@@ -43654,7 +43654,7 @@ VALUES ('c-3po', 'character'),
 ('pharah_(overwatch)', 'character'),
 ('reaper_(overwatch)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('reinhardt_(overwatch)', 'character'),
 ('roadhog_(overwatch)', 'character'),
 ('torbjorn_(overwatch)', 'character'),
@@ -43756,7 +43756,7 @@ VALUES ('reinhardt_(overwatch)', 'character'),
 ('crimson_avenger_(elsword)', 'character'),
 ('memento_(sennen_sensou_aigis)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('kayano_kaede', 'character'),
 ('tendouji_musubi', 'character'),
 ('sin_kiske', 'character'),
@@ -43858,7 +43858,7 @@ VALUES ('kayano_kaede', 'character'),
 ('ogasawara_rinko', 'character'),
 ('gundam_astray_red_frame', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('hishizaki_shaia_(gowcaizer)', 'character'),
 ('enjoji_michiru', 'character'),
 ('kizaki_ren', 'character'),
@@ -43960,7 +43960,7 @@ VALUES ('hishizaki_shaia_(gowcaizer)', 'character'),
 ('nishizono_honoka', 'character'),
 ('hugo_(yu-gi-oh!)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('ute_(yu-gi-oh!)', 'character'),
 ('xin_hua', 'character'),
 ('knight_(dungeon_and_fighter)', 'character'),
@@ -44062,7 +44062,7 @@ VALUES ('ute_(yu-gi-oh!)', 'character'),
 ('tobisawa_misaki', 'character'),
 ('han_solo', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('bronya_zaychik_(herrscher_of_truth)', 'character'),
 ('one_(cevio)', 'character'),
 ('hasshaku-sama', 'character'),
@@ -44164,7 +44164,7 @@ VALUES ('bronya_zaychik_(herrscher_of_truth)', 'character'),
 ('camilla_(fire_emblem)', 'character'),
 ('corrin_(female)_(fire_emblem)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('corrin_(fire_emblem)', 'character'),
 ('corrin_(male)_(fire_emblem)', 'character'),
 ('elise_(fire_emblem)', 'character'),
@@ -44266,7 +44266,7 @@ VALUES ('corrin_(fire_emblem)', 'character'),
 ('urashima_kotetsu', 'character'),
 ('isshiki_iroha', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('stella_vermillion', 'character'),
 ('tsutsumi_kinuka', 'character'),
 ('emerald_sustrai', 'character'),
@@ -44368,7 +44368,7 @@ VALUES ('stella_vermillion', 'character'),
 ('amamiya_ren', 'character'),
 ('arsene_(persona_5)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('matsubara_honoka', 'character'),
 ('tousou_(touken_ranbu)', 'character'),
 ('clarisse_(granblue_fantasy)', 'character'),
@@ -44470,7 +44470,7 @@ VALUES ('matsubara_honoka', 'character'),
 ('arnas_(yoru_no_nai_kuni)', 'character'),
 ('ryu_lion', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('un_(show_by_rock!!)', 'character'),
 ('dj_octavio', 'character'),
 ('arisaka_mashiro', 'character'),
@@ -44572,7 +44572,7 @@ VALUES ('un_(show_by_rock!!)', 'character'),
 ('chaos_(dungeon_and_fighter)', 'character'),
 ('ainz_ooal_gown', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('sakura_megumi', 'character'),
 ('soft_&_wet', 'character'),
 ('asparagus_(girls_und_panzer)', 'character'),
@@ -44674,7 +44674,7 @@ VALUES ('sakura_megumi', 'character'),
 ('lecia_(granblue_fantasy)', 'character'),
 ('lecia_(summer)_(granblue_fantasy)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('zeta_(summer)_(granblue_fantasy)', 'character'),
 ('jacket_girl_(dipp)', 'character'),
 ('label_girl_(dipp)', 'character'),
@@ -44776,7 +44776,7 @@ VALUES ('zeta_(summer)_(granblue_fantasy)', 'character'),
 ('elizabeth_bathory_(third_ascension)_(fate)', 'character'),
 ('keaton_(fire_emblem)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('mozu_(fire_emblem)', 'character'),
 ('veight', 'character'),
 ('bella_(sennen_sensou_aigis)', 'character'),
@@ -44878,7 +44878,7 @@ VALUES ('mozu_(fire_emblem)', 'character'),
 ('illya_(princess_connect!)', 'character'),
 ('ramina_(baallore)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('randall_boggs', 'character'),
 ('artemis_(fate)', 'character'),
 ('caligula_(fate)', 'character'),
@@ -44980,7 +44980,7 @@ VALUES ('randall_boggs', 'character'),
 ('felix_argyle', 'character'),
 ('felt_(re:zero)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('julius_juukulius', 'character'),
 ('mimi_pearlbaton', 'character'),
 ('natsuki_subaru', 'character'),
@@ -45082,7 +45082,7 @@ VALUES ('julius_juukulius', 'character'),
 ('miramikaru_riran', 'character'),
 ('kumamakura_kurumi', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('mifuyu_(princess_connect!)', 'character'),
 ('lafter_frankland', 'character'),
 ('sheba_(golden_sun)', 'character'),
@@ -45184,7 +45184,7 @@ VALUES ('mifuyu_(princess_connect!)', 'character'),
 ('orochi_(fire_emblem)', 'character'),
 ('jellal_fernandes', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('amano_tora', 'character'),
 ('harukawa_maki', 'character'),
 ('k1-b0', 'character'),
@@ -45286,7 +45286,7 @@ VALUES ('amano_tora', 'character'),
 ('takashima_yuuna', 'character'),
 ('sole_survivor_(female)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('vault_girl', 'character'),
 ('chloe_von_einzbern_(beast_style)', 'character'),
 ('miyu_edelfelt_(beast_style)', 'character'),
@@ -45388,7 +45388,7 @@ VALUES ('vault_girl', 'character'),
 ('kaze_(fire_emblem)', 'character'),
 ('kiragi_(fire_emblem)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('laslow_(fire_emblem)', 'character'),
 ('lilith_(fire_emblem)', 'character'),
 ('midori_(fire_emblem)', 'character'),
@@ -45490,7 +45490,7 @@ VALUES ('laslow_(fire_emblem)', 'character'),
 ('the_chicken_that_appears_in_the_middle_of_cookie', 'character'),
 ('komekko', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('satonaka_chie_(ooya-san_wa_shishunki)', 'character'),
 ('gundam_barbatos', 'character'),
 ('kara-age_kun', 'character'),
@@ -45592,7 +45592,7 @@ VALUES ('satonaka_chie_(ooya-san_wa_shishunki)', 'character'),
 ('berserker_(granblue_fantasy)', 'character'),
 ('kira_yoshikage_(jojolion)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('ayasegawa_yumichika', 'character'),
 ('hanabusa_kokoro', 'character'),
 ('hallessena', 'character'),
@@ -45694,7 +45694,7 @@ VALUES ('ayasegawa_yumichika', 'character'),
 ('kurashina_asuka', 'character'),
 ('hatohara_mirai', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('inukai_sumiharu', 'character'),
 ('ninomiya_masataka', 'character'),
 ('izumi_kouhei', 'character'),
@@ -45796,7 +45796,7 @@ VALUES ('inukai_sumiharu', 'character'),
 ('yuigahama_yui''s_mother', 'character'),
 ('warlock_(sekaiju)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('warlock_2_(sekaiju)', 'character'),
 ('fujimaru_ritsuka_(female)_(royal_brand)', 'character'),
 ('nerine_(flower_knight_girl)', 'character'),
@@ -45898,7 +45898,7 @@ VALUES ('warlock_2_(sekaiju)', 'character'),
 ('ant-man', 'character'),
 ('black_panther_(marvel)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('t''challa', 'character'),
 ('jetfire', 'character'),
 ('phoebe_(granblue_fantasy)', 'character'),
@@ -46000,7 +46000,7 @@ VALUES ('t''challa', 'character'),
 ('hidaka_hokuto', 'character'),
 ('isara_mao', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('kagehira_mika', 'character'),
 ('kanzaki_souma', 'character'),
 ('kiryu_kuro', 'character'),
@@ -46102,7 +46102,7 @@ VALUES ('kagehira_mika', 'character'),
 ('ancient_destroyer_princess', 'character'),
 ('arue_(konosuba)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('g3_(girls''_frontline)', 'character'),
 ('captain_amari', 'character'),
 ('tina_(closers)', 'character'),
@@ -46204,7 +46204,7 @@ VALUES ('g3_(girls''_frontline)', 'character'),
 ('mallow_(pokemon)', 'character'),
 ('lurantis', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('thompson_(girls''_frontline)', 'character'),
 ('zangetsu_(bleach)', 'character'),
 ('haruka-chan_(pan_(mimi))', 'character'),
@@ -46306,7 +46306,7 @@ VALUES ('thompson_(girls''_frontline)', 'character'),
 ('fujimaru_ritsuka_(male)_(brilliant_summer)', 'character'),
 ('lady_bat', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('amasawa_chigusa', 'character'),
 ('hishi_amazon_(umamusume)', 'character'),
 ('kiyohime_(swimsuit_lancer)_(second_ascension)_(fate)', 'character'),
@@ -46408,7 +46408,7 @@ VALUES ('amasawa_chigusa', 'character'),
 ('soul_of_cinder', 'character'),
 ('oranguru', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('ots-12_(girls''_frontline)', 'character'),
 ('patrasche_(re:zero)', 'character'),
 ('kouda_kouji', 'character'),
@@ -46510,7 +46510,7 @@ VALUES ('ots-12_(girls''_frontline)', 'character'),
 ('star_guardian_poppy', 'character'),
 ('uma_(oopartz_yang)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('9a-91_(girls''_frontline)', 'character'),
 ('witch_mercy', 'character'),
 ('hal_jordan', 'character'),
@@ -46612,7 +46612,7 @@ VALUES ('9a-91_(girls''_frontline)', 'character'),
 ('incineroar', 'character'),
 ('tokisaki_mio_(niliu_chahui)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('tokisaki_asaba_(niliu_chahui)', 'character'),
 ('joanna_(persona_5)', 'character'),
 ('izmir', 'character'),
@@ -46714,7 +46714,7 @@ VALUES ('tokisaki_asaba_(niliu_chahui)', 'character'),
 ('yuki_onna_(onmyoji)', 'character'),
 ('beast_(x-men)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('tsuneki_hikari', 'character'),
 ('jeanne_d''arc_alter_santa_lily_(fate)', 'character'),
 ('akashi_(sorobochi)', 'character'),
@@ -46816,7 +46816,7 @@ VALUES ('tsuneki_hikari', 'character'),
 ('xurkitree', 'character'),
 ('simonov_(girls''_frontline)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('urd_(p&d)', 'character'),
 ('cure_macaron', 'character'),
 ('kotozume_yukari', 'character'),
@@ -46918,7 +46918,7 @@ VALUES ('urd_(p&d)', 'character'),
 ('machida_sawako', 'character'),
 ('kanbayashi_shiori', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('cow_girl_(goblin_slayer!)', 'character'),
 ('merlin_(nanatsu_no_taizai)', 'character'),
 ('lycoris_fubuki', 'character'),
@@ -47020,7 +47020,7 @@ VALUES ('cow_girl_(goblin_slayer!)', 'character'),
 ('ogata_garaiya', 'character'),
 ('feh_(fire_emblem_heroes)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('stella_unibell', 'character'),
 ('dust_(konosuba)', 'character'),
 ('kurama_koharu', 'character'),
@@ -47122,7 +47122,7 @@ VALUES ('stella_unibell', 'character'),
 ('crested_porcupine_(kemono_friends)', 'character'),
 ('giant_armadillo_(kemono_friends)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('panther_chameleon_(kemono_friends)', 'character'),
 ('silver_fox_(kemono_friends)', 'character'),
 ('nanami_mizuki', 'character'),
@@ -47224,7 +47224,7 @@ VALUES ('panther_chameleon_(kemono_friends)', 'character'),
 ('steller''s_sea_cow_(kemono_friends)', 'character'),
 ('steller''s_sea_lion_(kemono_friends)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('stoat_(kemono_friends)', 'character'),
 ('walrus_(kemono_friends)', 'character'),
 ('bactrian_camel_(kemono_friends)', 'character'),
@@ -47326,7 +47326,7 @@ VALUES ('stoat_(kemono_friends)', 'character'),
 ('sidon', 'character'),
 ('kiran_(fire_emblem)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('commander_(girls''_frontline)_(madcore)', 'character'),
 ('layla_(mino)', 'character'),
 ('cor_leonis', 'character'),
@@ -47428,7 +47428,7 @@ VALUES ('commander_(girls''_frontline)_(madcore)', 'character'),
 ('fenrys', 'character'),
 ('shizu-chan', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('xayah', 'character'),
 ('ririka_(#compass)', 'character'),
 ('maruyama_aya', 'character'),
@@ -47530,7 +47530,7 @@ VALUES ('xayah', 'character'),
 ('mosin-nagant_(moonlit_ocean)_(girls''_frontline)', 'character'),
 ('wa2000_(ballroom_interlude)_(girls''_frontline)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('laffey_(azur_lane)', 'character'),
 ('otomachi_una_(talkex)', 'character'),
 ('nagato_kai_ni_(kancolle)', 'character'),
@@ -47632,7 +47632,7 @@ VALUES ('laffey_(azur_lane)', 'character'),
 ('ohya_ichiko', 'character'),
 ('cattleya_(houtengeki)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('hammann_(azur_lane)', 'character'),
 ('cassin_(azur_lane)', 'character'),
 ('downes_(azur_lane)', 'character'),
@@ -47734,7 +47734,7 @@ VALUES ('hammann_(azur_lane)', 'character'),
 ('wu_zetian_(first_ascension)_(fate)', 'character'),
 ('z23_(philosophy_sensei)_(azur_lane)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('djeeta_(summer)_(granblue_fantasy)', 'character'),
 ('queen_of_hatred', 'character'),
 ('brown_thoroughbred_(kemono_friends)', 'character'),
@@ -47836,7 +47836,7 @@ VALUES ('djeeta_(summer)_(granblue_fantasy)', 'character'),
 ('oshida_(girls_und_panzer)', 'character'),
 ('blonde_girl_(cloba)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('minior_(blue_core)', 'character'),
 ('bronya_zaychik_(school_swimsuit)', 'character'),
 ('fu_hua', 'character'),
@@ -47938,7 +47938,7 @@ VALUES ('minior_(blue_core)', 'character'),
 ('ash_(rainbow_six_siege)', 'character'),
 ('bliss_zero_(mega_man)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('ameli_(girls''_frontline)', 'character'),
 ('beatrice_(princess_principal)', 'character'),
 ('frankenstein''s_monster_(swimsuit_saber)_(third_ascension)_(fate)', 'character'),
@@ -48040,7 +48040,7 @@ VALUES ('ameli_(girls''_frontline)', 'character'),
 ('hanazono_kirara', 'character'),
 ('scleriteaeaeaggadah', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('fat_gum_(boku_no_hero_academia)', 'character'),
 ('tsurumaki_kokoro', 'character'),
 ('robin_hood_(disney)_(character)', 'character'),
@@ -48142,7 +48142,7 @@ VALUES ('fat_gum_(boku_no_hero_academia)', 'character'),
 ('cygnet_(retrofit)_(azur_lane)', 'character'),
 ('cygnet_(sea_star_on_shore)_(azur_lane)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('monika_(doki_doki_literature_club)', 'character'),
 ('natsuki_(doki_doki_literature_club)', 'character'),
 ('sayori_(doki_doki_literature_club)', 'character'),
@@ -48244,7 +48244,7 @@ VALUES ('monika_(doki_doki_literature_club)', 'character'),
 ('javelin_(retrofit)_(azur_lane)', 'character'),
 ('higokumaru', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('deutschland_(azur_lane)', 'character'),
 ('nowi_(halloween)_(fire_emblem)', 'character'),
 ('sakura_(halloween)_(fire_emblem)', 'character'),
@@ -48346,7 +48346,7 @@ VALUES ('deutschland_(azur_lane)', 'character'),
 ('hatsuzuki_(swimsuit_mode)_(kancolle)', 'character'),
 ('suzutsuki_(swimsuit_mode)_(kancolle)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('teruzuki_(swimsuit_mode)_(kancolle)', 'character'),
 ('oklahoma_(azur_lane)', 'character'),
 ('langley_(azur_lane)', 'character'),
@@ -48448,7 +48448,7 @@ VALUES ('teruzuki_(swimsuit_mode)_(kancolle)', 'character'),
 ('hector_rivera', 'character'),
 ('hector_rivera_(alive)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('lorem_(mazohaha)', 'character'),
 ('merii_(mazohaha)', 'character'),
 ('glorious_(azur_lane)', 'character'),
@@ -48550,7 +48550,7 @@ VALUES ('lorem_(mazohaha)', 'character'),
 ('higanbana_(onmyoji)', 'character'),
 ('ibaraki_douji_(onmyoji)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('kinomoto_sakura_(crystal_feather_dress)', 'character'),
 ('goredolf_musik', 'character'),
 ('myriam_(saga)', 'character'),
@@ -48652,7 +48652,7 @@ VALUES ('kinomoto_sakura_(crystal_feather_dress)', 'character'),
 ('pico_(boku_no_pico)', 'character'),
 ('chikuwa_(yurucamp)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('izumi_kyouka_(bungou_stray_dogs)', 'character'),
 ('yukikaze_(azur_lane)', 'character'),
 ('ankha_(animal_crossing)', 'character'),
@@ -48754,7 +48754,7 @@ VALUES ('izumi_kyouka_(bungou_stray_dogs)', 'character'),
 ('elisia_valfelto', 'character'),
 ('soma_(closers)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('duke_of_york_(azur_lane)', 'character'),
 ('foxhound_(retrofit)_(azur_lane)', 'character'),
 ('yukoku_kiriko', 'character'),
@@ -48856,7 +48856,7 @@ VALUES ('duke_of_york_(azur_lane)', 'character'),
 ('protagonist_(yomawari)', 'character'),
 ('xm8_(girls''_frontline)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('mdr_(girls''_frontline)', 'character'),
 ('shikinami_kai_ni_(kancolle)', 'character'),
 ('mononobe_alice', 'character'),
@@ -48958,7 +48958,7 @@ VALUES ('mdr_(girls''_frontline)', 'character'),
 ('kinomoto_sakura_(red_hearts_costume)', 'character'),
 ('kadoc_zemlupus', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('aikawa_ren', 'character'),
 ('pp-19_(girls''_frontline)', 'character'),
 ('admiral_graf_spee_(girl''s_sunday)_(azur_lane)', 'character'),
@@ -49060,7 +49060,7 @@ VALUES ('aikawa_ren', 'character'),
 ('ayame_(gundam_build_divers)', 'character'),
 ('tanaka_hime', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('nishimura_chiharu', 'character'),
 ('itsumi_erika''s_gunner', 'character'),
 ('tokino_sora_(1st_costume)', 'character'),
@@ -49162,7 +49162,7 @@ VALUES ('nishimura_chiharu', 'character'),
 ('kanae_(nijisanji)', 'character'),
 ('roto_(kanae)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('cliff_fittir', 'character'),
 ('mirage_koas', 'character'),
 ('caleen_keemosn', 'character'),
@@ -49264,7 +49264,7 @@ VALUES ('cliff_fittir', 'character'),
 ('murata_himeko_(vermillion_knight)', 'character'),
 ('murata_himeko_(vernal_brocade)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('shirakami_fubuki', 'character'),
 ('shirakami_fubuki_(1st_costume)', 'character'),
 ('kongou_iroha', 'character'),
@@ -49366,7 +49366,7 @@ VALUES ('shirakami_fubuki', 'character'),
 ('yotsuba_tamaki', 'character'),
 ('emma_woods', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('jack_(identity_v)', 'character'),
 ('shiratsuyu_kai_ni_(kancolle)', 'character'),
 ('tiki_(young)_(summer)_(fire_emblem)', 'character'),
@@ -49468,7 +49468,7 @@ VALUES ('jack_(identity_v)', 'character'),
 ('kagura_mea', 'character'),
 ('honma_himawari', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('honma_himawari_(1st_costume)', 'character'),
 ('sasaki_saku', 'character'),
 ('sasaki_saku_(1st_costume)', 'character'),
@@ -49570,7 +49570,7 @@ VALUES ('honma_himawari_(1st_costume)', 'character'),
 ('takamiya_rion_(1st_costume)', 'character'),
 ('uzuki_kou', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('ifrit_(arknights)', 'character'),
 ('saria_(arknights)', 'character'),
 ('takamine_takane', 'character'),
@@ -49672,7 +49672,7 @@ VALUES ('ifrit_(arknights)', 'character'),
 ('mr._c.b._(umamusume)', 'character'),
 ('nelson_(kancolle)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('rin_(catherine)', 'character'),
 ('js_9_(girls''_frontline)', 'character'),
 ('shinjou_akane', 'character'),
@@ -49774,7 +49774,7 @@ VALUES ('rin_(catherine)', 'character'),
 ('zethia', 'character'),
 ('takarada_rikka', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('maria_(space_maria)', 'character'),
 ('jennifer_(modern_mogal)', 'character'),
 ('wendy_(modern_mogal)', 'character'),
@@ -49876,7 +49876,7 @@ VALUES ('maria_(space_maria)', 'character'),
 ('romero_(zombie_land_saga)', 'character'),
 ('ashe_(overwatch)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('susie_(deltarune)', 'character'),
 ('a-91_(girls''_frontline)', 'character'),
 ('tsuruhime_yachiyo', 'character'),
@@ -49978,7 +49978,7 @@ VALUES ('susie_(deltarune)', 'character'),
 ('akino_(princess_connect!)', 'character'),
 ('saionji_mary', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('saionji_mary_(1st_costume)', 'character'),
 ('shimamura_charlotte', 'character'),
 ('shimamura_charlotte_(1st_costume)', 'character'),
@@ -50080,7 +50080,7 @@ VALUES ('saionji_mary_(1st_costume)', 'character'),
 ('nisshin_(kancolle)', 'character'),
 ('hayanami_(kancolle)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('minegumo_(kancolle)', 'character'),
 ('cure_milky', 'character'),
 ('hagoromo_lala', 'character'),
@@ -50182,7 +50182,7 @@ VALUES ('minegumo_(kancolle)', 'character'),
 ('tanezaki_atsumi', 'character'),
 ('monarch_(black_gerard)_(azur_lane)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('ayanami_(lunar_demon)_(azur_lane)', 'character'),
 ('cecile_(porforever)', 'character'),
 ('nachoneko', 'character'),
@@ -50284,7 +50284,7 @@ VALUES ('ayanami_(lunar_demon)_(azur_lane)', 'character'),
 ('kitou_akari', 'character'),
 ('track_kouhai_(gentsuki)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('megumegu', 'character'),
 ('konohata_mira', 'character'),
 ('manaka_ao', 'character'),
@@ -50386,7 +50386,7 @@ VALUES ('megumegu', 'character'),
 ('sebastian_piyodore', 'character'),
 ('isabe_(girls_und_panzer)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('sofue_(girls_und_panzer)', 'character'),
 ('kama_(fate)', 'character'),
 ('kama_(first_ascension)_(fate)', 'character'),
@@ -50488,7 +50488,7 @@ VALUES ('sofue_(girls_und_panzer)', 'character'),
 ('willow_schnee', 'character'),
 ('pickle_(grappler_baki)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('kisaragi_(retrofit)_(azur_lane)', 'character'),
 ('mg36_(girls''_frontline)', 'character'),
 ('amiya_(newsgirl)_(arknights)', 'character'),
@@ -50590,7 +50590,7 @@ VALUES ('kisaragi_(retrofit)_(azur_lane)', 'character'),
 ('galo_thymos', 'character'),
 ('lio_fotia', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('dier_(girls''_frontline)', 'character'),
 ('azki_(2nd_costume)_(hololive)', 'character'),
 ('provence_(arknights)', 'character'),
@@ -50692,7 +50692,7 @@ VALUES ('dier_(girls''_frontline)', 'character'),
 ('qiyana_(league_of_legends)', 'character'),
 ('ange_katrina_(2nd_costume)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('fuiba_fuyu', 'character'),
 ('nessa_(pokemon)', 'character'),
 ('drednaw', 'character'),
@@ -50794,7 +50794,7 @@ VALUES ('fuiba_fuyu', 'character'),
 ('harpie_lady_2', 'character'),
 ('charlotte_(last_origin)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('ots-44_(girls''_frontline)', 'character'),
 ('niwamaru_(niwarhythm)', 'character'),
 ('orchid_(arknights)', 'character'),
@@ -50896,7 +50896,7 @@ VALUES ('ots-44_(girls''_frontline)', 'character'),
 ('dedue_molinaro', 'character'),
 ('felix_hugo_fraldarius', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('ferdinand_von_aegir', 'character'),
 ('hilda_valentine_goneril', 'character'),
 ('hubert_von_vestra', 'character'),
@@ -50998,7 +50998,7 @@ VALUES ('ferdinand_von_aegir', 'character'),
 ('team_yell_grunt', 'character'),
 ('bede_(pokemon)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('morpeko', 'character'),
 ('morpeko_(hangry)', 'character'),
 ('catherine_(fire_emblem)', 'character'),
@@ -51100,7 +51100,7 @@ VALUES ('morpeko', 'character'),
 ('ceylon_(arknights)', 'character'),
 ('hua_cheng', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('xie_lian', 'character'),
 ('galarian_weezing', 'character'),
 ('obstagoon', 'character'),
@@ -51202,7 +51202,7 @@ VALUES ('xie_lian', 'character'),
 ('astesia_(arknights)', 'character'),
 ('itsumura_haruka', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('itsumura_yukari', 'character'),
 ('tsukioka_(40hara)', 'character'),
 ('mother_spider_demon_(kimetsu_no_yaiba)', 'character'),
@@ -51304,7 +51304,7 @@ VALUES ('itsumura_yukari', 'character'),
 ('kawakami_princess_(umamusume)', 'character'),
 ('ruka_(princess_connect!)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('fumi_(1st_costume)_(nijisanji)', 'character'),
 ('fumi_(nijisanji)', 'character'),
 ('yamagami_karuta', 'character'),
@@ -51406,7 +51406,7 @@ VALUES ('fumi_(1st_costume)_(nijisanji)', 'character'),
 ('dp-12_(girls''_frontline)', 'character'),
 ('cuora_(arknights)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('rookidee', 'character'),
 ('jeritza_von_hrym', 'character'),
 ('florence_nightingale_(santa)_(fate)', 'character'),
@@ -51508,7 +51508,7 @@ VALUES ('rookidee', 'character'),
 ('mp41_(girls''_frontline)', 'character'),
 ('lize_helesta_(3rd_costume)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('mirae_(closers)', 'character'),
 ('amakawa_hano', 'character'),
 ('atlanta_(kancolle)', 'character'),
@@ -51610,7 +51610,7 @@ VALUES ('mirae_(closers)', 'character'),
 ('sawaizumi_chiyu', 'character'),
 ('baker_nemo_(fate)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('alcremie_(love_sweet)', 'character'),
 ('alcremie_(ruby_cream)', 'character'),
 ('rabirin_(precure)', 'character'),
@@ -51712,7 +51712,7 @@ VALUES ('alcremie_(love_sweet)', 'character'),
 ('reze_(chainsaw_man)', 'character'),
 ('sirius_(azure_horizons)_(azur_lane)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('boltund', 'character'),
 ('kimikage_yui', 'character'),
 ('indeedee', 'character'),
@@ -51814,7 +51814,7 @@ VALUES ('boltund', 'character'),
 ('centurii-chan', 'character'),
 ('pegitan_(precure)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('amai_hiyo', 'character'),
 ('plume_(arknights)', 'character'),
 ('noshime_ruka', 'character'),
@@ -51916,7 +51916,7 @@ VALUES ('amai_hiyo', 'character'),
 ('sett_(league_of_legends)', 'character'),
 ('ak74m_(girls''_frontline)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('hongryeon_(last_origin)', 'character'),
 ('azumi_hagumu', 'character'),
 ('coalossal', 'character'),
@@ -52018,7 +52018,7 @@ VALUES ('hongryeon_(last_origin)', 'character'),
 ('fuwa_minato_(1st_costume)', 'character'),
 ('miracle_matter', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('fukumaru_koito', 'character'),
 ('gramophone_miku', 'character'),
 ('higashiyama_kobeni', 'character'),
@@ -52120,7 +52120,7 @@ VALUES ('fukumaru_koito', 'character'),
 ('bison_(arknights)', 'character'),
 ('may_(arknights)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('adele_(fate)', 'character'),
 ('romulus_quirinus_(fate)', 'character'),
 ('pa-15_(marvelous_yam_pastry)_(girls''_frontline)', 'character'),
@@ -52222,7 +52222,7 @@ VALUES ('adele_(fate)', 'character'),
 ('astel_leda', 'character'),
 ('pandora_acherona_(nat_the_lich)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('saria_(stronghold)_(arknights)', 'character'),
 ('leaf_(arknights)', 'character'),
 ('weedy_(arknights)', 'character'),
@@ -52324,7 +52324,7 @@ VALUES ('saria_(stronghold)_(arknights)', 'character'),
 ('genzuki_toujirou', 'character'),
 ('koharu_rikka', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('lakiston', 'character'),
 ('le_malin_(mercredi_at_the_secret_base)_(azur_lane)', 'character'),
 ('tang_keke', 'character'),
@@ -52426,7 +52426,7 @@ VALUES ('lakiston', 'character'),
 ('nazono_mito', 'character'),
 ('flurry_(animal_crossing)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('isabella_(seiken_densetsu_3)', 'character'),
 ('asbestos_(arknights)', 'character'),
 ('komori_met', 'character'),
@@ -52528,7 +52528,7 @@ VALUES ('isabella_(seiken_densetsu_3)', 'character'),
 ('ethan_(arknights)', 'character'),
 ('raiden_mei_(herrscher_of_thunder)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('artia', 'character'),
 ('alexandra_viktorovna_dashkova_(tukikagerou)', 'character'),
 ('sharifah_ozdil_(tukikagerou)', 'character'),
@@ -52630,7 +52630,7 @@ VALUES ('artia', 'character'),
 ('younger_sister_(childhood_friend_series)', 'character'),
 ('ded_(housamo)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('atri', 'character'),
 ('ariake_(kancolle)', 'character'),
 ('vikala_(blooming_summer_wallflower)_(granblue_fantasy)', 'character'),
@@ -52732,7 +52732,7 @@ VALUES ('atri', 'character'),
 ('provence_(casual_vacation)_(arknights)', 'character'),
 ('tajikarao_(housamo)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('grim_(twisted_wonderland)', 'character'),
 ('torii_koyomi', 'character'),
 ('fujimaru_ritsuka_(female)_(decisive_battle_chaldea_uniform)', 'character'),
@@ -52834,7 +52834,7 @@ VALUES ('grim_(twisted_wonderland)', 'character'),
 ('mao_(yotaro)', 'character'),
 ('z23_(schwarze_hochzeit)_(azur_lane)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('ground_gm', 'character'),
 ('drake_(the_golden_hind''s_respite)_(azur_lane)', 'character'),
 ('drakloak', 'character'),
@@ -52936,7 +52936,7 @@ VALUES ('ground_gm', 'character'),
 ('shinonome_ena', 'character'),
 ('xu_fu_(fate)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('xu_fu_(first_ascension)_(fate)', 'character'),
 ('hiyamaru', 'character'),
 ('host_(obj_shep)', 'character'),
@@ -53038,7 +53038,7 @@ VALUES ('xu_fu_(first_ascension)_(fate)', 'character'),
 ('reno_(summer_spin-off)_(azur_lane)', 'character'),
 ('piana_(atelier)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('death-sensei_(mori_calliope)', 'character'),
 ('swiftsure_(midsummer_special_service)_(azur_lane)', 'character'),
 ('rengoku_shinjurou', 'character'),
@@ -53140,7 +53140,7 @@ VALUES ('death-sensei_(mori_calliope)', 'character'),
 ('denjirou_(one_piece)', 'character'),
 ('king_(one_piece)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('kaeya_(genshin_impact)', 'character'),
 ('akita_(akitaland_gothic)', 'character'),
 ('zagreus_(hades)', 'character'),
@@ -53242,7 +53242,7 @@ VALUES ('kaeya_(genshin_impact)', 'character'),
 ('tashkent_(muse)_(azur_lane)', 'character'),
 ('midnight_(arknights)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('baltimore_(muse)_(azur_lane)', 'character'),
 ('sugo_miri', 'character'),
 ('dido_(muse)_(azur_lane)', 'character'),
@@ -53344,7 +53344,7 @@ VALUES ('baltimore_(muse)_(azur_lane)', 'character'),
 ('rekenber_guard', 'character'),
 ('fairouz_ai', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('diona_(genshin_impact)', 'character'),
 ('thanatos_(hades)', 'character'),
 ('kamihira_mao', 'character'),
@@ -53446,7 +53446,7 @@ VALUES ('diona_(genshin_impact)', 'character'),
 ('bao_(vtuber)_(1st_costume)', 'character'),
 ('hime_hajime', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('nyatasha_nyanners_(1st_costume)', 'character'),
 ('zentreya_(dragon)', 'character'),
 ('silvervale_(4th_costume)', 'character'),
@@ -53548,7 +53548,7 @@ VALUES ('nyatasha_nyanners_(1st_costume)', 'character'),
 ('pekomama', 'character'),
 ('macan_(housamo)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('gyumao_(housamo)', 'character'),
 ('giant_otter_(kemono_friends)', 'character'),
 ('saria_(the_law)_(arknights)', 'character'),
@@ -53650,7 +53650,7 @@ VALUES ('gyumao_(housamo)', 'character'),
 ('yokoyama_ishimi', 'character'),
 ('shishiro_botan_(new_year)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('whirl_(transformers)', 'character'),
 ('barbatos_(genshin_impact)', 'character'),
 ('captain_nemo_(second_ascension)_(fate)', 'character'),
@@ -53752,7 +53752,7 @@ VALUES ('whirl_(transformers)', 'character'),
 ('yuki_madoka', 'character'),
 ('fallenshadow', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('asuna_(blue_archive)', 'character'),
 ('raiden_mei_(rainy_springtide)', 'character'),
 ('akane_(blue_archive)', 'character'),
@@ -53854,7 +53854,7 @@ VALUES ('asuna_(blue_archive)', 'character'),
 ('yui_(ceremonial)_(princess_connect!)', 'character'),
 ('chise_(blue_archive)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('nezusuke_(blue_archive)', 'character'),
 ('saya_(blue_archive)', 'character'),
 ('saint-louis_(alluring_administrator)_(azur_lane)', 'character'),
@@ -53956,7 +53956,7 @@ VALUES ('nezusuke_(blue_archive)', 'character'),
 ('twintail-chan_(white-stew)', 'character'),
 ('chapayev_(white_cavalier''s_respite)_(azur_lane)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('whisper_(ragnarok_online)', 'character'),
 ('sukeban_(mg)_(blue_archive)', 'character'),
 ('sukeban_(smg)_(blue_archive)', 'character'),
@@ -54058,7 +54058,7 @@ VALUES ('whisper_(ragnarok_online)', 'character'),
 ('goutokuji_mike', 'character'),
 ('gauma', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('aris_(blue_archive)', 'character'),
 ('gemini_kanon', 'character'),
 ('hinamizawa_hinami_(tetto)', 'character'),
@@ -54160,7 +54160,7 @@ VALUES ('aris_(blue_archive)', 'character'),
 ('p90_(the_girl_from_b.e.l)_(girls''_frontline)', 'character'),
 ('seele_vollerei_(starchasm_nyx)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('ijichi_kiyotaka', 'character'),
 ('mei_mei_(jujutsu_kaisen)', 'character'),
 ('yaga_masamichi', 'character'),
@@ -54262,7 +54262,7 @@ VALUES ('ijichi_kiyotaka', 'character'),
 ('kanda_yui', 'character'),
 ('chuugoku_usagi', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('marina_(blue_archive)', 'character'),
 ('nodoka_(blue_archive)', 'character'),
 ('tomoe_(blue_archive)', 'character'),
@@ -54364,7 +54364,7 @@ VALUES ('marina_(blue_archive)', 'character'),
 ('allial_(coefont)', 'character'),
 ('millial_(coefont)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('boise_(azur_lane)', 'character'),
 ('azusa_(blue_archive)', 'character'),
 ('yi_feng_(the_legend_of_luoxiaohei)', 'character'),
@@ -54466,7 +54466,7 @@ VALUES ('boise_(azur_lane)', 'character'),
 ('barghest_(fate)', 'character'),
 ('barghest_(second_ascension)_(fate)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('ochanomizu_mirie', 'character'),
 ('azuma_(lily-white_longing)_(azur_lane)', 'character'),
 ('nolan_grayson', 'character'),
@@ -54568,7 +54568,7 @@ VALUES ('ochanomizu_mirie', 'character'),
 ('rikudou_yura', 'character'),
 ('satou_mei', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('tongkkangi_(streamer)', 'character'),
 ('amano_nene_(vtuber)', 'character'),
 ('august_von_parseval_(azur_lane)', 'character'),
@@ -54670,7 +54670,7 @@ VALUES ('tongkkangi_(streamer)', 'character'),
 ('mitsuya_takashi', 'character'),
 ('baji_keisuke', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('hanemiya_kazutora', 'character'),
 ('morgan_le_fay_(queen_of_winter)_(fate)', 'character'),
 ('pentomo_(petra_gurin)', 'character'),
@@ -54772,7 +54772,7 @@ VALUES ('hanemiya_kazutora', 'character'),
 ('happy_chaos', 'character'),
 ('mafiaduck_(nilan)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('mika_melatika', 'character'),
 ('mika_melatika_(1st_costume)', 'character'),
 ('ahat_(ragnarok_online)', 'character'),
@@ -54874,7 +54874,7 @@ VALUES ('mika_melatika', 'character'),
 ('eiai_nano', 'character'),
 ('akashi_(water_bullet)_(live_a_hero)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('barok_van_zieks', 'character'),
 ('kazuma_asogi', 'character'),
 ('gina_lestrade', 'character'),
@@ -54976,7 +54976,7 @@ VALUES ('barok_van_zieks', 'character'),
 ('marina_(omori)', 'character'),
 ('medusa_(omori)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('molly_(omori)', 'character'),
 ('saori_(blue_archive)', 'character'),
 ('kaneko_lumi', 'character'),
@@ -55078,7 +55078,7 @@ VALUES ('molly_(omori)', 'character'),
 ('isla_(kof)', 'character'),
 ('mihono_bourbon_(ghosty_and_the_magic_of_halloween)_(umamusume)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('lincoro', 'character'),
 ('hella_(path_to_nowhere)', 'character'),
 ('sera_(lero_ray)', 'character'),
@@ -55180,7 +55180,7 @@ VALUES ('lincoro', 'character'),
 ('haitani_ran', 'character'),
 ('haitani_rindou', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('kokonoi_hajime', 'character'),
 ('sanzu_haruchiyo', 'character'),
 ('pittman_(alchemy_stars)', 'character'),
@@ -55282,7 +55282,7 @@ VALUES ('kokonoi_hajime', 'character'),
 ('shisui_kiki', 'character'),
 ('shisui_kiki_(1st_costume)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('suzumi_nemo', 'character'),
 ('suzumi_nemo_(1st_costume)', 'character'),
 ('touri_sei', 'character'),
@@ -55384,7 +55384,7 @@ VALUES ('suzumi_nemo', 'character'),
 ('cupitan_(granblue_fantasy)', 'character'),
 ('romg_the_jaguar', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('benn_beckman', 'character'),
 ('takashi_(gyee)', 'character'),
 ('oguri_cap_(miraculous_white_star)_(umamusume)', 'character'),
@@ -55486,7 +55486,7 @@ VALUES ('benn_beckman', 'character'),
 ('shwaa', 'character'),
 ('taigong_wang_(fate)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('larva_tiamat_(second_ascension)_(fate)', 'character'),
 ('hakui_koyori_(new_year)', 'character'),
 ('takane_lui_(new_year)', 'character'),
@@ -55588,7 +55588,7 @@ VALUES ('larva_tiamat_(second_ascension)_(fate)', 'character'),
 ('ohdo_yuamu', 'character'),
 ('shenhe_(young)_(genshin_impact)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('jingburger', 'character'),
 ('liss_meier_(koyashaka)', 'character'),
 ('astarion', 'character'),
@@ -55690,7 +55690,7 @@ VALUES ('jingburger', 'character'),
 ('chen_hai_(vestibule_of_wonders)_(azur_lane)', 'character'),
 ('funada_ui', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('dorshe', 'character'),
 ('the_endsinger', 'character'),
 ('akuma_nihmune_(1st_costume)', 'character'),
@@ -55792,7 +55792,7 @@ VALUES ('dorshe', 'character'),
 ('hisuian_sneasel', 'character'),
 ('sena_(xenoblade)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('younger_twin_sister_(muninshiki)', 'character'),
 ('cheng_xiaoshi', 'character'),
 ('lu_guang', 'character'),
@@ -55894,7 +55894,7 @@ VALUES ('younger_twin_sister_(muninshiki)', 'character'),
 ('tea_party_militant_(blue_archive)', 'character'),
 ('eiden_(nu_carnival)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('kuya_(nu_carnival)', 'character'),
 ('quincy_(nu_carnival)', 'character'),
 ('godfrey_first_elden_lord', 'character'),
@@ -55996,7 +55996,7 @@ VALUES ('kuya_(nu_carnival)', 'character'),
 ('andoain_(arknights)', 'character'),
 ('kuki_shinobu', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('bonanus_(genshin_impact)', 'character'),
 ('bosacius_(genshin_impact)', 'character'),
 ('indarias_(genshin_impact)', 'character'),
@@ -56098,7 +56098,7 @@ VALUES ('bonanus_(genshin_impact)', 'character'),
 ('rockrock_(arknights)', 'character'),
 ('captain_spaceboy', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('maijima_karen', 'character'),
 ('azeyma', 'character'),
 ('azure_(alchemy_stars)', 'character'),
@@ -56200,7 +56200,7 @@ VALUES ('maijima_karen', 'character'),
 ('black_knife_assassin', 'character'),
 ('nelly_(xyronii)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('kanabako_misora', 'character'),
 ('isonami_kai_ni_(kancolle)', 'character'),
 ('charon_(project_moon)', 'character'),
@@ -56302,7 +56302,7 @@ VALUES ('kanabako_misora', 'character'),
 ('land_(sousou_no_frieren)', 'character'),
 ('ubel_(sousou_no_frieren)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('jervis_(azur_lane)', 'character'),
 ('roon_(viridescent_lullaby)_(azur_lane)', 'character'),
 ('akaori_umeka', 'character'),
@@ -56404,7 +56404,7 @@ VALUES ('jervis_(azur_lane)', 'character'),
 ('yuurei-chan', 'character'),
 ('aoki_ruri', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('kurahashi_(kancolle)', 'character'),
 ('wakamo_(swimsuit)_(blue_archive)', 'character'),
 ('cloud_strife_(murasame)', 'character'),
@@ -56506,7 +56506,7 @@ VALUES ('kurahashi_(kancolle)', 'character'),
 ('ho''olheyak_(arknights)', 'character'),
 ('bloom_(irys)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('gloom_(irys)', 'character'),
 ('lyrilusc_-_ensemblue_robin', 'character'),
 ('rosmontis_(become_anew)_(arknights)', 'character'),
@@ -56608,7 +56608,7 @@ VALUES ('gloom_(irys)', 'character'),
 ('leonardo_da_vinci_(azur_lane)', 'character'),
 ('sakae_izumi', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('yamori_kou', 'character'),
 ('kamen_rider_geats', 'character'),
 ('tokoyami_towa_(school_uniform)', 'character'),
@@ -56710,7 +56710,7 @@ VALUES ('yamori_kou', 'character'),
 ('jamie_siu', 'character'),
 ('n_(xenoblade)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('kirahoshi_kanna', 'character'),
 ('mirumo', 'character'),
 ('kureiji_ollie_(mafia_princess)', 'character'),
@@ -56812,7 +56812,7 @@ VALUES ('kirahoshi_kanna', 'character'),
 ('eyjafjalla_(ambience_synesthesia)_(arknights)', 'character'),
 ('texas_(ambience_synesthesia)_(arknights)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('rose_(mahoutsukai_rose_no_sado_life)', 'character'),
 ('sana_(mahoutsukai_rose_no_sado_life)', 'character'),
 ('goodtimeswithscar', 'character'),
@@ -56914,7 +56914,7 @@ VALUES ('rose_(mahoutsukai_rose_no_sado_life)', 'character'),
 ('zuo_le_(arknights)', 'character'),
 ('exosister_martha', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('nika_nanaura', 'character'),
 ('kazemaru_(like_illusion)_(arknights)', 'character'),
 ('millennium_science_school_student_(blue_archive)', 'character'),
@@ -57016,7 +57016,7 @@ VALUES ('nika_nanaura', 'character'),
 ('toki_(blue_archive)', 'character'),
 ('rio_(blue_archive)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('commander_(nikke)', 'character'),
 ('syuen_(nikke)', 'character'),
 ('jackie_quilt', 'character'),
@@ -57118,7 +57118,7 @@ VALUES ('commander_(nikke)', 'character'),
 ('hebiyoi_tier_(1st_costume)', 'character'),
 ('oinomori_may', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('oinomori_may_(1st_costume)', 'character'),
 ('melinoe_(hades)', 'character'),
 ('arihara_satoru', 'character'),
@@ -57220,7 +57220,7 @@ VALUES ('oinomori_may_(1st_costume)', 'character'),
 ('sophie_pulone', 'character'),
 ('chief_(path_to_nowhere)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('female_chief_(path_to_nowhere)', 'character'),
 ('prospera_mercury', 'character'),
 ('lisa_(a_sobriquet_under_shade)_(genshin_impact)', 'character'),
@@ -57322,7 +57322,7 @@ VALUES ('female_chief_(path_to_nowhere)', 'character'),
 ('mori_calliope_(sleepwear)', 'character'),
 ('hanazono_hahari', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('louis_(fire_emblem)', 'character'),
 ('ade_(nikke)', 'character'),
 ('pomemori', 'character'),
@@ -57424,7 +57424,7 @@ VALUES ('louis_(fire_emblem)', 'character'),
 ('koshimizu_toru', 'character'),
 ('koshimizu_toru_(1st_costume)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('mehrak_(genshin_impact)', 'character'),
 ('mia_(scott_malin)', 'character'),
 ('fubuki_(anniversary)_(kancolle)', 'character'),
@@ -57526,7 +57526,7 @@ VALUES ('mehrak_(genshin_impact)', 'character'),
 ('yuzuriha_(jigokuraku)', 'character'),
 ('shiratori_amaha_(re:stage!)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('na''el_(xenoblade)', 'character'),
 ('jiyan_(wuthering_waves)', 'character'),
 ('shiozaki_suzume', 'character'),
@@ -57628,7 +57628,7 @@ VALUES ('na''el_(xenoblade)', 'character'),
 ('sayama_youtarou_(gibagiba)', 'character'),
 ('ogerpon', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('rumi_(blue_archive)', 'character'),
 ('oozora_subaru_(loungewear)', 'character'),
 ('new_jersey_(midsummer_leisure)_(azur_lane)', 'character'),
@@ -57730,7 +57730,7 @@ VALUES ('rumi_(blue_archive)', 'character'),
 ('shinigami_(rain_code)', 'character'),
 ('an-an_lee', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('hinata_mashu', 'character'),
 ('equinox_(racehorse)', 'character'),
 ('miao_jiujiu', 'character'),
@@ -57832,7 +57832,7 @@ VALUES ('hinata_mashu', 'character'),
 ('tooth_fairy_(reverse:1999)', 'character'),
 ('druvis_iii', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('mococo_abyssgard_(1st_costume)', 'character'),
 ('neroli_(pokemon)', 'character'),
 ('eyjafjalla_the_hvit_aska_(arknights)', 'character'),
@@ -57934,7 +57934,7 @@ VALUES ('mococo_abyssgard_(1st_costume)', 'character'),
 ('amber_(fire_emblem)', 'character'),
 ('jade_(fire_emblem)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('blathine_(genshin_impact)', 'character'),
 ('baobhan_sith_(swimsuit_pretender)_(second_ascension)_(fate)', 'character'),
 ('hanamaru_(genjitsu_no_yohane)', 'character'),
@@ -58036,7 +58036,7 @@ VALUES ('blathine_(genshin_impact)', 'character'),
 ('kurumi_noah_(4th_costume)', 'character'),
 ('rock_miku_(project_voltage)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('itou_akane', 'character'),
 ('kashino_(robust_floral_strings)_(azur_lane)', 'character'),
 ('ground_miku_(project_voltage)', 'character'),
@@ -58138,7 +58138,7 @@ VALUES ('itou_akane', 'character'),
 ('irys_(casualrys)_(hololive)', 'character'),
 ('march_7th_(future_market)_(honkai:_star_rail)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('elira_pendora_(4th_costume)', 'character'),
 ('bulbmin', 'character'),
 ('player_character_(degrees_of_lewdity)', 'character'),
@@ -58240,7 +58240,7 @@ VALUES ('elira_pendora_(4th_costume)', 'character'),
 ('flamme_(sousou_no_frieren)', 'character'),
 ('crimzon_ruze', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('marle_(puyopuyo)', 'character'),
 ('caine_(the_amazing_digital_circus)', 'character'),
 ('hanitan', 'character'),
@@ -58342,7 +58342,7 @@ VALUES ('marle_(puyopuyo)', 'character'),
 ('mario_(pripara)', 'character'),
 ('ayn_alwyn', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('drayton_(pokemon)', 'character'),
 ('shane_(stardew_valley)', 'character'),
 ('kearsarge_(all_night_charge)_(azur_lane)', 'character'),
@@ -58444,7 +58444,7 @@ VALUES ('drayton_(pokemon)', 'character'),
 ('kraft_(sousou_no_frieren)', 'character'),
 ('rucora_(fushigi_na_neko_no_machi_meltier)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('ako_(dress)_(blue_archive)', 'character'),
 ('hina_(dress)_(blue_archive)', 'character'),
 ('sangonomiya_kokomi_(sushiro)', 'character'),
@@ -58546,7 +58546,7 @@ VALUES ('ako_(dress)_(blue_archive)', 'character'),
 ('carbuncle_(reverse:1999)', 'character'),
 ('shamane', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('orfevre_(umamusume)', 'character'),
 ('gentildonna_(umamusume)', 'character'),
 ('transcend_(umamusume)', 'character'),
@@ -58648,7 +58648,7 @@ VALUES ('orfevre_(umamusume)', 'character'),
 ('trony_(nikke)', 'character'),
 ('nirei_nozomi', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('nina_lazydaisy', 'character'),
 ('natsu_(band)_(blue_archive)', 'character'),
 ('airi_(band)_(blue_archive)', 'character'),
@@ -58750,7 +58750,7 @@ VALUES ('nina_lazydaisy', 'character'),
 ('koharu_suzumura', 'character'),
 ('minato_matsuki', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('archer_(fate/samurai_remnant)', 'character'),
 ('aesc_(exhibition_attire)_(fate)', 'character'),
 ('katsushika_hokusai_(exhibition_attire)_(fate)', 'character'),
@@ -58852,7 +58852,7 @@ VALUES ('archer_(fate/samurai_remnant)', 'character'),
 ('li_yuting_(male)', 'character'),
 ('rellana_twin_moon_knight', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('rosanna_(chic_ocean)_(nikke)', 'character'),
 ('raziel_(summer)_(granblue_fantasy)', 'character'),
 ('calstone_light_o_(umamusume)', 'character'),
@@ -58954,7 +58954,7 @@ VALUES ('rosanna_(chic_ocean)_(nikke)', 'character'),
 ('bai_ling_(touqi_guaitan)', 'character'),
 ('wu_song_(female)_(touqi_guaitan)', 'character');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('mauvier_(fire_emblem)', 'character'),
 ('momose_ginko_(swimsuit)', 'character'),
 ('lily_(princess_connect!)', 'character'),
@@ -59056,7 +59056,7 @@ VALUES ('mauvier_(fire_emblem)', 'character'),
 ('kizuato', 'copyright'),
 ('kimi_ga_nozomu_eien', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('fushigiboshi_no_futago_hime', 'copyright'),
 ('elemental_gelade', 'copyright'),
 ('moetan', 'copyright'),
@@ -59158,7 +59158,7 @@ VALUES ('fushigiboshi_no_futago_hime', 'copyright'),
 ('boukun_habanero', 'copyright'),
 ('linux', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('kao_no_nai_tsuki', 'copyright'),
 ('nhk_ni_youkoso!', 'copyright'),
 ('yokohama_kaidashi_kikou', 'copyright'),
@@ -59260,7 +59260,7 @@ VALUES ('kao_no_nai_tsuki', 'copyright'),
 ('yuusha_ou_gaogaigar', 'copyright'),
 ('yuusha_series', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('yuusha_ou_gaogaigar_final', 'copyright'),
 ('fatal_frame', 'copyright'),
 ('fatal_frame_2', 'copyright'),
@@ -59362,7 +59362,7 @@ VALUES ('yuusha_ou_gaogaigar_final', 'copyright'),
 ('newtype', 'copyright'),
 ('tsubasa_chronicle', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('f-ism', 'copyright'),
 ('4chan', 'copyright'),
 ('magic:_the_gathering', 'copyright'),
@@ -59464,7 +59464,7 @@ VALUES ('f-ism', 'copyright'),
 ('phantasy_star_ii', 'copyright'),
 ('leaf_(studio)', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('kingdom_hearts', 'copyright'),
 ('kingdom_hearts_i', 'copyright'),
 ('lupin_iii', 'copyright'),
@@ -59566,7 +59566,7 @@ VALUES ('kingdom_hearts', 'copyright'),
 ('final_fantasy_tactics_advance', 'copyright'),
 ('kikou_souseiki_mospeada', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('gagraphic', 'copyright'),
 ('powerpuff_girls_z', 'copyright'),
 ('sangokushi_taisen', 'copyright'),
@@ -59668,7 +59668,7 @@ VALUES ('gagraphic', 'copyright'),
 ('sagara-san''chi_no_etsuraku_life', 'copyright'),
 ('sisters_~natsu_no_saigo_no_hi~', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('little_princess', 'copyright'),
 ('marl_kingdom', 'copyright'),
 ('zone_of_the_enders', 'copyright'),
@@ -59770,7 +59770,7 @@ VALUES ('little_princess', 'copyright'),
 ('sound_horizon', 'copyright'),
 ('thomas_the_tank_engine', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('rance_(series)', 'copyright'),
 ('sengoku_rance', 'copyright'),
 ('aika_r-16', 'copyright'),
@@ -59872,7 +59872,7 @@ VALUES ('rance_(series)', 'copyright'),
 ('monster_musume_no_iru_nichijou', 'copyright'),
 ('dennou_coil', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('shining_force_exa', 'copyright'),
 ('marchen_awakens_romance', 'copyright'),
 ('kenkou_zenrakei_suieibu_umishou', 'copyright'),
@@ -59974,7 +59974,7 @@ VALUES ('shining_force_exa', 'copyright'),
 ('neon_genesis_evangelion_anima', 'copyright'),
 ('lotus_land_story', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('super_mario_world', 'copyright'),
 ('dr._mario_(game)', 'copyright'),
 ('can_can_bunny', 'copyright'),
@@ -60076,7 +60076,7 @@ VALUES ('super_mario_world', 'copyright'),
 ('real_bout_high_school', 'copyright'),
 ('megami_magazine_creators', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('macross_frontier', 'copyright'),
 ('gradius', 'copyright'),
 ('suica', 'copyright'),
@@ -60178,7 +60178,7 @@ VALUES ('macross_frontier', 'copyright'),
 ('kyouran_kazoku_nikki', 'copyright'),
 ('wild_arms_3', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('kanojo_x_kanojo_x_kanojo', 'copyright'),
 ('kokoro_(vocaloid)', 'copyright'),
 ('axis_powers_hetalia', 'copyright'),
@@ -60280,7 +60280,7 @@ VALUES ('kanojo_x_kanojo_x_kanojo', 'copyright'),
 ('south_park', 'copyright'),
 ('brave_witches', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('avatar:_the_last_airbender', 'copyright'),
 ('avatar_legends', 'copyright'),
 ('phoenix_wright:_ace_attorney_-_trials_and_tribulations', 'copyright'),
@@ -60382,7 +60382,7 @@ VALUES ('avatar:_the_last_airbender', 'copyright'),
 ('sket_dance', 'copyright'),
 ('mahou_shoujo_(raita)', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('gear_senshi_dendou', 'copyright'),
 ('super_mario_galaxy', 'copyright'),
 ('blazblue:_calamity_trigger', 'copyright'),
@@ -60484,7 +60484,7 @@ VALUES ('gear_senshi_dendou', 'copyright'),
 ('fallout_(series)', 'copyright'),
 ('fallout_3', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('cross_edge', 'copyright'),
 ('sora_wo_kakeru_shoujo', 'copyright'),
 ('another_code', 'copyright'),
@@ -60586,7 +60586,7 @@ VALUES ('cross_edge', 'copyright'),
 ('wild_arms_4', 'copyright'),
 ('issho_ni_training', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('maji_de_watashi_ni_koi_shinasai!', 'copyright'),
 ('toeto_(vocaloid)', 'copyright'),
 ('seitokai_no_ichizon', 'copyright'),
@@ -60688,7 +60688,7 @@ VALUES ('maji_de_watashi_ni_koi_shinasai!', 'copyright'),
 ('musunde_hiraite_rasetsu_to_mukuro_(vocaloid)', 'copyright'),
 ('choo_choo_train', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('hourou_musuko', 'copyright'),
 ('fuwa_fuwa_cinnamoroll', 'copyright'),
 ('nekomonogatari', 'copyright'),
@@ -60790,7 +60790,7 @@ VALUES ('hourou_musuko', 'copyright'),
 ('ar_tonelico_iii', 'copyright'),
 ('golgo_13', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('senjou_no_valkyria_2', 'copyright'),
 ('sora_no_woto', 'copyright'),
 ('nyan_koi!', 'copyright'),
@@ -60892,7 +60892,7 @@ VALUES ('senjou_no_valkyria_2', 'copyright'),
 ('star_ocean_first_departure', 'copyright'),
 ('rolling_girl_(vocaloid)', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('digimon_adventure:_bokura_no_war_game', 'copyright'),
 ('howl_no_ugoku_shiro', 'copyright'),
 ('kurenai_no_buta', 'copyright'),
@@ -60994,7 +60994,7 @@ VALUES ('digimon_adventure:_bokura_no_war_game', 'copyright'),
 ('kiseijuu', 'copyright'),
 ('karigurashi_no_arrietty', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('maoyuu_maou_yuusha', 'copyright'),
 ('street_fighter_x_tekken', 'copyright'),
 ('kingdom_hearts_birth_by_sleep', 'copyright'),
@@ -61096,7 +61096,7 @@ VALUES ('maoyuu_maou_yuusha', 'copyright'),
 ('himitsu_keisatsu_(vocaloid)', 'copyright'),
 ('grisaia_(series)', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('grisaia_no_kajitsu', 'copyright'),
 ('shaft_(company)', 'copyright'),
 ('strike_witches_1991', 'copyright'),
@@ -61198,7 +61198,7 @@ VALUES ('grisaia_no_kajitsu', 'copyright'),
 ('alice:_madness_returns', 'copyright'),
 ('american_mcgee''s_alice', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('date_a_live', 'copyright'),
 ('atelier_meruru', 'copyright'),
 ('dragon_crisis!', 'copyright'),
@@ -61300,7 +61300,7 @@ VALUES ('date_a_live', 'copyright'),
 ('the_legend_of_zelda:_skyward_sword', 'copyright'),
 ('calpis', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('criminal_girls', 'copyright'),
 ('unhappy_refrain_(vocaloid)', 'copyright'),
 ('nazo_no_kanojo_x', 'copyright'),
@@ -61402,7 +61402,7 @@ VALUES ('criminal_girls', 'copyright'),
 ('the_seven-year_itch', 'copyright'),
 ('tamayura', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('demon_mages', 'copyright'),
 ('yoshinaga-san''chi_no_gargoyle', 'copyright'),
 ('contra', 'copyright'),
@@ -61504,7 +61504,7 @@ VALUES ('demon_mages', 'copyright'),
 ('kingdom_hearts_3d_dream_drop_distance', 'copyright'),
 ('hyouka', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('j._league', 'copyright'),
 ('premier_league', 'copyright'),
 ('lilo_&_stitch', 'copyright'),
@@ -61606,7 +61606,7 @@ VALUES ('j._league', 'copyright'),
 ('under_night_in-birth', 'copyright'),
 ('kyousougiga', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('digimon_world_re:digitize', 'copyright'),
 ('senran_kagura_burst', 'copyright'),
 ('tekken_tag_tournament_2', 'copyright'),
@@ -61708,7 +61708,7 @@ VALUES ('digimon_world_re:digitize', 'copyright'),
 ('sword_art_online:_alicization', 'copyright'),
 ('teekyuu', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('dokidoki!_precure', 'copyright'),
 ('tsukihime_(remake)', 'copyright'),
 ('shingeki_no_bahamut', 'copyright'),
@@ -61810,7 +61810,7 @@ VALUES ('dokidoki!_precure', 'copyright'),
 ('majestic_prince', 'copyright'),
 ('overlord_(maruyama)', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('inazuma_eleven_go_galaxy', 'copyright'),
 ('kill_la_kill', 'copyright'),
 ('double_dealing_character', 'copyright'),
@@ -61912,7 +61912,7 @@ VALUES ('inazuma_eleven_go_galaxy', 'copyright'),
 ('shantae:_half-genie_hero', 'copyright'),
 ('kono_subarashii_sekai_ni_shukufuku_wo!', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('lovely_x_cation', 'copyright'),
 ('world_of_tanks', 'copyright'),
 ('kotobukiya', 'copyright'),
@@ -62014,7 +62014,7 @@ VALUES ('lovely_x_cation', 'copyright'),
 ('komori-san_wa_kotowarenai!', 'copyright'),
 ('devil_maker', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('sonic_boom_(series)', 'copyright'),
 ('ressha_sentai_toqger', 'copyright'),
 ('future_card_buddyfight', 'copyright'),
@@ -62116,7 +62116,7 @@ VALUES ('sonic_boom_(series)', 'copyright'),
 ('mogeko_castle', 'copyright'),
 ('chloe_no_requiem', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('kenja_no_deshi_wo_nanoru_kenja', 'copyright'),
 ('starry_night_(van_gogh)', 'copyright'),
 ('e_2', 'copyright'),
@@ -62218,7 +62218,7 @@ VALUES ('kenja_no_deshi_wo_nanoru_kenja', 'copyright'),
 ('mofu-mofu_after_school', 'copyright'),
 ('mofumofu_channel', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('payday_(series)', 'copyright'),
 ('shingeki_no_bahamut:_genesis', 'copyright'),
 ('soulworker', 'copyright'),
@@ -62320,7 +62320,7 @@ VALUES ('payday_(series)', 'copyright'),
 ('dragon_quest_heroes', 'copyright'),
 ('little_noah', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('retrospective_53_minutes', 'copyright'),
 ('love_live!_sunshine!!', 'copyright'),
 ('ace_of_diamond', 'copyright'),
@@ -62422,7 +62422,7 @@ VALUES ('retrospective_53_minutes', 'copyright'),
 ('zetsuen_no_tempest', 'copyright'),
 ('brilliant_pagoda_or_haze_castle', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('atelier_sophie', 'copyright'),
 ('world_of_warships', 'copyright'),
 ('dorei_to_no_seikatsu_~teaching_feeling~', 'copyright'),
@@ -62524,7 +62524,7 @@ VALUES ('atelier_sophie', 'copyright'),
 ('akutoku_no_judgement_(vocaloid)', 'copyright'),
 ('mikagura_gakuen_kumikyoku', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('mahou_girls_precure!', 'copyright'),
 ('qualidea_code', 'copyright'),
 ('cosmic_break_2', 'copyright'),
@@ -62626,7 +62626,7 @@ VALUES ('mahou_girls_precure!', 'copyright'),
 ('new_york_yankees', 'copyright'),
 ('yagate_kimi_ni_naru', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('everlasting_summer', 'copyright'),
 ('machine_robo', 'copyright'),
 ('hatsune_miku_graphy_collection', 'copyright'),
@@ -62728,7 +62728,7 @@ VALUES ('everlasting_summer', 'copyright'),
 ('papico_(ice_cream)', 'copyright'),
 ('muv-luv_alternative_strike_frontier', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('kingdom_hearts_iii', 'copyright'),
 ('merc_storia', 'copyright'),
 ('red_velvet_(group)', 'copyright'),
@@ -62830,7 +62830,7 @@ VALUES ('kingdom_hearts_iii', 'copyright'),
 ('eve_online', 'copyright'),
 ('spec', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('infinite_blade_pavilion', 'copyright'),
 ('antinomy_of_common_flowers', 'copyright'),
 ('floral_flowlove', 'copyright'),
@@ -62932,7 +62932,7 @@ VALUES ('infinite_blade_pavilion', 'copyright'),
 ('pixiv_festa', 'copyright'),
 ('talkex', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('under_night_in-birth_exe:late[st]', 'copyright'),
 ('nanase-chan_ntr!', 'copyright'),
 ('hell''s_kitchen', 'copyright'),
@@ -63034,7 +63034,7 @@ VALUES ('under_night_in-birth_exe:late[st]', 'copyright'),
 ('fire_emblem_warriors', 'copyright'),
 ('age_of_ishtaria', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('v_yuusha_no_kuse_ni_namaiki_da_r', 'copyright'),
 ('yuusha_no_kuse_ni_namaiki_da', 'copyright'),
 ('shin_megami_tensei_iv_final', 'copyright'),
@@ -63136,7 +63136,7 @@ VALUES ('v_yuusha_no_kuse_ni_namaiki_da_r', 'copyright'),
 ('slow_motion_(vocaloid)', 'copyright'),
 ('senjou_no_valkyria_4', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('you_can_eat_the_girl', 'copyright'),
 ('nijisanji', 'copyright'),
 ('indie_virtual_youtuber', 'copyright'),
@@ -63238,7 +63238,7 @@ VALUES ('you_can_eat_the_girl', 'copyright'),
 ('ben_10:_alien_force', 'copyright'),
 ('resident_evil_2_(remake)', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('kemono_friends_festival', 'copyright'),
 ('devil_may_cry_5', 'copyright'),
 ('darkest_dungeon', 'copyright'),
@@ -63340,7 +63340,7 @@ VALUES ('kemono_friends_festival', 'copyright'),
 ('denkou_choujin_gridman', 'copyright'),
 ('shin_yomawari', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('comic_bavel', 'copyright'),
 ('gakuen_basara', 'copyright'),
 ('otome_gee_sekai_wa_mob_ni_kibishii_sekai_desu', 'copyright'),
@@ -63442,7 +63442,7 @@ VALUES ('comic_bavel', 'copyright'),
 ('comiket_96', 'copyright'),
 ('godzilla:_king_of_the_monsters', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('wily_beast_and_weakest_creature', 'copyright'),
 ('grand_chase', 'copyright'),
 ('joshi_kousei_rich_thots', 'copyright'),
@@ -63544,7 +63544,7 @@ VALUES ('wily_beast_and_weakest_creature', 'copyright'),
 ('gundam_build_divers_re:rise', 'copyright'),
 ('ragnarok_masters', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('riot_music', 'copyright'),
 ('ring_fit_adventure', 'copyright'),
 ('ghost_in_the_shell:_sac_2045', 'copyright'),
@@ -63646,7 +63646,7 @@ VALUES ('riot_music', 'copyright'),
 ('mechanical_buddy_universe', 'copyright'),
 ('evangelion:_3.0+1.0_thrice_upon_a_time', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('mewkledreamy', 'copyright'),
 ('maid_master', 'copyright'),
 ('tonikaku_kawaii', 'copyright'),
@@ -63748,7 +63748,7 @@ VALUES ('mewkledreamy', 'copyright'),
 ('sousou_no_frieren', 'copyright'),
 ('gundam_breaker_mobile', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('seitokai_nimo_anawa_aru!', 'copyright'),
 ('kakuchou_shoujo-kei_trinary', 'copyright'),
 ('otome_kaibou_(vocaloid)', 'copyright'),
@@ -63850,7 +63850,7 @@ VALUES ('seitokai_nimo_anawa_aru!', 'copyright'),
 ('kawaii_dake_ja_nai_shikimori-san', 'copyright'),
 ('red_dead_redemption_2', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('wonder_egg_priority', 'copyright'),
 ('gensou_suikoden_iv', 'copyright'),
 ('omori', 'copyright'),
@@ -63952,7 +63952,7 @@ VALUES ('wonder_egg_priority', 'copyright'),
 ('teppen', 'copyright'),
 ('five_nights_at_freddy''s:_security_breach', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('phase_connect', 'copyright'),
 ('ben_10:_omniverse', 'copyright'),
 ('danganronpa_s:_ultimate_summer_camp', 'copyright'),
@@ -64054,7 +64054,7 @@ VALUES ('phase_connect', 'copyright'),
 ('azure_striker_gunvolt_3', 'copyright'),
 ('another_eidos-r', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('paradiso_guardian', 'copyright'),
 ('scarz', 'copyright'),
 ('kamippoina_(vocaloid)', 'copyright'),
@@ -64156,7 +64156,7 @@ VALUES ('paradiso_guardian', 'copyright'),
 ('engage_kiss', 'copyright'),
 ('tokimeki_memorial_girl''s_side_4th_heart', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('slow_damage', 'copyright'),
 ('star_wars:_visions', 'copyright'),
 ('internet_survivor', 'copyright'),
@@ -64258,7 +64258,7 @@ VALUES ('slow_damage', 'copyright'),
 ('splatoon_3:_side_order', 'copyright'),
 ('pikmin_4', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('hogwarts_legacy', 'copyright'),
 ('koutsugou_semi-friend', 'copyright'),
 ('kirby''s_return_to_dream_land_deluxe', 'copyright'),
@@ -64360,7 +64360,7 @@ VALUES ('hogwarts_legacy', 'copyright'),
 ('the_coffin_of_andy_and_leyley', 'copyright'),
 ('gate_of_nightmares', 'copyright');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('voicepeak', 'copyright'),
 ('veil_(manga)', 'copyright'),
 ('godzilla_minus_one', 'copyright'),
@@ -64462,7 +64462,7 @@ VALUES ('voicepeak', 'copyright'),
 ('sanshita', 'artist'),
 ('umekichi', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('naitou_kouse', 'artist'),
 ('muuba', 'artist'),
 ('ikegami_akane', 'artist'),
@@ -64564,7 +64564,7 @@ VALUES ('naitou_kouse', 'artist'),
 ('kou1', 'artist'),
 ('kawata_hisashi', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('akamatsu_ken', 'artist'),
 ('sadamoto_yoshiyuki', 'artist'),
 ('kusaka_souji', 'artist'),
@@ -64666,7 +64666,7 @@ VALUES ('akamatsu_ken', 'artist'),
 ('ikuta_takanon', 'artist'),
 ('yukiwo', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('fujieda_miyabi', 'artist'),
 ('soba_(saz)', 'artist'),
 ('kabayaki_unagi', 'artist'),
@@ -64768,7 +64768,7 @@ VALUES ('fujieda_miyabi', 'artist'),
 ('hinoue_itaru', 'artist'),
 ('kitazume_hiroyuki', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('satomi_(black_scarecrow)', 'artist'),
 ('kazami_karasu', 'artist'),
 ('sakaki_imasato', 'artist'),
@@ -64870,7 +64870,7 @@ VALUES ('satomi_(black_scarecrow)', 'artist'),
 ('yuuhi_alpha', 'artist'),
 ('kamogawa_tanuki', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('soyosoyo', 'artist'),
 ('mogudan', 'artist'),
 ('maachin', 'artist'),
@@ -64972,7 +64972,7 @@ VALUES ('soyosoyo', 'artist'),
 ('mr.romance', 'artist'),
 ('supon', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('fuwa_daisuke', 'artist'),
 ('mizutama', 'artist'),
 ('miyai_sen', 'artist'),
@@ -65074,7 +65074,7 @@ VALUES ('fuwa_daisuke', 'artist'),
 ('satou_yuuki', 'artist'),
 ('redrop', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('gengorou', 'artist'),
 ('nokishita', 'artist'),
 ('kanan', 'artist'),
@@ -65176,7 +65176,7 @@ VALUES ('gengorou', 'artist'),
 ('lowe_(slow)', 'artist'),
 ('kaneru', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('tao_(kadoya)', 'artist'),
 ('goban', 'artist'),
 ('ichikawa_masahiro', 'artist'),
@@ -65278,7 +65278,7 @@ VALUES ('tao_(kadoya)', 'artist'),
 ('chan_co', 'artist'),
 ('igarashi_mangou', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('ishihara_masumi', 'artist'),
 ('awa', 'artist'),
 ('emily_(pure_dream)', 'artist'),
@@ -65380,7 +65380,7 @@ VALUES ('ishihara_masumi', 'artist'),
 ('caffein', 'artist'),
 ('tsubasa_(abchipika)', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('mizuhara_yuu', 'artist'),
 ('huke', 'artist'),
 ('katahira_masashi', 'artist'),
@@ -65482,7 +65482,7 @@ VALUES ('mizuhara_yuu', 'artist'),
 ('matsunaga_kouyou', 'artist'),
 ('tachitsu_teto', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('nike_(0306)', 'artist'),
 ('noise_(tsuzuki)', 'artist'),
 ('hanada_hyou', 'artist'),
@@ -65584,7 +65584,7 @@ VALUES ('nike_(0306)', 'artist'),
 ('n:go', 'artist'),
 ('kisaragi_miyu', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('kiyomin', 'artist'),
 ('kibushi', 'artist'),
 ('hiruno', 'artist'),
@@ -65686,7 +65686,7 @@ VALUES ('kiyomin', 'artist'),
 ('hakaba_(dairiseki)', 'artist'),
 ('genzoman', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('shirosuzu', 'artist'),
 ('sai-go', 'artist'),
 ('mendou_saya', 'artist'),
@@ -65788,7 +65788,7 @@ VALUES ('shirosuzu', 'artist'),
 ('zucchini', 'artist'),
 ('ryouma_(galley)', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('kurokuro', 'artist'),
 ('nyanya', 'artist'),
 ('minarai', 'artist'),
@@ -65890,7 +65890,7 @@ VALUES ('kurokuro', 'artist'),
 ('nanaroba_hana', 'artist'),
 ('minazuki_tsuyuha', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('hama_chon', 'artist'),
 ('taguchi_kenji_(omaep)', 'artist'),
 ('shu-z', 'artist'),
@@ -65992,7 +65992,7 @@ VALUES ('hama_chon', 'artist'),
 ('shuga_(soranote)', 'artist'),
 ('eho_(icbm)', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('gyari_(imagesdawn)', 'artist'),
 ('mikoto_akemi', 'artist'),
 ('naoto_(tulip)', 'artist'),
@@ -66094,7 +66094,7 @@ VALUES ('gyari_(imagesdawn)', 'artist'),
 ('mizunoe_kotaru', 'artist'),
 ('uro_(urotanc)', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('dancho_(dancyo)', 'artist'),
 ('mafuyu_(kanden_shoujyo)', 'artist'),
 ('yuki_(popopo)', 'artist'),
@@ -66196,7 +66196,7 @@ VALUES ('dancho_(dancyo)', 'artist'),
 ('chiwino', 'artist'),
 ('piro_(orip)', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('nakatani_nio', 'artist'),
 ('ge-b', 'artist'),
 ('watanore', 'artist'),
@@ -66298,7 +66298,7 @@ VALUES ('nakatani_nio', 'artist'),
 ('miyabi_akino', 'artist'),
 ('minimaru', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('arsenixc', 'artist'),
 ('higa_yukari', 'artist'),
 ('kurou_(quadruple_zero)', 'artist'),
@@ -66400,7 +66400,7 @@ VALUES ('arsenixc', 'artist'),
 ('osashin_(osada)', 'artist'),
 ('ouhashi', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('noukatu', 'artist'),
 ('nucomas', 'artist'),
 ('mikan_(bananoha)', 'artist'),
@@ -66502,7 +66502,7 @@ VALUES ('noukatu', 'artist'),
 ('shouji_nigou', 'artist'),
 ('tokunou_shoutarou', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('nyori', 'artist'),
 ('ukokkei', 'artist'),
 ('zuwai_kani', 'artist'),
@@ -66604,7 +66604,7 @@ VALUES ('nyori', 'artist'),
 ('abenattou', 'artist'),
 ('kamonari_ahiru', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('miyuki_ruria', 'artist'),
 ('rioshi', 'artist'),
 ('mizutamako', 'artist'),
@@ -66706,7 +66706,7 @@ VALUES ('miyuki_ruria', 'artist'),
 ('pinakes', 'artist'),
 ('kagiana', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('anzu_(o6v6o)', 'artist'),
 ('uni_mate', 'artist'),
 ('udukikosuke', 'artist'),
@@ -66808,7 +66808,7 @@ VALUES ('anzu_(o6v6o)', 'artist'),
 ('oukawa_yuu', 'artist'),
 ('yurikuta_tsukumi', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('enkyo_yuuichirou', 'artist'),
 ('lee_hyeseung', 'artist'),
 ('melopun', 'artist'),
@@ -66910,7 +66910,7 @@ VALUES ('enkyo_yuuichirou', 'artist'),
 ('kiryu_manzoku', 'artist'),
 ('bomber_grape', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('swordsouls', 'artist'),
 ('arai_nobu', 'artist'),
 ('binsen', 'artist'),
@@ -67012,7 +67012,7 @@ VALUES ('swordsouls', 'artist'),
 ('taikyoku_tsurugi', 'artist'),
 ('sody', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('ao_banana', 'artist'),
 ('tanaka_rikimaru', 'artist'),
 ('jaku_sono', 'artist'),
@@ -67114,7 +67114,7 @@ VALUES ('ao_banana', 'artist'),
 ('asagi_yuna', 'artist'),
 ('ayumaru_(art_of_life)', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('itamochi', 'artist'),
 ('satou_kuuki', 'artist'),
 ('oyatsu_(mk2)', 'artist'),
@@ -67216,7 +67216,7 @@ VALUES ('itamochi', 'artist'),
 ('peso_(cheese_company)', 'artist'),
 ('masami_chie', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('mana_(remana)', 'artist'),
 ('seren_(staphy)', 'artist'),
 ('amano_chiharu', 'artist'),
@@ -67318,7 +67318,7 @@ VALUES ('mana_(remana)', 'artist'),
 ('nekota_susumu', 'artist'),
 ('suan_ringo', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('nishimura_eri', 'artist'),
 ('komaku_juushoku', 'artist'),
 ('ponponmaru', 'artist'),
@@ -67420,7 +67420,7 @@ VALUES ('nishimura_eri', 'artist'),
 ('sawatari_(sado)', 'artist'),
 ('xin_(blueramen)', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('terada_ochiko', 'artist'),
 ('ogry_ching', 'artist'),
 ('shu-mai', 'artist'),
@@ -67522,7 +67522,7 @@ VALUES ('terada_ochiko', 'artist'),
 ('umigraphics', 'artist'),
 ('kangetsu_(fhalei)', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('carina_(xiaowoo)', 'artist'),
 ('sumeragi_hamao', 'artist'),
 ('ricegnat', 'artist'),
@@ -67624,7 +67624,7 @@ VALUES ('carina_(xiaowoo)', 'artist'),
 ('kamishima_kanon', 'artist'),
 ('twrlare', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('shenbei_xiaoqiu', 'artist'),
 ('hayyan', 'artist'),
 ('yuuyu_(777)', 'artist'),
@@ -67726,7 +67726,7 @@ VALUES ('shenbei_xiaoqiu', 'artist'),
 ('arakawa_tarou', 'artist'),
 ('mondi_hl', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('tenchisouha', 'artist'),
 ('zan_(harukahime)', 'artist'),
 ('mitsunara', 'artist'),
@@ -67828,7 +67828,7 @@ VALUES ('tenchisouha', 'artist'),
 ('munlu_(wolupus)', 'artist'),
 ('suurin_(ksyaro)', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('fujinoki_(horonabe-ken)', 'artist'),
 ('eudetenis', 'artist'),
 ('aegis_(nerocc)', 'artist'),
@@ -67930,7 +67930,7 @@ VALUES ('fujinoki_(horonabe-ken)', 'artist'),
 ('pyz_(cath_x_tech)', 'artist'),
 ('senzzang', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('creek_(moon-sky)', 'artist'),
 ('mogamiya_honu', 'artist'),
 ('teffish', 'artist'),
@@ -68032,7 +68032,7 @@ VALUES ('creek_(moon-sky)', 'artist'),
 ('nameo_(judgemasterkou)', 'artist'),
 ('marumoru', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('mery_(yangmalgage)', 'artist'),
 ('kogane_(staygold)', 'artist'),
 ('infukun', 'artist'),
@@ -68134,7 +68134,7 @@ VALUES ('mery_(yangmalgage)', 'artist'),
 ('greenmarine', 'artist'),
 ('feral_lemma', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('tokiwa_midori_(kyokutou_funamushi)', 'artist'),
 ('witoi_(roa)', 'artist'),
 ('indesign', 'artist'),
@@ -68236,7 +68236,7 @@ VALUES ('tokiwa_midori_(kyokutou_funamushi)', 'artist'),
 ('kekemotsu', 'artist'),
 ('shake-o', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('alfort_(may0508)', 'artist'),
 ('akagi_kurage', 'artist'),
 ('kamukamu_(ars)', 'artist'),
@@ -68338,7 +68338,7 @@ VALUES ('alfort_(may0508)', 'artist'),
 ('chikuwa_savy', 'artist'),
 ('hekomii', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('tebi_(tbd11)', 'artist'),
 ('hinata_yuu', 'artist'),
 ('a.a_(aa772)', 'artist'),
@@ -68440,7 +68440,7 @@ VALUES ('tebi_(tbd11)', 'artist'),
 ('tabletorgy', 'artist'),
 ('reimei_(r758120518)', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('sugina_miki', 'artist'),
 ('anti_(0324)', 'artist'),
 ('cnm', 'artist'),
@@ -68542,7 +68542,7 @@ VALUES ('sugina_miki', 'artist'),
 ('optionaltypo', 'artist'),
 ('hayakawa_akari', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('kirishima_riona', 'artist'),
 ('byulzzi', 'artist'),
 ('hanasaka_houcha', 'artist'),
@@ -68644,7 +68644,7 @@ VALUES ('kirishima_riona', 'artist'),
 ('dakusuta', 'artist'),
 ('yamanashi_taiki', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('a9b_(louis814)', 'artist'),
 ('takatsuki_nato', 'artist'),
 ('navy_(navy.blue)', 'artist'),
@@ -68746,7 +68746,7 @@ VALUES ('a9b_(louis814)', 'artist'),
 ('meto31', 'artist'),
 ('ko_kita', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('haoro', 'artist'),
 ('kobone', 'artist'),
 ('satou_daiji', 'artist'),
@@ -68848,7 +68848,7 @@ VALUES ('haoro', 'artist'),
 ('melanbread', 'artist'),
 ('haneru', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('muoto', 'artist'),
 ('yukin_(es)', 'artist'),
 ('kouzuki_kei', 'artist'),
@@ -68950,7 +68950,7 @@ VALUES ('muoto', 'artist'),
 ('meng_ziya', 'artist'),
 ('zheng', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('0-den', 'artist'),
 ('ebifurya', 'artist'),
 ('murata_tefu', 'artist'),
@@ -69052,7 +69052,7 @@ VALUES ('0-den', 'artist'),
 ('rui_(sugar3)', 'artist'),
 ('kuzuryuu_kennosuke', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('d-rex', 'artist'),
 ('umibouzu_(niito)', 'artist'),
 ('monchan_rev3', 'artist'),
@@ -69154,7 +69154,7 @@ VALUES ('d-rex', 'artist'),
 ('kerorira', 'artist'),
 ('jjanda', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('makicha_(sasurainopink)', 'artist'),
 ('prywinko', 'artist'),
 ('taka-michi', 'artist'),
@@ -69256,7 +69256,7 @@ VALUES ('makicha_(sasurainopink)', 'artist'),
 ('shiosoda', 'artist'),
 ('ter_(otokoter)', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('mochizuki_mochi', 'artist'),
 ('mashuu_(neko_no_oyashiro)', 'artist'),
 ('henriiku_(ahemaru)', 'artist'),
@@ -69358,7 +69358,7 @@ VALUES ('mochizuki_mochi', 'artist'),
 ('kamameshi_gougoumaru', 'artist'),
 ('trente', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('toyosaki_shu', 'artist'),
 ('aga_marino', 'artist'),
 ('isa_(peien516)', 'artist'),
@@ -69460,7 +69460,7 @@ VALUES ('toyosaki_shu', 'artist'),
 ('karasuma_kuraha', 'artist'),
 ('kim_eb', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('mityubi', 'artist'),
 ('erezu', 'artist'),
 ('free_style_(yohan1754)', 'artist'),
@@ -69562,7 +69562,7 @@ VALUES ('mityubi', 'artist'),
 ('asuka_(junerabitts)', 'artist'),
 ('jcm2', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('somechime_(sometime1209)', 'artist'),
 ('blue-senpai', 'artist'),
 ('billie_(meng_gong_fang)', 'artist'),
@@ -69664,7 +69664,7 @@ VALUES ('somechime_(sometime1209)', 'artist'),
 ('yamiochi_umekichi', 'artist'),
 ('chawan_(yultutari)', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('jun_(navigavi)', 'artist'),
 ('nav_(itsnav)', 'artist'),
 ('sagamiso', 'artist'),
@@ -69766,7 +69766,7 @@ VALUES ('jun_(navigavi)', 'artist'),
 ('chinchongcha', 'artist'),
 ('doushi_tatsu_to_dekkai_no', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('hizuki_higure', 'artist'),
 ('pink_lady_mage', 'artist'),
 ('haiki_(tegusu)', 'artist'),
@@ -69868,7 +69868,7 @@ VALUES ('hizuki_higure', 'artist'),
 ('hen-tie', 'artist'),
 ('mcgunngu', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('chihuri', 'artist'),
 ('shiming_liangjing', 'artist'),
 ('salpin', 'artist'),
@@ -69970,7 +69970,7 @@ VALUES ('chihuri', 'artist'),
 ('gyozanuko', 'artist'),
 ('aotake_iro', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('sarasadou_dan', 'artist'),
 ('tokuura', 'artist'),
 ('white_ph', 'artist'),
@@ -70072,7 +70072,7 @@ VALUES ('sarasadou_dan', 'artist'),
 ('watosu', 'artist'),
 ('fizintine', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('ao_(ao0_0nemu)', 'artist'),
 ('hero_neisan', 'artist'),
 ('sakura_tsubame', 'artist'),
@@ -70174,7 +70174,7 @@ VALUES ('ao_(ao0_0nemu)', 'artist'),
 ('mashimashi', 'artist'),
 ('xanax025', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('himura_moritaka', 'artist'),
 ('aliceyawnin', 'artist'),
 ('apios', 'artist'),
@@ -70276,7 +70276,7 @@ VALUES ('himura_moritaka', 'artist'),
 ('rkrk12', 'artist'),
 ('uneg', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('haiba_09', 'artist'),
 ('chigusa_minori', 'artist'),
 ('masaki_(msk064)', 'artist'),
@@ -70378,7 +70378,7 @@ VALUES ('haiba_09', 'artist'),
 ('kusuribe', 'artist'),
 ('mao_lian_(nekokao)', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('genek', 'artist'),
 ('kurukurumagical', 'artist'),
 ('hokuro_ryuuseigun', 'artist'),
@@ -70480,7 +70480,7 @@ VALUES ('genek', 'artist'),
 ('mendou_kusai', 'artist'),
 ('kaedeko_(kaedelic)', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('volyz', 'artist'),
 ('somray', 'artist'),
 ('yqgkg', 'artist'),
@@ -70582,7 +70582,7 @@ VALUES ('volyz', 'artist'),
 ('akichin_(atelier_baguri)', 'artist'),
 ('zaphn', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('okame_nin', 'artist'),
 ('nanohana_(november.)', 'artist'),
 ('aogisa', 'artist'),
@@ -70684,7 +70684,7 @@ VALUES ('okame_nin', 'artist'),
 ('fataaa', 'artist'),
 ('daiishori', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('enma_(enmanuelart)', 'artist'),
 ('nekomugiharu', 'artist'),
 ('sakura_no_tomoru_hi_e', 'artist'),
@@ -70786,7 +70786,7 @@ VALUES ('enma_(enmanuelart)', 'artist'),
 ('s10021', 'artist'),
 ('ryuuneart', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('kilabo', 'artist'),
 ('iuui', 'artist'),
 ('unsfrau', 'artist'),
@@ -70888,7 +70888,7 @@ VALUES ('kilabo', 'artist'),
 ('offbeat', 'artist'),
 ('murase48', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('onedoo', 'artist'),
 ('sabamori', 'artist'),
 ('tsu_(lovesick1964)', 'artist'),
@@ -70990,7 +70990,7 @@ VALUES ('onedoo', 'artist'),
 ('aramaru', 'artist'),
 ('herohero_(higashi_no_dou)', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('helloimtea', 'artist'),
 ('diva_(hyxpk)', 'artist'),
 ('ichi-go', 'artist'),
@@ -71092,7 +71092,7 @@ VALUES ('helloimtea', 'artist'),
 ('baran._(ba_ra_ran)', 'artist'),
 ('kaminari_doon', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('nanao_(naoekaki25)', 'artist'),
 ('myeolchi', 'artist'),
 ('machigami_yoh', 'artist'),
@@ -71194,7 +71194,7 @@ VALUES ('nanao_(naoekaki25)', 'artist'),
 ('calin', 'artist'),
 ('cafin', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('gochisousama_(tanin050)', 'artist'),
 ('raine_(acke2445)', 'artist'),
 ('dolri', 'artist'),
@@ -71296,7 +71296,7 @@ VALUES ('gochisousama_(tanin050)', 'artist'),
 ('hoxutixu', 'artist'),
 ('amahara_subaru', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('zihacheol', 'artist'),
 ('tsukimoto_kizuki', 'artist'),
 ('kelvin-trainerk', 'artist'),
@@ -71398,7 +71398,7 @@ VALUES ('zihacheol', 'artist'),
 ('mixplin', 'artist'),
 ('illu_(illu_stratos)', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('ayaki_blade', 'artist'),
 ('kapuru_0410', 'artist'),
 ('airseal', 'artist'),
@@ -71500,7 +71500,7 @@ VALUES ('ayaki_blade', 'artist'),
 ('aoi_riko', 'artist'),
 ('cocoballking', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('roxxxan', 'artist'),
 ('yotsumi_shiro', 'artist'),
 ('valentine_(02140314c)', 'artist'),
@@ -71602,7 +71602,7 @@ VALUES ('roxxxan', 'artist'),
 ('kamikiririp', 'artist'),
 ('umekko', 'artist');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('yugaa', 'artist'),
 ('platunoy_787', 'artist'),
 ('shima_(wansyon144)', 'artist'),
@@ -71704,7 +71704,7 @@ VALUES ('yugaa', 'artist'),
 ('alternate_language', 'meta'),
 ('annotation_request', 'meta');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('source_larger', 'meta'),
 ('image_sample', 'meta'),
 ('cropped', 'meta'),
@@ -71806,7 +71806,7 @@ VALUES ('source_larger', 'meta'),
 ('e-hentai_sample', 'meta'),
 ('plant_request', 'meta');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('redrawn', 'meta'),
 ('color_ink_(medium)', 'meta'),
 ('instrument_request', 'meta'),
@@ -71908,7 +71908,7 @@ VALUES ('redrawn', 'meta'),
 ('bad_poipiku_id', 'meta'),
 ('source_filmmaker_(medium)', 'meta');
 
-INSERT OR IGNORE INTO tags (name, type)
+INSERT INTO tags (name, type)
 VALUES ('adoptable', 'meta'),
 ('ibispaint_(medium)', 'meta'),
 ('koikatsu_(medium)', 'meta'),

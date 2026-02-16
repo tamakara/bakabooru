@@ -1,4 +1,4 @@
-package com.tamakara.bakabooru.controller;
+package com.tamakara.bakabooru.module.system.controller;
 
 import com.tamakara.bakabooru.module.storage.service.StorageService;
 import com.tamakara.bakabooru.module.system.service.SystemSettingService;

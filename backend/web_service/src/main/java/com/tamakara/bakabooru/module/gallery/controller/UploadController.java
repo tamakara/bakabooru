@@ -1,4 +1,4 @@
-package com.tamakara.bakabooru.controller;
+package com.tamakara.bakabooru.module.gallery.controller;
 
 import com.tamakara.bakabooru.module.gallery.dto.TasksInfoDto;
 import com.tamakara.bakabooru.module.gallery.service.UploadTaskService;
@@ -18,7 +18,7 @@ public class UploadController {
 
     @PostMapping
     @Operation(summary = "上传图片", description = "上传单个图片并创建任务")
-    public void uploadFile(@RequestParam("file") MultipartFile file) {
+    public void createTask(@RequestParam("file") MultipartFile file) {
         uploadTaskService.createTask(file);
     }
 
@@ -28,7 +28,7 @@ public class UploadController {
         return uploadTaskService.getTasksInfo();
     }
 
-    @PostMapping
+    @PostMapping("/tasks")
     @Operation(summary = "重试上传任务", description = "重试特定上传任务")
     public void retryTask(@RequestParam String id) {
         uploadTaskService.retryTask(id);

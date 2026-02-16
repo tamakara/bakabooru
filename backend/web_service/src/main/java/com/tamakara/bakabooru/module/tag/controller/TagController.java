@@ -1,4 +1,4 @@
-package com.tamakara.bakabooru.controller;
+package com.tamakara.bakabooru.module.tag.controller;
 
 import com.tamakara.bakabooru.module.tag.dto.TagDto;
 import com.tamakara.bakabooru.module.tag.service.TagService;

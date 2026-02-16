@@ -93,13 +93,13 @@ services:
     container_name: bakabooru_backend_web_service
     restart: always
     environment:
-      PUBLIC_HOST: ${PUBLIC_URL}
+      PUBLIC_HOST: ${PUBLIC_HOST}
       # DB 配置
       DB_HOST: db
       DB_PORT: 5432
-      DB_NAME: ${POSTGRES_DB}
       DB_USER: ${POSTGRES_USER}
       DB_PASS: ${POSTGRES_PASSWORD}
+      DB_NAME: ${POSTGRES_DB}
       # Redis 配置
       REDIS_HOST: redis
       REDIS_PORT: 6379

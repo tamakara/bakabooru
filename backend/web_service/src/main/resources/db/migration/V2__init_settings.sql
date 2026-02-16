@@ -1,4 +1,4 @@
---- 系统设置表
+-- 系统设置表
 CREATE TABLE system_settings
 (
     setting_key   TEXT PRIMARY KEY,
