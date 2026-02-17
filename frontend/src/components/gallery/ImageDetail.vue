@@ -63,7 +63,7 @@ watch(() => props.image, (newImage) => {
   if (newImage) {
     newName.value = newImage.title
   }
-}, { immediate: true })
+}, {immediate: true})
 
 
 const tagTypeOrder = ['copyright', 'character', 'artist', 'general', 'meta', 'rating', 'year']
@@ -367,8 +367,13 @@ const getTagColor = (type: string) => {
                    title="点击编辑">
                 {{ props.image.title }}
               </div>
-              <n-input v-else v-model:value="newName" @blur="saveName" @keyup.enter="saveName" autofocus
-                       placeholder="输入名称" size="large"/>
+              <n-input
+                  v-else v-model:value="newName"
+                  @blur="saveName"
+                  @keyup.enter="saveName"
+                  autofocus
+                  placeholder="输入名称" size="large"
+              />
             </div>
 
             <n-divider class="my-0 bg-gray-800"/>
@@ -410,7 +415,9 @@ const getTagColor = (type: string) => {
                       <span class="text-gray-500 text-xs flex items-center gap-1">
                          <n-icon :component="TimeOutline"/> 创建时间
                       </span>
-                  <span class="text-gray-200 font-mono">{{ useDateFormat(props.image.createdAt, 'YYYY-MM-DD').value }}</span>
+                  <span class="text-gray-200 font-mono">{{
+                      useDateFormat(props.image.createdAt, 'YYYY-MM-DD').value
+                    }}</span>
                 </div>
               </div>
 

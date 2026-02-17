@@ -13,7 +13,6 @@ const preventDefaultContextMenu = (e: MouseEvent) => {
   e.preventDefault()
 }
 
-// Prevent pinch zoom
 const preventZoom = (e: Event) => {
   e.preventDefault()
 }
@@ -29,7 +28,6 @@ onMounted(async () => {
   }
 
   document.addEventListener('contextmenu', preventDefaultContextMenu)
-  // For iOS Safari which ignores user-scalable=no
   document.addEventListener('gesturestart', preventZoom)
 })
 
@@ -49,4 +47,3 @@ onUnmounted(() => {
     </n-message-provider>
   </n-config-provider>
 </template>
-
