@@ -5,11 +5,11 @@ import {uploadApi, type UploadTask} from '../api/upload'
 import {systemApi} from '../api/system'
 import {useQueueStore} from '../stores/queue'
 import {
+  type DataTableColumns,
   NButton,
   NCard,
   NCheckbox,
   NDataTable,
-  NEmpty,
   NIcon,
   NScrollbar,
   NSpace,
@@ -18,16 +18,11 @@ import {
   NTooltip,
   NUpload,
   NUploadDragger,
-  type DataTableColumns,
   type UploadCustomRequestOptions,
   type UploadFileInfo,
   useMessage
 } from 'naive-ui'
-import {
-  ArrowUpload24Regular as UploadIcon,
-  ArrowSync24Regular as RetryIcon,
-  Delete24Regular as DeleteIcon
-} from '@vicons/fluent'
+import {ArrowSync24Regular as RetryIcon, ArrowUpload24Regular as UploadIcon} from '@vicons/fluent'
 
 const message = useMessage()
 const queryClient = useQueryClient()

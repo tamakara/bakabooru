@@ -1,185 +1,166 @@
 # BaKaBooru: AI-Powered Smart Local Image Management System
 
-![Java](https://img.shields.io/badge/Java-21%2B-b07219?style=flat-square&logo=openjdk)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2-6db33f?style=flat-square&logo=springboot)
-![Python](https://img.shields.io/badge/Python-3.10%2B-3776ab?style=flat-square&logo=python)
+![Java](https://img.shields.io/badge/Java-21-b07219?style=flat-square&logo=openjdk)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5-6db33f?style=flat-square&logo=springboot)
+![Python](https://img.shields.io/badge/Python-3.10+-3776ab?style=flat-square&logo=python)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.109-009688?style=flat-square&logo=fastapi)
+![Vue.js](https://img.shields.io/badge/Vue.js-3.4-4FC08D?style=flat-square&logo=vuedotjs)
+![Node.js](https://img.shields.io/badge/Node.js-24-339933?style=flat-square&logo=nodedotjs)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat-square&logo=postgresql)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)
 
-**BaKaBooru** 是一款 **AI 驱动的智能本地图片管理系统**。
+**BaKaBooru** 是一款 **AI 驱动的智能本地图库管理系统**。
 
-它通过深度集成 **计算机视觉 (Computer Vision)** 与 **大语言模型 (LLM)**，将传统的“人工整理”转变为“AI 自动化托管”。BaKaBooru 能够赋予你的本地图库“视觉”与“大脑”——自动识别画面内容、构建语义索引，并利用 **RAG (检索增强生成)** 技术理解你的自然语言指令，为你提供 **零隐私风险、离线可用** 的下一代资产管理体验。
+它的核心目标是为您打造一个“有思想”的图库，打破传统基于文件名或标签的查找限制，让您可以像与人交流一样搜索图片。
+
+BaKaBooru 为您的图库装上了“眼睛”与“大脑”——它不仅能流畅浏览海量图片，更能利用 **RAG (检索增强生成)** 技术理解您的自然语言指令（例如 *"找一张夕阳下穿着校服的短发女孩，画风要悲伤一点"*），为您提供 **零隐私风险、离线可用** 的智能搜图体验。
 
 ---
 
 ## ✨ 核心特性 (Key Features)
 
-### 1. 多模态混合检索系统
+### 1. 核心亮点：多模态混合检索系统
 
-支持多种维度的搜索方式，满足不同场景下的查找需求：
+这是 BaKaBooru 最引以为傲的功能。系统深度集成了 **OpenAI CLIP** 模型与 **LangChain** 框架，支持多种维度的搜索方式：
 
-* **自然语言语义搜索 (AI)**：通过 **LLM** 解析意图并结合 **文本嵌入模型 (Text Embedding)** 进行向量召回。支持复杂的自然语言描述（如
-  *"找一些蓝色背景的侧脸特写"*）。
-* **标签精确搜索**：基于 Danbooru 标签体系的精确匹配，支持 **正向标签 (Positive)** 与 **负向排除 (Negative)** 组合查询。
-* **元数据检索**：支持按 **文件名** 和 **图片标题** 进行关键词模糊搜索。
-* **智能排序**：搜索结果支持自定义排序，包括：**文件大小**、**上传时间**、**查看次数** (热度) 等。
+* **自然语言语义搜索 (AI)**：
+  * **所想即所得**：您不再需要记忆复杂的标签语法。只需像聊天一样输入描述，系统会通过 LLM 解析您的意图，提取颜色、时间、动作等关键信息。
+  * **以文搜图**：搜索请求会被转换为高维 **CLIP 向量**，通过 PostgreSQL (`pgvector`) 进行向量相似度匹配，精准召回那些“只可意会不可言传”的画面。
+* **标签精确搜索**：对于专业用户，支持基于 Danbooru 标签体系的精确布尔查询（支持 `AND`, `NOT` 逻辑）。
+* **属性检索**：支持按文件名、标题、分辨率、文件大小等元数据进行快速过滤。
 
-### 2. 智能化资产管理
+### 2. 智能图库管理
 
-* **批量导入与去重**：支持文件夹拖拽批量上传。内置 **Hash (SHA-256) 计算引擎**，在导入时自动检测并拦截重复图片，节省存储空间。
-* **AI 自动标注**：集成 **Camais03/camie-tagger-v2-app** 模型，上传即自动生成高精度标签（角色、画师、风格）。
-* **下载与归档**：提供原图下载功能，方便素材提取与二次分发。
+*   **无感自动标注**：
+    *   图片上传时自动进入后台队列。
+    *   集成 **Camie-Tagger (v2)** 模型，自动识别画面内容并打上精确标签（角色、画师、风格）。
+*   **高效去重**：内置哈希检测，避免重复图片占用空间。
+*   **完全离线运行**：
+    *   所有 AI 模型（Tagger, CLIP）均基于 **Hugging Face**。
+    *   系统启动时自动下载模型至本地 `model_cache`，无需联网即可运行。
 
-### 3. 高性能视觉体验
+### 3. 流畅视觉体验
 
-* **自适应缩略图引擎**：列表页加载经过预处理的 **缩放预览图**，而非原图，显著提升加载速度与浏览流畅度。
-* **个性化视图**：用户可自由调节缩略图尺寸（大图/紧凑模式），适应不同分辨率屏幕。
-* **虚拟滚动 (Virtual Scroll)**：轻松承载 10W+ 级别图片浏览，内存占用极低。
-
-### 4. 安全与访问控制
-
-* **JWT 身份认证**：内置基于 **JSON Web Token** 的安全登录系统。
-* **访问保护**：支持设置访问密码，保护个人隐私库，防止未授权访问。
-
----
-
-## 🧠 技术实现细节 (Technical Details)
-
-### AI 标签生成与推理
-
-* **视觉模型**：采用 **Camais03/camie-tagger-v2-app** 模型进行端侧推理，无需联网即可精确识别图片内容。
-* **执行环境**：基于 ONNX Runtime，支持 CPU/GPU 加速。
-
-### RAG 检索流程
-
-当用户输入自然语言时，系统执行以下流水线：
-
-1. **意图解析**：LLM 分析用户语句，分离出“描述性需求”与“排除性需求”。
-2. **向量召回**：使用文本嵌入模型将描述转化为向量，在 FAISS 向量库中计算余弦相似度，召回最匹配的标准标签。
-3. **结构化查询**：将召回的标签转化为数据库查询语句，执行最终检索。
+*   **海量支持**：通过虚拟滚动技术，轻松承载数万张图片的浏览。
+*   **高性能架构**：MinIO 存储原图与缩略图，Redis 加速缓存，PostgreSQL 处理复杂的元数据查询。
 
 ---
 
 ## 🏗️ 系统架构 (Architecture)
 
-BaKaBooru 采用 **Java (Host) + Python (AI Sidecar)** 双进程架构，前端资源打包于 Java 进程中，数据与程序逻辑物理分离。
+BaKaBooru 采用微服务架构，主要包含 Web 服务、AI 服务以及基础中间件。
 
 ```mermaid
 graph TD
-    %% 定义节点样式
-    classDef java fill:#f9fbe7,stroke:#827717,stroke-width:2px;
-    classDef py fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
-    classDef data fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,stroke-dasharray: 5 5;
-
-    subgraph UserSpace ["💻 用户层 (Client)"]
-        Browser["🌐 浏览器 (Chrome/Edge)"]
+    subgraph Frontend ["💻 前端 (Frontend)"]
+        Browser["Vue 3 + Naive UI (Vite)"]
     end
     
-    subgraph Launcher ["🚀 BaKaBooru 运行环境 (Runtime)"]
-        direction TB
-        
-        subgraph JavaProcess ["☕ Java 主进程 (Spring Boot)"]
-            style JavaProcess fill:#f9fbe7,stroke:#827717
-            Static["📄 静态资源 (Vue Dist)"]:::java
-            API["🔌 REST API"]:::java
-            Core["⚙️ 业务核心"]:::java
-        end
-
-        subgraph PythonProcess ["🐍 Python 子进程 (AI Service)"]
-            style PythonProcess fill:#e3f2fd,stroke:#1565c0
-            Agent["🧠 意图解析 (LangChain)"]:::py
-            Vision["👁️ 视觉推理 (ONNX)"]:::py
-        end
-        
-        ProcessMgr["🛡️ 进程守护"]
+    subgraph Backend ["🚀 后端服务 (Backend Services)"]
+        JavaService["☕ Web Service (Spring Boot 3.5)"]
+        AIService["🐍 AI Service (FastAPI + LangChain)"]
     end
 
-    subgraph DataLayer ["📂 数据存储层 (Data Directory)"]
-        style DataLayer fill:#fff,stroke:#333,stroke-width:2px,stroke-dasharray: 5 5
-        DB[("💾 SQLite 数据库(元数据/标签)")]:::data
-        Files["🗂️ 文件仓库(原图/缩略图)"]:::data
-        VectorDB[("🔍 向量索引(FAISS)")]:::data
-        Models["📦 模型权重(Camie/Embedding)"]:::data
+    subgraph Infrastructure ["🏗️ 基础设施 (Infrastructure)"]
+        Postgres[("🐘 PostgreSQL (pgvector)")]
+        MinIO[("🗄️ MinIO (Object Storage)")]
+        Redis[("⚡ Redis (Cache)")]
     end
 
     %% 交互流
-    Browser <-->|"1. 加载页面"| Static
-    Browser <-->|"2. 数据请求"| API
+    Browser <-->|"REST API"| JavaService
     
-    %% 内部通信
-    API --> Core
-    Core <-->|"HTTP (Localhost)"| Agent
-    Agent --> Vision
-    ProcessMgr -.-> JavaProcess
-    ProcessMgr -.-> PythonProcess
-
-    %% 数据读写
-    Core <-->|"JPA/JDBC"| DB
-    Core <-->|"I/O Stream"| Files
-    Agent <-->|"Search"| VectorDB
-    Vision -.->|"Load"| Models
+    %% 服务间通信
+    JavaService <-->|"Internal API"| AIService
+    
+    %% 数据存取
+    JavaService <-->|"JPA"| Postgres
+    JavaService <-->|"S3 API"| MinIO
+    JavaService <-->|"Cache"| Redis
+    
+    AIService <-->|"Vector Search"| Postgres
+    AIService <-->|"S3 API"| MinIO
+    AIService <-->|"Load Models"| ModelCache["📦 Model Cache<br/>(Hugging Face)"]
 ```
+
+### 技术栈
+
+* **Web Service**: Java 21, Spring Boot 3.5.9
+* **AI Service**: Python 3.10+, FastAPI, LangChain, ONNX Runtime
+* **Frontend**: Vue 3, Naive UI, Tailwind CSS (Node.js 24 构建)
+* **Database**: PostgreSQL 16 (pgvector)
+* **Storage**: MinIO
+* **Cache**: Redis
+* **Models**: Hugging Face (Camie-Tagger, CLIP)
 
 ---
 
 ## 🚀 快速开始 (Getting Started)
 
-### 运行环境
+### 前置要求
 
-* **OS**: Windows 10/11 (x64)
-* **依赖**: 发布包已内置独立运行环境，**开箱即用**。
+* **Docker & Docker Compose**: 必需。用于运行基础设施、AI 服务及前端。
+* **Java / Node / Python**: 仅当您选择“方式 B”进行独立模块开发时需要。
 
-### 启动步骤
+### 1. 基础配置 (此步骤必须执行)
 
-1. 下载最新 Release 包并解压。
-2. 双击运行根目录下的 `bakabooru.exe`。
-3. 首次启动会自动初始化 `data/` 目录并下载 AI 模型文件。
-4. 访问 `http://localhost:8080`，默认无需密码（可在设置中开启登录保护）。
+在项目根目录下，复制配置文件模板并**重命名**为 `.env`：
 
-### 命令行参数 (CLI Arguments)
+```bash
+# Windows (PowerShell)
+Copy-Item .env.template .env
+# Linux / Mac
+cp .env.template .env
+```
+> ⚠️ **关键步骤**：Docker Compose 启动时会自动读取 `.env` 文件中的数据库密码、端口等配置，请务必确保该文件存在。
 
-适用于高级用户或服务器部署场景。
+### 2. 启动服务 (多种方式)
 
-| 参数           | 默认值      | 描述          |
-|:-------------|:---------|:------------|
-| `--web-port` | `8080`   | Web 服务访问端口  |
-| `--ai-port`  | `8081`   | 内部 AI 微服务端口 |
-| `--data-dir` | `./data` | 数据存储路径重定向   |
+#### 方式 A: 全栈一键部署 (推荐)
+
+最简单的启动方式，包含数据库、后端、AI 服务及前端界面。
+
+```bash
+docker-compose up -d
+```
+*   **注意**: 首次启动 `backend-ai-service` 会自动从 **Hugging Face** 下载所需的 AI 模型至本地 `data/model_cache` 目录，这可能需要一些时间。
+*   启动完成后，访问 **`http://localhost`** (端口 80) 即可使用。
+
+#### 方式 B: 混合开发模式 (前后端独立运行)
+
+如果您需要修改代码，可以选择只用 Docker 运行基础设施，自己在本地运行业务代码。
+
+1.  **启动基础设施** (Postgres, MinIO, Redis):
+    ```bash
+    docker-compose up -d db minio redis minio-createbuckets
+    ```
+
+2.  **运行 Web Service (Java)**:
+    *   进入 `backend/web_service`，配置 `.env`，运行 `mvnw spring-boot:run`。
+
+3.  **运行 AI Service (Python)**:
+    *   进入 `backend/ai_service`，配置 `.env`，安装依赖并运行 `uvicorn`。
+
+4.  **运行前端 (Node.js)**:
+    ```bash
+    cd frontend
+    pnpm install
+    pnpm dev
+    ```
+    访问 `http://localhost:5173` 进行调试。
 
 ---
 
-## 🛠️ 开发指南 (Development)
+## 🛠️ 配置说明 (Configuration)
 
-### 前置要求
+### 环境变量
 
-* **Java**: JDK 21+
-* **Python**: 3.10+
-* **Node.js**: LTS Version
+项目主要依赖 `.env` 文件进行配置，无需修改代码。修改根目录 `.env` 后重启 Docker 容器即可生效。
 
-### 模块构建
+### 模型缓存 (Model Cache)
 
-#### 1. 后端 (Spring Boot)
-
-```bash
-cd backend
-mvn spring-boot:run
-```
-
-#### 2. 前端 (Vue 3 + Vite)
-
-```bash
-cd frontend
-pnpm install && pnpm dev
-```
-
-#### 3. AI 服务 (FastAPI)
-
-```bash
-cd tagger
-pip install -r requirements.txt
-# 启动时会自动处理模型加载
-python run_app.py --data_dir ../data
-```
+AI 服务首次启动时，会自动从 Hugging Face 下载所需的模型文件 (如 `Camais03/camie-tagger-v2`, `CLIP` 等)。
+这些模型会被持久化存储在根目录的 `data/model_cache` 中，这也意味着第二次启动支持完全离线运行。
 
 ---
 
