@@ -35,7 +35,6 @@ import {
   DownloadOutline,
   EyeOutline,
   FilterOutline,
-  FlashOutline,
   SquareOutline,
   TrashOutline
 } from '@vicons/ionicons5'
@@ -45,6 +44,7 @@ import {v4 as uuidv4} from 'uuid';
 const formState = reactive({
   keyword: '',
   tags: '',
+  semanticQuery: '',  // 语义描述搜索
   sortBy: 'RANDOM',
   sortDirection: 'DESC',
   widthMin: null as number | null,
@@ -55,21 +55,6 @@ const formState = reactive({
   sizeMax: null as number | null  // MB
 })
 
-const query = ref('')
-const isQueryParsing = ref(false)
-
-async function handleQueryParse() {
-  if (!query.value.trim()) return
-  try {
-    isQueryParsing.value = true
-    formState.tags = await searchApi.queryParse(query.value)
-    message.success('配置已更新，请点击搜索')
-  } catch (e: any) {
-    message.error('解析失败: ' + (e.message || '未知错误'))
-  } finally {
-    isQueryParsing.value = false
-  }
-}
 
 // 响应式布局控制
 const breakpoints = useBreakpoints(breakpointsTailwind)
@@ -100,6 +85,7 @@ function handleSearch() {
 function handleReset() {
   formState.keyword = ''
   formState.tags = ''
+  formState.semanticQuery = ''
   formState.sortBy = 'RANDOM'
   formState.sortDirection = 'DESC'
   formState.widthMin = null
@@ -108,7 +94,6 @@ function handleReset() {
   formState.heightMax = null
   formState.sizeMin = null
   formState.sizeMax = null
-  query.value = ''
   handleSearch()
 }
 
@@ -122,12 +107,24 @@ const {
 } = useQuery({
   queryKey: ['images', activeSearchState, page, pageSize],
   retry: false,
-  queryFn: () => {
+  queryFn: async () => {
     const sort = `${activeSearchState.value.sortBy},${activeSearchState.value.sortDirection}`
 
-    return searchApi.search({
+    const startTime = performance.now()
+    console.log('[Gallery] 开始搜索图片...')
+    console.log('[Gallery] 搜索参数:', {
       keyword: activeSearchState.value.keyword,
       tags: activeSearchState.value.tags,
+      semanticQuery: activeSearchState.value.semanticQuery,
+      page: page.value,
+      size: pageSize.value,
+      sort
+    })
+
+    const result = await searchApi.search({
+      keyword: activeSearchState.value.keyword,
+      tags: activeSearchState.value.tags,
+      semanticQuery: activeSearchState.value.semanticQuery || undefined,
       randomSeed: activeSearchState.value.randomSeed,
       widthMin: activeSearchState.value.widthMin ?? undefined,
       widthMax: activeSearchState.value.widthMax ?? undefined,
@@ -139,6 +136,11 @@ const {
       size: pageSize.value,
       sort: sort
     })
+
+    const elapsed = (performance.now() - startTime).toFixed(2)
+    console.log(`[Gallery] 搜索完成: 找到 ${result.totalElements} 张图片, 耗时 ${elapsed}ms`)
+
+    return result
   }
 })
 
@@ -421,37 +423,17 @@ async function handleBatchDownload() {
         </div>
 
         <div class="flex-1 overflow-y-auto p-4">
-          <div class="mb-5">
-            <label class="text-xs font-medium text-gray-500 mb-1 block">智能解析配置</label>
-            <n-input
-                v-model:value="query"
-                placeholder="在此描述想要查找的图片特征（如：高分辨率的风景图），AI 将自动解析并填充下方的搜索表单..."
-                type="textarea"
-                :autosize="{ minRows: 4, maxRows: 4 }"
-                size="small"
-                @keydown.ctrl.enter="handleQueryParse"
-            />
-            <n-button
-                type="primary"
-                secondary
-                block
-                dashed
-                size="small"
-                class="mt-2"
-                @click="handleQueryParse"
-                :loading="isQueryParsing"
-                :disabled="!query"
-            >
-              <template #icon>
-                <n-icon>
-                  <FlashOutline/>
-                </n-icon>
-              </template>
-              智能解析配置
-            </n-button>
-          </div>
+          <n-form size="small" label-placement="top">
+            <n-form-item label="语义描述">
+              <n-input
+                  v-model:value="formState.semanticQuery"
+                  placeholder="用自然语言描述想搜索的图片（如：赛博朋克风格的初音未来，不要眼镜）"
+                  type="textarea"
+                  :autosize="{ minRows: 2, maxRows: 4 }"
+                  @keydown.ctrl.enter="handleSearch"
+              />
+            </n-form-item>
 
-          <n-form size="small" label-placement="top" class="pt-2 border-t border-gray-100 dark:border-gray-800">
             <n-form-item label="关键字">
               <n-input
                   v-model:value="formState.keyword"

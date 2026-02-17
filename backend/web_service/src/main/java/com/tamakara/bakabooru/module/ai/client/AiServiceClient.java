@@ -1,6 +1,9 @@
 package com.tamakara.bakabooru.module.ai.client;
 
-import com.tamakara.bakabooru.module.ai.dto.ParseQueryRequestDto;
+import com.tamakara.bakabooru.module.ai.dto.ImageEmbeddingRequestDto;
+import com.tamakara.bakabooru.module.ai.dto.ImageEmbeddingResponseDto;
+import com.tamakara.bakabooru.module.ai.dto.SemanticSearchRequestDto;
+import com.tamakara.bakabooru.module.ai.dto.SemanticSearchResponseDto;
 import com.tamakara.bakabooru.module.ai.dto.TagImageRequestDto;
 import com.tamakara.bakabooru.module.ai.dto.TagImageResponseDto;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,35 +26,43 @@ public class AiServiceClient {
     public Void initTags() {
         return webClient
                 .post()
-                .uri("/init_tags")
+                .uri("/tags/init")
                 .contentType(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .bodyToMono(Void.class)
                 .block();
     }
 
-
     public TagImageResponseDto tagImage(TagImageRequestDto requestBody) {
-
         return webClient
                 .post()
-                .uri("/tag_image")
+                .uri("/tag/image")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(requestBody)
                 .retrieve()
                 .bodyToMono(TagImageResponseDto.class)
-                .block(); // 同步等结果
+                .block();
     }
 
-    public String parseQuery(ParseQueryRequestDto requestBody) {
-
+    public SemanticSearchResponseDto semanticSearch(SemanticSearchRequestDto requestBody) {
         return webClient
                 .post()
-                .uri("/parse_query")
+                .uri("/search/semantic")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(requestBody)
                 .retrieve()
-                .bodyToMono(String.class)
-                .block(); // 同步等结果
+                .bodyToMono(SemanticSearchResponseDto.class)
+                .block();
+    }
+
+    public ImageEmbeddingResponseDto imageEmbedding(ImageEmbeddingRequestDto requestBody) {
+        return webClient
+                .post()
+                .uri("/embedding/image")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(requestBody)
+                .retrieve()
+                .bodyToMono(ImageEmbeddingResponseDto.class)
+                .block();
     }
 }

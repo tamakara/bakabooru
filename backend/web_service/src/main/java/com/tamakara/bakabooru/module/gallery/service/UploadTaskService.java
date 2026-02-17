@@ -1,5 +1,6 @@
 package com.tamakara.bakabooru.module.gallery.service;
 
+import com.tamakara.bakabooru.module.ai.service.EmbeddingService;
 import com.tamakara.bakabooru.module.gallery.model.ImageInfo;
 import com.tamakara.bakabooru.module.gallery.model.UploadTask;
 import com.tamakara.bakabooru.module.gallery.model.UploadTaskQueue;
@@ -8,10 +9,11 @@ import com.tamakara.bakabooru.module.image.entity.Image;
 import com.tamakara.bakabooru.module.image.service.ImageService;
 import com.tamakara.bakabooru.module.storage.service.StorageService;
 import com.tamakara.bakabooru.module.system.service.SystemSettingService;
-import com.tamakara.bakabooru.module.tag.entity.ImageTagRelation;
+import com.tamakara.bakabooru.module.tag.entity.Tag;
 import com.tamakara.bakabooru.module.tag.service.TagService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,7 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UploadTaskService {
@@ -33,6 +36,7 @@ public class UploadTaskService {
     private final TagService tagService;
     private final ImageService imageService;
     private final SystemSettingService systemSettingService;
+    private final EmbeddingService embeddingService;
 
     private final ExecutorService taskExecutor = Executors.newSingleThreadExecutor();
 
@@ -40,26 +44,49 @@ public class UploadTaskService {
 
     @PostConstruct
     public void initTaskProcessor() {
+        log.info("初始化上传任务处理器...");
         taskExecutor.submit(this::taskProcessingLoop);
     }
 
     private void taskProcessingLoop() {
+        log.info("上传任务处理循环已启动");
         while (true) {
-            String taskId = uploadTaskQueue.takeTask(5);
-            if (taskId == null) continue;
-
-            UploadTask task = uploadTaskQueue.getTask(taskId);
-            if (task == null) continue;
-
-            tasksInfoDto.setPendingCount(uploadTaskQueue.getPendingCount());
-            tasksInfoDto.setProcessingTask(task);
-            tasksInfoDto.setFailedTasks(uploadTaskQueue.getFailedTasks());
-
             try {
-                processTask(task);
-                uploadTaskQueue.removeTaskData(taskId);
+                String taskId = uploadTaskQueue.takeTask(5);
+                if (taskId == null) continue;
+
+                log.info("开始处理任务: {}", taskId);
+                UploadTask task = uploadTaskQueue.getTask(taskId);
+                if (task == null) {
+                    log.warn("任务数据不存在: {}", taskId);
+                    continue;
+                }
+
+                tasksInfoDto.setPendingCount(uploadTaskQueue.getPendingCount());
+                tasksInfoDto.setProcessingTask(task);
+                tasksInfoDto.setFailedTasks(uploadTaskQueue.getFailedTasks());
+
+                try {
+                    processTask(task);
+                    uploadTaskQueue.removeTaskData(taskId);
+                    log.info("任务处理完成: {}", taskId);
+                } catch (Exception e) {
+                    log.error("任务处理失败: {}, 错误: {}", taskId, e.getMessage(), e);
+                    uploadTaskQueue.moveToFailed(taskId, e.getMessage());
+                } finally {
+                    tasksInfoDto.setProcessingTask(null);
+                    tasksInfoDto.setPendingCount(uploadTaskQueue.getPendingCount());
+                    tasksInfoDto.setFailedTasks(uploadTaskQueue.getFailedTasks());
+                }
             } catch (Exception e) {
-                uploadTaskQueue.moveToFailed(taskId, e.getMessage());
+                log.error("任务处理循环异常: {}", e.getMessage(), e);
+                // 发生异常后短暂休眠，避免异常时 CPU 空转
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
             }
         }
     }
@@ -86,20 +113,23 @@ public class UploadTaskService {
     private void processTask(UploadTask task) {
         String objectName = "temp/" + task.getId();
 
-        String taskId = task.getId();
         long size = task.getSize();
         String filename = task.getFilename();
         String title = FilenameUtils.getBaseName(filename);
 
         File tempFile = new File(task.getTempFilePath());
 
+        // 1. 上传临时文件到 MinIO
+        log.info("上传临时文件到 MinIO: {}", objectName);
         try {
-            storageService.uploadFile("temp/" + taskId, tempFile);
+            storageService.uploadFile(objectName, tempFile);
         } catch (Exception e) {
             throw new RuntimeException("上传文件失败: " + e.getMessage(), e);
         }
 
         try {
+            // 2. 计算文件哈希
+            log.info("计算文件哈希...");
             String hash;
             try (InputStream stream = new FileInputStream(tempFile)) {
                 hash = DigestUtils.sha256Hex(stream);
@@ -107,30 +137,42 @@ public class UploadTaskService {
                 throw new RuntimeException("计算哈希值失败: " + e.getMessage(), e);
             }
 
+            // 3. 检查图片是否已存在
             if (imageService.existImageByHash(hash)) {
                 throw new RuntimeException("图片已存在");
             }
 
+            // 4. 获取图片信息（尺寸、格式等）
+            log.info("获取图片信息...");
             ImageInfo imageInfo = new ImageInfo(tempFile);
 
             if (imageInfo.isAnimated()) {
                 throw new RuntimeException("暂不支持动图");
             }
 
-            Set<ImageTagRelation> tagRelations = new HashSet<>();
+            // 5. 生成标签
+            log.info("生成图片标签...");
+            Map<String, Double> tagsMap;
             try {
                 double threshold = systemSettingService.getDoubleSetting("tag.threshold");
-                Map<String, Double> tags = tagService.tagImage(objectName, threshold);
-                for (String name : tags.keySet()) {
-                    ImageTagRelation relation = new ImageTagRelation();
-                    relation.setScore(tags.get(name));
-                    relation.setTag(tagService.getTagByName(name));
-                    tagRelations.add(relation);
-                }
+                tagsMap = tagService.tagImage(objectName, threshold);
+                log.info("生成了 {} 个标签", tagsMap.size());
             } catch (Exception e) {
                 throw new RuntimeException("标签生成失败: " + e.getMessage(), e);
             }
 
+            // 6. 生成图片 embedding
+            log.info("生成图片 embedding...");
+            double[] embedding;
+            try {
+                embedding = embeddingService.generateImageEmbedding(objectName);
+                log.info("Embedding 生成完成，维度: {}", embedding.length);
+            } catch (Exception e) {
+                throw new RuntimeException("Embedding生成失败: " + e.getMessage(), e);
+            }
+
+            // 7. 创建并保存 Image 实体
+            log.info("保存图片信息到数据库...");
             Image image = new Image();
             image.setTitle(title);
             image.setFileName(filename);
@@ -139,13 +181,23 @@ public class UploadTaskService {
             image.setWidth(imageInfo.getWidth());
             image.setHeight(imageInfo.getHeight());
             image.setHash(hash);
-            image.setTagRelations(tagRelations);
+            image.setEmbedding(embedding);
+
+            // 设置标签关系（需要在 Image 创建后设置关联）
+            for (Map.Entry<String, Double> entry : tagsMap.entrySet()) {
+                Tag tag = tagService.getTagByName(entry.getKey());
+                image.addTag(tag, entry.getValue());
+            }
 
             imageService.addImage(image);
+
+            // 8. 移动文件到正式目录
+            log.info("移动文件到正式存储目录...");
             storageService.copyFile(objectName, "original/" + hash);
         } catch (Exception e) {
-            throw new RuntimeException("图片信息获取失败: " + e.getMessage(), e);
+            throw new RuntimeException("处理图片失败: " + e.getMessage(), e);
         } finally {
+            // 清理临时文件
             storageService.deleteFile(objectName);
             tempFile.delete();
         }

@@ -17,3 +17,6 @@
 /frontend/node/
 /frontend/node_modules/
 /frontend/dist/
+
+#data files
+/backend/ai_service/model_cache/

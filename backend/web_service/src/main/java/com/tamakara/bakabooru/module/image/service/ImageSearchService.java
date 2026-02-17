@@ -3,9 +3,11 @@ package com.tamakara.bakabooru.module.image.service;
 import com.tamakara.bakabooru.module.image.dto.SearchDto;
 import com.tamakara.bakabooru.module.image.entity.Image;
 import com.tamakara.bakabooru.module.image.repository.ImageRepository;
+import com.tamakara.bakabooru.module.tag.entity.ImageTagRelation;
 import com.tamakara.bakabooru.module.tag.entity.Tag;
 import jakarta.persistence.criteria.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ImageSearchService {
@@ -24,6 +27,11 @@ public class ImageSearchService {
 
     @Transactional(readOnly = true)
     public Page<Image> searchImages(SearchDto searchDto) {
+        log.info("开始搜索图片 - 正向标签: {}, 负向标签: {}, 关键字: {}",
+                searchDto.getPositiveTags(), searchDto.getNegativeTags(), searchDto.getKeyword());
+
+        long startTime = System.currentTimeMillis();
+
         Specification<Image> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
@@ -67,30 +75,36 @@ public class ImageSearchService {
             return cb.and(predicates.toArray(new Predicate[0]));
         };
 
-        return imageRepository.findAll(spec, searchDto.getPageable());
+        Page<Image> result = imageRepository.findAll(spec, searchDto.getPageable());
+
+        log.info("搜索完成 - 耗时: {}ms, 结果数: {}, 总数: {}",
+                System.currentTimeMillis() - startTime, result.getNumberOfElements(), result.getTotalElements());
+
+        return result;
     }
 
     /**
      * 通用的子查询构建工具
+     * 使用 ImageTagRelation 表进行关联查询
      *
      * @param isPositive true 表示 EXISTS (包含), false 表示 NOT EXISTS (排除)
      */
     private Predicate createTagExistsPredicate(CriteriaBuilder cb, CommonAbstractCriteria query, Root<Image> root, Object tagValue, boolean isPositive) {
         Subquery<Integer> subquery = query.subquery(Integer.class);
-        Root<Image> subRoot = subquery.from(Image.class);
-        Join<Image, Tag> subTags = subRoot.join("tags");
+        Root<ImageTagRelation> subRoot = subquery.from(ImageTagRelation.class);
+        Join<ImageTagRelation, Tag> tagJoin = subRoot.join("tag");
 
         subquery.select(cb.literal(1)); // 只需 select 1 提高效率
 
         Predicate tagPredicate;
         if (tagValue instanceof Set) {
-            tagPredicate = subTags.get("name").in((Set<?>) tagValue);
+            tagPredicate = tagJoin.get("name").in((Set<?>) tagValue);
         } else {
-            tagPredicate = cb.equal(subTags.get("name"), tagValue);
+            tagPredicate = cb.equal(tagJoin.get("name"), tagValue);
         }
 
         subquery.where(
-                cb.equal(subRoot.get("id"), root.get("id")),
+                cb.equal(subRoot.get("image").get("id"), root.get("id")),
                 tagPredicate
         );
 

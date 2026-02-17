@@ -36,12 +36,15 @@ public class ImageUrlService {
             try {
                 String imageObjectName = "original/" + image.getHash();
                 File tempFile = storageService.getFile(imageObjectName);
+                // 创建单独的缩略图输出文件，避免 Thumbnails 自动添加扩展名的问题
+                File thumbnailFile = new File(tempFile.getParent(), image.getHash() + "_thumb.jpg");
                 Thumbnails.of(tempFile)
                         .size(size, size)
                         .outputFormat("jpg")
-                        .toFile(tempFile);
-                storageService.uploadFile(thumbnailObjectName, tempFile);
+                        .toFile(thumbnailFile);
+                storageService.uploadFile(thumbnailObjectName, thumbnailFile);
                 tempFile.delete();
+                thumbnailFile.delete();
             } catch (Exception e) {
                 throw new RuntimeException("生成缩略图失败: " + e.getMessage(), e);
             }

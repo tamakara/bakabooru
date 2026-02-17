@@ -4,6 +4,7 @@ import type { Page, ImageDto } from './gallery'
 export interface SearchRequestDto {
   tags?: string
   keyword?: string
+  semanticQuery?: string  // 语义描述搜索
   randomSeed?: string
   widthMin?: number
   widthMax?: number

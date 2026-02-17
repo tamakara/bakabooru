@@ -1,21 +1,19 @@
 package com.tamakara.bakabooru.module.image.entity;
 
+import com.tamakara.bakabooru.config.VectorConverter;
 import com.tamakara.bakabooru.module.image.dto.ImageTagDto;
 import com.tamakara.bakabooru.module.tag.entity.ImageTagRelation;
 import com.tamakara.bakabooru.module.tag.entity.Tag;
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
+import org.hibernate.annotations.ColumnTransformer;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.*;
 
 @Getter
@@ -53,6 +51,11 @@ public class Image {
 
     @Column(nullable = false)
     private Long viewCount = 0L;
+
+    @Convert(converter = VectorConverter.class)
+    @Column(columnDefinition = "vector(512)")
+    @ColumnTransformer(write = "?::vector")
+    private double[] embedding;
 
     @OneToMany(mappedBy = "image", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ImageTagRelation> tagRelations = new HashSet<>();

@@ -30,17 +30,51 @@ public class StorageService {
 
     public void uploadFile(String objectName, File file) {
         try {
+            String contentType = Files.probeContentType(file.toPath());
+            if (contentType == null) {
+                contentType = detectContentType(file.getName());
+            }
             minioClient.uploadObject(
                     UploadObjectArgs.builder()
                             .bucket(minioConfig.getBucketName())
                             .object(objectName)
                             .filename(file.getAbsolutePath())
-                            .contentType(Files.probeContentType(file.toPath()))
+                            .contentType(contentType)
                             .build()
             );
         } catch (Exception e) {
             throw new RuntimeException("文件上传失败" + e.getMessage(), e);
         }
+    }
+
+    /**
+     * 根据文件名扩展名推断 Content-Type
+     */
+    private String detectContentType(String fileName) {
+        if (fileName == null) {
+            return "application/octet-stream";
+        }
+        String lowerName = fileName.toLowerCase();
+        if (lowerName.endsWith(".jpg") || lowerName.endsWith(".jpeg")) {
+            return "image/jpeg";
+        } else if (lowerName.endsWith(".png")) {
+            return "image/png";
+        } else if (lowerName.endsWith(".gif")) {
+            return "image/gif";
+        } else if (lowerName.endsWith(".webp")) {
+            return "image/webp";
+        } else if (lowerName.endsWith(".bmp")) {
+            return "image/bmp";
+        } else if (lowerName.endsWith(".svg")) {
+            return "image/svg+xml";
+        } else if (lowerName.endsWith(".ico")) {
+            return "image/x-icon";
+        } else if (lowerName.endsWith(".tiff") || lowerName.endsWith(".tif")) {
+            return "image/tiff";
+        } else if (lowerName.endsWith(".avif")) {
+            return "image/avif";
+        }
+        return "application/octet-stream";
     }
 
     public void copyFile(String sourceObject, String targetObject) {

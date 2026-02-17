@@ -15,10 +15,9 @@ CREATE TABLE images
     view_count BIGINT    NOT NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
-    tags       JSONB     NOT NULL,
     embedding  vector(512)
 );
-CREATE INDEX idx_images_tags ON images USING GIN (tags);
+CREATE INDEX idx_images_embedding ON images USING hnsw (embedding vector_cosine_ops) WITH (m = 16, ef_construction = 64);
 
 -- 标签字典表
 CREATE TABLE tags

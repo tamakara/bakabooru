@@ -1,27 +1,26 @@
+"""图像打标 API"""
 import asyncio
 from fastapi import APIRouter
 
-from app.schema.tag_image_schema import TagImageResponse, TagImageRequest
-from app.services.tag_image.tag_image_service import TagImageService
+from app.schemas.tag_image import TagImageRequest, TagImageResponse
+from app.services.tag_image_service import tag_image_service
 
-router = APIRouter()
+router = APIRouter(prefix="/tag", tags=["图像打标"])
+
 _semaphore = asyncio.Semaphore(1)  # 限制并发访问
 
-service = TagImageService()
 
-
-@router.post("/tag_image", response_model=TagImageResponse)
+@router.post("/image", response_model=TagImageResponse)
 async def tag_image(body: TagImageRequest) -> TagImageResponse:
+    """对图像进行自动打标"""
     try:
         async with _semaphore:
-            data = service.tag_image(
-                image_path=body.image_path,
+            data = tag_image_service.tag_image(
+                object_name=body.object_name,
                 threshold=body.threshold,
             )
-
         return TagImageResponse.ok(data)
-
     except Exception as e:
         import traceback
-        traceback.print_exc()  # 打印完整的错误堆栈
+        traceback.print_exc()
         return TagImageResponse.fail(str(e))

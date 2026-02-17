@@ -19,5 +19,5 @@ public class SearchDto {
     private Long sizeMax;
     private Set<String> positiveTags;
     private Set<String> negativeTags;
-    private List<Float> embedding;
+    private List<Float> embedding;  // CLIP 向量用于语义搜索
 }

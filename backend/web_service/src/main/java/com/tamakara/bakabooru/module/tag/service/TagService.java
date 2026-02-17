@@ -8,12 +8,15 @@ import com.tamakara.bakabooru.module.tag.entity.Tag;
 import com.tamakara.bakabooru.module.tag.mapper.TagMapper;
 import com.tamakara.bakabooru.module.tag.repository.TagRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TagService {
@@ -29,24 +32,17 @@ public class TagService {
     }
 
     public List<TagDto> searchTags(String query) {
-        String lowerQuery = query.toLowerCase();
-        return tagRepository.findByNameContainingIgnoreCase(query).stream()
-                .sorted((t1, t2) -> {
-                    String n1 = t1.getName().toLowerCase();
-                    String n2 = t2.getName().toLowerCase();
-                    boolean s1 = n1.startsWith(lowerQuery);
-                    boolean s2 = n2.startsWith(lowerQuery);
+        long startTime = System.currentTimeMillis();
 
-                    if (s1 && !s2) {
-                        return -1;
-                    } else if (!s1 && s2) {
-                        return 1;
-                    } else {
-                        return Integer.compare(n1.length(), n2.length());
-                    }
-                })
+        // 使用数据库级别的优化查询，限制返回20条结果
+        List<TagDto> results = tagRepository.searchTagsOptimized(query, PageRequest.of(0, 20)).stream()
                 .map(tagMapper::toDto)
                 .collect(Collectors.toList());
+
+        log.debug("标签搜索完成 - 关键字: {}, 结果数: {}, 耗时: {}ms",
+                query, results.size(), System.currentTimeMillis() - startTime);
+
+        return results;
     }
 
     public Tag getTagById(Long id) {

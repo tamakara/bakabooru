@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {ref} from 'vue'
+import {ref, onUnmounted} from 'vue'
 import {NAutoComplete, NInput, type AutoCompleteOption} from 'naive-ui'
 import {tagsApi} from '../../api/tags.ts'
 
@@ -18,8 +18,19 @@ const emit = defineEmits<{
 }>()
 
 const tagOptions = ref<AutoCompleteOption[]>([])
-
 const isSelecting = ref(false)
+const isLoading = ref(false)
+
+// 防抖定时器
+let debounceTimer: ReturnType<typeof setTimeout> | null = null
+const DEBOUNCE_DELAY = 300 // 300ms 防抖延迟
+
+// 清理定时器
+onUnmounted(() => {
+  if (debounceTimer) {
+    clearTimeout(debounceTimer)
+  }
+})
 
 /**
  * 处理选中标签
@@ -43,11 +54,16 @@ function handleSelect(value: string) {
 
 /**
  * 处理输入值更新
- * 实时搜索标签建议
+ * 使用防抖优化，减少 API 调用频率
  */
-async function handleUpdateValue(value: string) {
+function handleUpdateValue(value: string) {
   if (isSelecting.value) return
   emit('update:value', value)
+
+  // 清除之前的防抖定时器
+  if (debounceTimer) {
+    clearTimeout(debounceTimer)
+  }
 
   if (!value || !value.trim()) {
     tagOptions.value = []
@@ -61,13 +77,31 @@ async function handleUpdateValue(value: string) {
   const isExclude = lastWord.startsWith('-')
   const query = isExclude ? lastWord.substring(1) : lastWord
 
-  if (!query) {
+  if (!query || query.length < 1) {
     tagOptions.value = []
     return
   }
 
+  // 使用防抖延迟搜索
+  debounceTimer = setTimeout(async () => {
+    await searchTags(query, isExclude, lastWord)
+  }, DEBOUNCE_DELAY)
+}
+
+/**
+ * 实际执行标签搜索
+ */
+async function searchTags(query: string, isExclude: boolean, lastWord: string) {
+  if (isLoading.value) return
+
+  isLoading.value = true
+  const startTime = performance.now()
+  console.log(`[TagSearch] 开始搜索标签: "${query}"`)
+
   try {
     const tags = await tagsApi.listTags(query)
+    const elapsed = (performance.now() - startTime).toFixed(2)
+    console.log(`[TagSearch] 搜索完成: 找到 ${tags.length} 个标签, 耗时 ${elapsed}ms`)
 
     const options = tags.map(t => {
       const label = (isExclude ? '-' : '') + t.name
@@ -85,8 +119,10 @@ async function handleUpdateValue(value: string) {
       tagOptions.value = options
     }
   } catch (e) {
-    console.error(e)
+    console.error('[TagSearch] 搜索失败:', e)
     tagOptions.value = []
+  } finally {
+    isLoading.value = false
   }
 }
 
@@ -105,6 +141,7 @@ function handleEnter(e: KeyboardEvent) {
       :placeholder="placeholder"
       :get-show="() => true"
       :append="true"
+      :loading="isLoading"
       @update:value="handleUpdateValue"
       @select="handleSelect"
   >
