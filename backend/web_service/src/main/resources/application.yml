@@ -57,7 +57,7 @@ minio:
   access-key: ${MINIO_ACCESS_KEY}
   secret-key: ${MINIO_SECRET_KEY}
   bucket-name: ${MINIO_BUCKET_NAME}
-  public-endpoint: http://${PUBLIC_HOST}:9000
+  public-endpoint: http://${PUBLIC_HOST}:${PUBLIC_PORT}/oss
 
 # 应用自定义配置
 app:

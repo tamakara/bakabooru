@@ -10,6 +10,10 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:8080',
         changeOrigin: true
+      },
+      '/oss':{
+        target: 'http://localhost:9000',
+        changeOrigin: true
       }
     }
   }
