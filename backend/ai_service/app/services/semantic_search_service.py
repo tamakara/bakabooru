@@ -11,8 +11,8 @@ from app.schemas.semantic_search import (
     TagsResponse,
     EmbeddingResponse
 )
-from app.services.tag_matcher_service import tag_matcher_service
 from app.services.prompts import semantic_search_prompt
+from app.services.tag_matcher_service import tag_matcher_service
 
 
 class SemanticSearchService:

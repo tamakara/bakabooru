@@ -1,7 +1,4 @@
 """图像打标服务"""
-from typing import Dict, List
-
-from PIL import Image
 
 from app.core.model_manager import model_manager
 from app.schemas.tag_image import TagData

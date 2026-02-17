@@ -1,5 +1,6 @@
 """语义搜索相关 Schema"""
 from typing import Dict, List, Optional
+
 from pydantic import BaseModel, Field
 
 
@@ -47,3 +48,4 @@ class EmbeddingResponse(BaseModel):
     @classmethod
     def fail(cls, error: str) -> "EmbeddingResponse":
         return cls(success=False, error=error)
+

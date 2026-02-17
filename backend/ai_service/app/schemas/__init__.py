@@ -1,14 +1,11 @@
 """Schema 定义"""
 from .common import BaseResponse
-from .tag_image import TagImageRequest, TagImageResponse, TagData
+from .image_embedding import ImageEmbeddingRequest, ImageEmbeddingResponse
 from .semantic_search import (
     SemanticSearchRequest,
-    SemanticSearchResponse,
-    ParsedSemanticQuery,
-    TagsResult,
-    ClipSearchResult
+    ParsedSemanticQuery
 )
-from .image_embedding import ImageEmbeddingRequest, ImageEmbeddingResponse
+from .tag_image import TagImageRequest, TagImageResponse, TagData
 
 __all__ = [
     "BaseResponse",
@@ -16,10 +13,7 @@ __all__ = [
     "TagImageResponse",
     "TagData",
     "SemanticSearchRequest",
-    "SemanticSearchResponse",
     "ParsedSemanticQuery",
-    "TagsResult",
-    "ClipSearchResult",
     "ImageEmbeddingRequest",
     "ImageEmbeddingResponse",
 ]

@@ -1,5 +1,6 @@
 """图像打标 API"""
 import asyncio
+
 from fastapi import APIRouter
 
 from app.schemas.tag_image import TagImageRequest, TagImageResponse

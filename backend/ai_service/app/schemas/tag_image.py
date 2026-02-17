@@ -1,5 +1,6 @@
 """图像打标相关 Schema"""
-from typing import Dict, List, Optional
+from typing import Dict, Optional
+
 from pydantic import BaseModel, Field
 
 # TagData 现在是 tag_name -> score 的映射

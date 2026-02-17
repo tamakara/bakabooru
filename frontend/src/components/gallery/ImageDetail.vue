@@ -11,6 +11,8 @@ import {
   NPopconfirm,
   NTag,
   NTooltip,
+  NSkeleton,
+  NSpin,
   useMessage,
   NAutoComplete,
   type AutoCompleteOption
@@ -38,6 +40,7 @@ import {useDateFormat} from '@vueuse/core'
 const props = defineProps<{
   show: boolean
   image: ImageDto | null
+  loading?: boolean
   hasPrev?: boolean
   hasNext?: boolean
 }>()
@@ -300,8 +303,11 @@ const getTagColor = (type: string) => {
         <div
             class="flex-none w-full h-[60vh] lg:h-full lg:flex-1 lg:w-auto flex items-center justify-center bg-black overflow-hidden group sticky top-0 lg:relative z-0">
 
+          <!-- 加载状态 -->
+          <n-spin v-if="props.loading" size="large" description="加载中..." />
+
           <n-image
-              v-if="props.image"
+              v-else-if="props.image"
               :src="props.image.imageUrl"
               :alt="props.image.title"
               class="w-full h-full flex items-center justify-center"
@@ -328,7 +334,14 @@ const getTagColor = (type: string) => {
             class="flex-none w-full lg:w-[400px] lg:h-full bg-gray-900 border-t lg:border-t-0 lg:border-l border-gray-800 flex flex-col relative shadow-2xl z-20 min-h-[40vh]">
 
           <!-- 顶部操作栏 -->
-          <div v-if="props.image" class="p-4 border-b border-gray-800 bg-gray-900 shrink-0">
+          <div v-if="props.loading" class="p-4 border-b border-gray-800 bg-gray-900 shrink-0">
+            <div class="grid grid-cols-3 gap-2">
+              <n-skeleton height="34px" :sharp="false" />
+              <n-skeleton height="34px" :sharp="false" />
+              <n-skeleton height="34px" :sharp="false" />
+            </div>
+          </div>
+          <div v-else-if="props.image" class="p-4 border-b border-gray-800 bg-gray-900 shrink-0">
             <div class="grid grid-cols-3 gap-2">
               <n-popconfirm @positive-click="handleDelete" placement="bottom">
                 <template #trigger>
@@ -358,7 +371,49 @@ const getTagColor = (type: string) => {
             </div>
           </div>
 
-          <div v-if="props.image" class="flex-1 lg:overflow-y-auto p-6 flex flex-col custom-scrollbar">
+          <!-- 加载状态下的内容骨架 -->
+          <div v-if="props.loading" class="flex-1 lg:overflow-y-auto p-6 flex flex-col custom-scrollbar gap-6">
+            <!-- 标题骨架 -->
+            <div class="flex flex-col gap-2">
+              <n-skeleton text style="width: 60px" />
+              <n-skeleton text style="width: 80%" :repeat="1" />
+            </div>
+
+            <n-divider class="my-0 bg-gray-800"/>
+
+            <!-- 详细信息骨架 -->
+            <div class="flex flex-col gap-4">
+              <n-skeleton text style="width: 80px" />
+              <div class="grid grid-cols-2 gap-y-5 gap-x-4">
+                <div class="flex flex-col gap-1" v-for="i in 5" :key="i">
+                  <n-skeleton text style="width: 60px" />
+                  <n-skeleton text style="width: 100px" />
+                </div>
+              </div>
+              <div class="flex flex-col gap-3 mt-2">
+                <div class="flex flex-col gap-1">
+                  <n-skeleton text style="width: 50px" />
+                  <n-skeleton height="36px" :sharp="false" />
+                </div>
+                <div class="flex flex-col gap-1">
+                  <n-skeleton text style="width: 40px" />
+                  <n-skeleton height="36px" :sharp="false" />
+                </div>
+              </div>
+            </div>
+
+            <n-divider class="my-0 bg-gray-800"/>
+
+            <!-- 标签骨架 -->
+            <div class="flex flex-col gap-3">
+              <n-skeleton text style="width: 50px" />
+              <div class="flex flex-wrap gap-2">
+                <n-skeleton height="24px" width="60px" :sharp="false" v-for="i in 6" :key="i" />
+              </div>
+            </div>
+          </div>
+
+          <div v-else-if="props.image" class="flex-1 lg:overflow-y-auto p-6 flex flex-col custom-scrollbar">
             <!-- 标题部分 -->
             <div class="flex flex-col gap-2">
               <div class="text-sm text-gray-400 uppercase font-bold tracking-wider">标题</div>

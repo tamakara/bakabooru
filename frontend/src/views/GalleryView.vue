@@ -169,6 +169,7 @@ const totalCount = computed(() => data.value?.totalElements || 0)
 // 详情弹窗
 const showDetail = ref(false)
 const selectedDetailImage = ref<ImageDto | null>(null)
+const detailLoading = ref(false)
 
 const currentDetailIndex = computed(() => {
   if (!selectedDetailImage.value || images.value.length === 0) return -1
@@ -182,11 +183,15 @@ function handlePrevDetail() {
   if (hasPrevDetail.value) {
     const prev = images.value[currentDetailIndex.value - 1]
     if (prev) {
+      detailLoading.value = true
+      selectedDetailImage.value = null
       galleryApi.getImage(prev.id).then(fullImage => {
         selectedDetailImage.value = fullImage
       }).catch(err => {
         message.error('获取图片详情失败')
         console.error(err)
+      }).finally(() => {
+        detailLoading.value = false
       })
     }
   }
@@ -196,24 +201,34 @@ function handleNextDetail() {
   if (hasNextDetail.value) {
     const next = images.value[currentDetailIndex.value + 1]
     if (next) {
+      detailLoading.value = true
+      selectedDetailImage.value = null
       galleryApi.getImage(next.id).then(fullImage => {
         selectedDetailImage.value = fullImage
       }).catch(err => {
         message.error('获取图片详情失败')
         console.error(err)
+      }).finally(() => {
+        detailLoading.value = false
       })
     }
   }
 }
 
 function openDetail(image: ImageThumbnailDto) {
-  // 异步获取图片详情
+  // 先显示弹窗，再异步获取图片详情
+  selectedDetailImage.value = null
+  detailLoading.value = true
+  showDetail.value = true
+
   galleryApi.getImage(image.id).then(fullImage => {
     selectedDetailImage.value = fullImage
-    showDetail.value = true
   }).catch(err => {
     message.error('获取图片详情失败')
     console.error(err)
+    showDetail.value = false
+  }).finally(() => {
+    detailLoading.value = false
   })
 }
 
@@ -709,6 +724,7 @@ onMounted(() => {
     <ImageDetail
         v-model:show="showDetail"
         v-model:image="selectedDetailImage"
+        :loading="detailLoading"
         :has-prev="hasPrevDetail"
         :has-next="hasNextDetail"
         @prev="handlePrevDetail"

@@ -1,7 +1,8 @@
 """数据库连接管理"""
+from contextlib import contextmanager
+
 import psycopg2
 from pgvector.psycopg2 import register_vector
-from contextlib import contextmanager
 
 from app.core.settings import settings
 

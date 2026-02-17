@@ -1,8 +1,8 @@
 """MinIO 服务 - 从 MinIO 存储获取文件"""
 from io import BytesIO
 
-from minio import Minio
 from PIL import Image
+from minio import Minio
 
 from app.core.settings import settings
 

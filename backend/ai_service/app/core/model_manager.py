@@ -3,12 +3,11 @@ from typing import Optional
 
 import numpy as np
 import onnxruntime as ort
-from transformers import CLIPProcessor
-from langchain_community.embeddings import FastEmbedEmbeddings
 from huggingface_hub import hf_hub_download
+from langchain_community.embeddings import FastEmbedEmbeddings
+from transformers import CLIPProcessor
 
 from app.core.settings import settings
-
 
 # HuggingFace CLIP 模型名称
 CLIP_MODEL_NAME = "openai/clip-vit-base-patch32"

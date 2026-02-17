@@ -1,5 +1,6 @@
 """图像 Embedding API"""
 import asyncio
+
 from fastapi import APIRouter
 
 from app.schemas.image_embedding import ImageEmbeddingRequest, ImageEmbeddingResponse
