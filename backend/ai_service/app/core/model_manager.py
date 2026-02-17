@@ -155,12 +155,12 @@ class ModelManager:
 
     def encode_text_clip(self, text: str) -> np.ndarray:
         """使用 CLIP 编码文本，返回归一化的特征向量"""
-        inputs = self.clip_processor(text=[text], return_tensors="pt", padding=True)
+        inputs = self.clip_processor(text=[text], return_tensors="np", padding=True)
 
         # 转换为 numpy 用于 ONNX 推理
         ort_inputs = {
-            "input_ids": inputs["input_ids"].numpy().astype(np.int64),
-            "attention_mask": inputs["attention_mask"].numpy().astype(np.int64),
+            "input_ids": inputs["input_ids"].astype(np.int64),
+            "attention_mask": inputs["attention_mask"].astype(np.int64),
         }
         outputs = self.clip_text_session.run(None, ort_inputs)
         text_embeds = outputs[0]  # text_embeds
@@ -171,11 +171,11 @@ class ModelManager:
 
     def encode_image_clip(self, image) -> np.ndarray:
         """使用 CLIP 编码图像，返回归一化的特征向量"""
-        inputs = self.clip_processor(images=image, return_tensors="pt")
+        inputs = self.clip_processor(images=image, return_tensors="np")
 
         # 转换为 numpy 用于 ONNX 推理
         ort_inputs = {
-            "pixel_values": inputs["pixel_values"].numpy().astype(np.float32),
+            "pixel_values": inputs["pixel_values"].astype(np.float32),
         }
         outputs = self.clip_vision_session.run(None, ort_inputs)
         image_embeds = outputs[0]  # image_embeds

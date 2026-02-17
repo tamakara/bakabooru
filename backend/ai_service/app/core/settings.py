@@ -6,8 +6,8 @@ from pydantic_settings import BaseSettings
 def get_default_device() -> str:
     """自动检测可用设备，优先使用 CUDA"""
     try:
-        import torch
-        if torch.cuda.is_available():
+        import onnxruntime as ort
+        if "CUDAExecutionProvider" in ort.get_available_providers():
             return "cuda"
     except ImportError:
         pass

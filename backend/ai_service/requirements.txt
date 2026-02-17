@@ -8,24 +8,11 @@ uvicorn
 fastapi
 
 # === ONNX Runtime ===
-# CPU 版本 (默认)
 onnxruntime
-# 如果有 NVIDIA 显卡，注释上面一行，取消下面一行注释
-# onnxruntime-gpu
-
-# === PyTorch (仅用于设备检测，可选) ===
-# CPU 版本 (默认)
---extra-index-url https://download.pytorch.org/whl/cpu
-torch
-# 如果有 NVIDIA 显卡 (CUDA 12.1)，注释上面两行，取消下面两行注释
-# --extra-index-url https://download.pytorch.org/whl/cu121
-# torch
 
 # === LangChain ===
 langchain-core
 langchain-openai
-langchain-huggingface
-langchain-postgres
 langchain-community
 fastembed
 
@@ -33,7 +20,7 @@ fastembed
 psycopg2-binary
 pgvector
 
-# === Transformers (仅用于 CLIP processor) ===
+# === Transformers===
 transformers
 
 # === MinIO ===
