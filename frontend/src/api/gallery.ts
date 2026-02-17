@@ -1,6 +1,18 @@
 import apiClient from './client'
 
 /**
+ * 图片缩略图DTO，用于搜索列表展示
+ */
+export interface ImageThumbnailDto {
+  /** 图片ID */
+  id: number
+  /** 图片标题 */
+  title: string
+  /** 缩略图访问URL */
+  thumbnailUrl: string
+}
+
+/**
  * 图片数据传输对象
  */
 export interface ImageDto {
@@ -69,6 +81,15 @@ export interface Page<T> {
 }
 
 export const galleryApi = {
+
+  /**
+   * 获取图片详情（会增加查看次数）
+   * @param id 图片ID
+   */
+  getImage: async (id: number) => {
+    const response = await apiClient.get<ImageDto>(`/images/${id}`)
+    return response.data
+  },
 
   /**
    * 删除图片

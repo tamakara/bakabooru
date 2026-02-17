@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import {useQuery} from '@tanstack/vue-query'
 import {searchApi} from '../api/search'
-import {galleryApi, type ImageDto} from '../api/gallery'
-import {computed, h, nextTick, reactive, ref, watch} from 'vue'
+import {galleryApi, type ImageDto, type ImageThumbnailDto} from '../api/gallery'
+import {computed, h, nextTick, onMounted, reactive, ref, watch} from 'vue'
 import {
   NButton,
   NDropdown,
@@ -76,6 +76,7 @@ const pageSize = ref(20)
 // 搜索操作
 function handleSearch() {
   page.value = 1
+
   activeSearchState.value = {
     ...formState,
     randomSeed: uuidv4()
@@ -86,7 +87,7 @@ function handleReset() {
   formState.keyword = ''
   formState.tags = ''
   formState.semanticQuery = ''
-  formState.sortBy = 'RANDOM'
+  formState.sortBy = 'RANDOM'  // 重置时使用随机排序
   formState.sortDirection = 'DESC'
   formState.widthMin = null
   formState.widthMax = null
@@ -94,7 +95,16 @@ function handleReset() {
   formState.heightMax = null
   formState.sizeMin = null
   formState.sizeMax = null
-  handleSearch()
+
+  // 执行随机排序搜索
+  page.value = 1
+  activeSearchState.value = {
+    ...formState,
+    randomSeed: uuidv4()
+  }
+
+  // 搜索后将表单排序改为相似度，用户下次搜索时默认相似度
+  formState.sortBy = 'SIMILARITY'
 }
 
 // 查询
@@ -107,6 +117,7 @@ const {
 } = useQuery({
   queryKey: ['images', activeSearchState, page, pageSize],
   retry: false,
+  refetchOnWindowFocus: false, // 禁止窗口聚焦时自动刷新
   queryFn: async () => {
     const sort = `${activeSearchState.value.sortBy},${activeSearchState.value.sortDirection}`
 
@@ -171,7 +182,12 @@ function handlePrevDetail() {
   if (hasPrevDetail.value) {
     const prev = images.value[currentDetailIndex.value - 1]
     if (prev) {
-      selectedDetailImage.value = prev
+      galleryApi.getImage(prev.id).then(fullImage => {
+        selectedDetailImage.value = fullImage
+      }).catch(err => {
+        message.error('获取图片详情失败')
+        console.error(err)
+      })
     }
   }
 }
@@ -180,17 +196,29 @@ function handleNextDetail() {
   if (hasNextDetail.value) {
     const next = images.value[currentDetailIndex.value + 1]
     if (next) {
-      selectedDetailImage.value = next
+      galleryApi.getImage(next.id).then(fullImage => {
+        selectedDetailImage.value = fullImage
+      }).catch(err => {
+        message.error('获取图片详情失败')
+        console.error(err)
+      })
     }
   }
 }
 
-function openDetail(image: ImageDto) {
-  selectedDetailImage.value = image
-  showDetail.value = true
+function openDetail(image: ImageThumbnailDto) {
+  // 异步获取图片详情
+  galleryApi.getImage(image.id).then(fullImage => {
+    selectedDetailImage.value = fullImage
+    showDetail.value = true
+  }).catch(err => {
+    message.error('获取图片详情失败')
+    console.error(err)
+  })
 }
 
 const sortOptions = [
+  {label: '相似度', value: 'SIMILARITY'},
   {label: '随机', value: 'RANDOM'},
   {label: '查看次数', value: 'viewCount'},
   {label: '创建时间', value: 'createdAt'},
@@ -402,6 +430,13 @@ async function handleBatchDownload() {
     message.error('打包下载失败')
   }
 }
+
+// 第一次查询虽然是随机排序，但是查询之后要把排序改成相似度
+onMounted(() => {
+  // 第一次查询使用的是初始化的 activeSearchState (RANDOM)
+  // 这里我们将表单显示的默认排序改为相似度，这样用户下一次点击搜索或者看设置时，默认就是相似度
+  formState.sortBy = 'SIMILARITY';
+})
 
 </script>
 
@@ -628,7 +663,7 @@ async function handleBatchDownload() {
               @contextmenu="handleContextMenu($event, image)"
           >
             <img
-                :src="image.thumbnailUrl || image.imageUrl"
+                :src="image.thumbnailUrl"
                 :alt="image.title || 'image'"
                 class="w-full h-full object-cover transition-transform duration-300 transform select-none"
                 :class="{ 'scale-90': selectedIds.has(image.id) }"

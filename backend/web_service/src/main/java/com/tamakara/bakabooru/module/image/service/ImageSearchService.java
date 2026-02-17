@@ -62,14 +62,23 @@ public class ImageSearchService {
             addRangePredicate(predicates, cb, root.get("height"), searchDto.getHeightMin(), searchDto.getHeightMax());
             addRangePredicate(predicates, cb, root.get("size"), searchDto.getSizeMin(), searchDto.getSizeMax());
 
-            // 5. 排序处理
-            // 在 searchImages 方法内部
-            if (query != null && query.getResultType() != Long.class && query.getResultType() != long.class) {
-                if (StringUtils.hasText(searchDto.getRandomSeed())) { // 检查 String 是否有值
-                    // 将 String 转为 hashCode，确保参与运算的是 Integer
-                    int seedInt = searchDto.getRandomSeed().hashCode();
-                    applyRandomOrder(root, query, cb, seedInt);
+            // 5. 向量相似度搜索
+            if (searchDto.getEmbedding() != null && !searchDto.getEmbedding().isEmpty()) {
+                String embeddingStr = searchDto.getEmbedding().toString();
+
+                Expression<Double> distance = cb.function("cosine_distance", Double.class,
+                        root.get("embedding"),
+                        cb.literal(embeddingStr)
+                );
+
+                if (!isCountQuery(query)) {
+                    applyEmbeddingSort(query, cb, root, searchDto.getPageable(), distance);
                 }
+            }
+            // 6. 随机排序 (互斥逻辑：有向量搜索时不走随机，除非显式支持混合通过 Pageable)
+            else if (!isCountQuery(query) && StringUtils.hasText(searchDto.getRandomSeed())) {
+                int seedInt = searchDto.getRandomSeed().hashCode();
+                applyRandomOrder(root, query, cb, seedInt);
             }
 
             return cb.and(predicates.toArray(new Predicate[0]));
@@ -81,6 +90,10 @@ public class ImageSearchService {
                 System.currentTimeMillis() - startTime, result.getNumberOfElements(), result.getTotalElements());
 
         return result;
+    }
+
+    private boolean isCountQuery(CriteriaQuery<?> query) {
+        return query != null && (query.getResultType() == Long.class || query.getResultType() == long.class);
     }
 
     /**
@@ -114,6 +127,27 @@ public class ImageSearchService {
     private void addRangePredicate(List<Predicate> predicates, CriteriaBuilder cb, Path<Number> path, Number min, Number max) {
         if (min != null) predicates.add(cb.ge(path, min));
         if (max != null) predicates.add(cb.le(path, max));
+    }
+
+    private void applyEmbeddingSort(CriteriaQuery<?> query, CriteriaBuilder cb, Root<Image> root,
+                                    org.springframework.data.domain.Pageable pageable, Expression<Double> distance) {
+        if (query == null) return;
+
+        var sort = pageable.getSort();
+        if (sort.isSorted()) {
+            List<jakarta.persistence.criteria.Order> orders = new ArrayList<>();
+            sort.forEach(order -> {
+                if ("similarity".equalsIgnoreCase(order.getProperty()) || "distance".equalsIgnoreCase(order.getProperty())) {
+                    orders.add(order.isAscending() ? cb.asc(distance) : cb.desc(distance));
+                } else {
+                    orders.add(order.isAscending() ? cb.asc(root.get(order.getProperty())) : cb.desc(root.get(order.getProperty())));
+                }
+            });
+            query.orderBy(orders);
+        } else {
+            // 默认按距离升序（最相似在前）
+            query.orderBy(cb.asc(distance));
+        }
     }
 
     private void applyRandomOrder(Root<Image> root, CriteriaQuery<?> query, CriteriaBuilder cb, Integer seedInt) {

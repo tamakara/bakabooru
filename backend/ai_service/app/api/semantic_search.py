@@ -1,19 +1,25 @@
 """语义搜索 API"""
 from fastapi import APIRouter
 
-from app.schemas.semantic_search import SemanticSearchRequest, SemanticSearchResponse
+from app.schemas.semantic_search import SemanticSearchRequest, TagsResponse, EmbeddingResponse
 from app.services.semantic_search_service import semantic_search_service
 
 router = APIRouter(prefix="/search", tags=["语义搜索"])
 
 
-@router.post("/semantic", response_model=SemanticSearchResponse)
-def semantic_search(body: SemanticSearchRequest) -> SemanticSearchResponse:
+@router.post("/tags", response_model=TagsResponse)
+def extract_tags(body: SemanticSearchRequest) -> TagsResponse:
     """
-    语义搜索解析接口
+    语义标签提取接口
+    将语义描述转换为数据库中的标签
+    """
+    return semantic_search_service.parse_tags(body)
 
-    将用户的自然语言描述解析为两部分：
-    1. tags: 可以用 Danbooru 标签表达的硬性搜索条件
-    2. clip_search: 无法用标签描述的内容（风格、氛围等），返回 CLIP 向量用于相似度搜索
+
+@router.post("/embedding", response_model=EmbeddingResponse)
+def generate_embedding(body: SemanticSearchRequest) -> EmbeddingResponse:
     """
-    return semantic_search_service.parse_and_embed(body)
+    CLIP 向量生成接口
+    生成文本的 CLIP 向量用于相似度搜索
+    """
+    return semantic_search_service.generate_embedding(body)

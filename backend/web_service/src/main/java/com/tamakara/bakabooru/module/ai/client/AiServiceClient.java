@@ -1,11 +1,12 @@
 package com.tamakara.bakabooru.module.ai.client;
 
+import com.tamakara.bakabooru.module.ai.dto.EmbeddingResponseDto;
 import com.tamakara.bakabooru.module.ai.dto.ImageEmbeddingRequestDto;
 import com.tamakara.bakabooru.module.ai.dto.ImageEmbeddingResponseDto;
 import com.tamakara.bakabooru.module.ai.dto.SemanticSearchRequestDto;
-import com.tamakara.bakabooru.module.ai.dto.SemanticSearchResponseDto;
 import com.tamakara.bakabooru.module.ai.dto.TagImageRequestDto;
 import com.tamakara.bakabooru.module.ai.dto.TagImageResponseDto;
+import com.tamakara.bakabooru.module.ai.dto.TagsResponseDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -44,17 +45,6 @@ public class AiServiceClient {
                 .block();
     }
 
-    public SemanticSearchResponseDto semanticSearch(SemanticSearchRequestDto requestBody) {
-        return webClient
-                .post()
-                .uri("/search/semantic")
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(requestBody)
-                .retrieve()
-                .bodyToMono(SemanticSearchResponseDto.class)
-                .block();
-    }
-
     public ImageEmbeddingResponseDto imageEmbedding(ImageEmbeddingRequestDto requestBody) {
         return webClient
                 .post()
@@ -63,6 +53,28 @@ public class AiServiceClient {
                 .bodyValue(requestBody)
                 .retrieve()
                 .bodyToMono(ImageEmbeddingResponseDto.class)
+                .block();
+    }
+
+    public TagsResponseDto extractTags(SemanticSearchRequestDto requestBody) {
+        return webClient
+                .post()
+                .uri("/search/tags")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(requestBody)
+                .retrieve()
+                .bodyToMono(TagsResponseDto.class)
+                .block();
+    }
+
+    public EmbeddingResponseDto generateEmbedding(SemanticSearchRequestDto requestBody) {
+        return webClient
+                .post()
+                .uri("/search/embedding")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(requestBody)
+                .retrieve()
+                .bodyToMono(EmbeddingResponseDto.class)
                 .block();
     }
 }

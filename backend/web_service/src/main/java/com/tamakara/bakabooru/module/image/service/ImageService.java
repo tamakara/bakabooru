@@ -29,6 +29,18 @@ public class ImageService {
     private final TagService tagService;
 
     @Transactional
+    public ImageDto getImage(Long id) {
+        Image image = imageRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("找不到图片"));
+
+        // 增加查看次数
+        image.setViewCount(image.getViewCount() + 1);
+        imageRepository.save(image);
+
+        return imageMapper.toDto(image);
+    }
+
+    @Transactional
     public void addImage(Image image) {
         imageRepository.save(image);
     }

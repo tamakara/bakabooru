@@ -1,5 +1,5 @@
 """语义搜索服务 - 将自然语言转换为标签搜索条件和 CLIP 向量"""
-from typing import List, Optional
+from typing import List
 
 from langchain_core.output_parsers import PydanticOutputParser
 from langchain_openai import ChatOpenAI
@@ -7,10 +7,9 @@ from langchain_openai import ChatOpenAI
 from app.core.model_manager import model_manager
 from app.schemas.semantic_search import (
     SemanticSearchRequest,
-    SemanticSearchResponse,
     ParsedSemanticQuery,
-    TagsResult,
-    ClipSearchResult
+    TagsResponse,
+    EmbeddingResponse
 )
 from app.services.tag_matcher_service import tag_matcher_service
 from app.services.prompts import semantic_search_prompt
@@ -19,11 +18,11 @@ from app.services.prompts import semantic_search_prompt
 class SemanticSearchService:
     """语义搜索服务"""
 
-    def parse_and_embed(self, request: SemanticSearchRequest) -> SemanticSearchResponse:
+    def parse_tags(self, request: SemanticSearchRequest) -> TagsResponse:
         """
-        解析语义描述并生成搜索条件
+        解析语义描述为标签
         :param request: 语义搜索请求
-        :return: 包含标签和 CLIP 向量的搜索响应
+        :return: 标签提取响应
         """
         try:
             # 1. 使用 LLM 解析语义描述
@@ -35,19 +34,36 @@ class SemanticSearchService:
             )
 
             # 2. 将解析的标签通过向量匹配转换为实际数据库标签
-            tags_result = self._match_tags(parsed)
+            positive_tags, negative_tags = self._match_tags(parsed)
 
-            # 3. 如果有 CLIP 文本，生成 CLIP 嵌入
-            clip_search = None
-            if parsed.clip_text:
-                clip_search = self._generate_clip_embedding(parsed.clip_text)
-
-            return SemanticSearchResponse.ok(tags=tags_result, clip_search=clip_search)
+            return TagsResponse.ok(positive=positive_tags, negative=negative_tags)
 
         except Exception as e:
             import traceback
             traceback.print_exc()
-            return SemanticSearchResponse.fail(str(e))
+            return TagsResponse.fail(str(e))
+
+    def generate_embedding(self, request: SemanticSearchRequest) -> EmbeddingResponse:
+        """
+        生成文本的 CLIP 向量
+        :param request: 语义搜索请求
+        :return: CLIP Embedding 响应
+        """
+        try:
+            if not request.query:
+                return EmbeddingResponse.ok()
+
+            text = request.query
+            print(f"生成 CLIP 嵌入: {text}")
+            embedding = model_manager.encode_text_clip(text)
+            embedding_list = embedding.flatten().tolist()
+
+            return EmbeddingResponse.ok(text=text, embedding=embedding_list)
+
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return EmbeddingResponse.fail(str(e))
 
     def _parse_with_llm(
         self,
@@ -71,7 +87,7 @@ class SemanticSearchService:
         print(f"LLM 解析结果: {result}")
         return result
 
-    def _match_tags(self, parsed: ParsedSemanticQuery) -> TagsResult:
+    def _match_tags(self, parsed: ParsedSemanticQuery) -> tuple[List[str], List[str]]:
         """将 LLM 解析的标签通过向量匹配转换为实际数据库标签"""
         positive_tags: List[str] = []
         negative_tags: List[str] = []
@@ -93,18 +109,7 @@ class SemanticSearchService:
                     break
 
         print(f"匹配到的标签 - 正向: {positive_tags}, 负向: {negative_tags}")
-        return TagsResult(positive=positive_tags, negative=negative_tags)
-
-    def _generate_clip_embedding(self, text: str) -> ClipSearchResult:
-        """生成 CLIP 文本嵌入"""
-        print(f"生成 CLIP 嵌入: {text}")
-        embedding = model_manager.encode_text_clip(text)
-        embedding_list = embedding.cpu().numpy().flatten().tolist()
-
-        return ClipSearchResult(
-            text=text,
-            embedding=embedding_list
-        )
+        return positive_tags, negative_tags
 
 
 # 单例服务实例

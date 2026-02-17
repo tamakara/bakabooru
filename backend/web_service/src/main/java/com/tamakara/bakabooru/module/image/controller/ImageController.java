@@ -15,6 +15,12 @@ public class ImageController {
 
     private final ImageService imageService;
 
+    @GetMapping("/{id}")
+    @Operation(summary = "获取图片详情", description = "获取图片详细信息并增加查看次数")
+    public ImageDto getImage(@PathVariable Long id) {
+        return imageService.getImage(id);
+    }
+
     @DeleteMapping("/{id}")
     @Operation(summary = "删除图片")
     public void deleteImage(@PathVariable Long id) {

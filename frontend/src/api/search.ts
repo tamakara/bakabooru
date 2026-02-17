@@ -1,5 +1,5 @@
 import apiClient from './client'
-import type { Page, ImageDto } from './gallery'
+import type { Page, ImageThumbnailDto } from './gallery'
 
 export interface SearchRequestDto {
   tags?: string
@@ -19,7 +19,7 @@ export interface SearchRequestDto {
 
 export const searchApi = {
   search: async (request: SearchRequestDto) => {
-    const response = await apiClient.post<Page<ImageDto>>('/search', request)
+    const response = await apiClient.post<Page<ImageThumbnailDto>>('/search', request)
     return response.data
   },
 
