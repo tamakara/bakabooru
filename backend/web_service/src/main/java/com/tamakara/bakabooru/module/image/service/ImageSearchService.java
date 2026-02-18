@@ -9,6 +9,9 @@ import jakarta.persistence.criteria.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -84,7 +87,18 @@ public class ImageSearchService {
             return cb.and(predicates.toArray(new Predicate[0]));
         };
 
-        Page<Image> result = imageRepository.findAll(spec, searchDto.getPageable());
+        // 如果处理了相似度排序，我们需要防止 Spring Data JPA 再次尝试排序 "similarity" 属性
+        // 因为 Image 实体没有 similarity 属性，会导致 PropertyReferenceException
+        Pageable effectivePageable = searchDto.getPageable();
+        if (searchDto.getEmbedding() != null && !searchDto.getEmbedding().isEmpty()) {
+            effectivePageable = PageRequest.of(
+                    searchDto.getPageable().getPageNumber(),
+                    searchDto.getPageable().getPageSize(),
+                    Sort.unsorted() // 移除排序，因为已经在 applyEmbeddingSort 中手动应用了
+            );
+        }
+
+        Page<Image> result = imageRepository.findAll(spec, effectivePageable);
 
         log.info("搜索完成 - 耗时: {}ms, 结果数: {}, 总数: {}",
                 System.currentTimeMillis() - startTime, result.getNumberOfElements(), result.getTotalElements());
