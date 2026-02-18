@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed, watch } from 'vue'
 import { useOsTheme, darkTheme } from 'naive-ui'
-import type { GlobalTheme } from 'naive-ui'
+import type { GlobalTheme, GlobalThemeOverrides } from 'naive-ui'
 
 export const useThemeStore = defineStore('theme', () => {
   const osTheme = useOsTheme()
@@ -13,6 +13,33 @@ export const useThemeStore = defineStore('theme', () => {
   )
 
   const theme = computed<GlobalTheme | null>(() => isDark.value ? darkTheme : null)
+
+  const themeOverrides = computed<GlobalThemeOverrides | null>(() => {
+    if (isDark.value) return null
+    return {
+      common: {
+        borderColor: '#d1d5db', // gray-300
+        dividerColor: '#e5e7eb', // gray-200
+        bodyColor: '#ffffff',
+        modalColor: '#ffffff',
+        popoverColor: '#ffffff',
+        cardColor: '#ffffff'
+      },
+      Card: {
+        borderColor: '#d1d5db' // gray-300
+      },
+      Layout: {
+        headerBorderColor: '#d1d5db',
+        siderBorderColor: '#d1d5db'
+      },
+      DataTable: {
+        borderColor: '#d1d5db'
+      },
+      List: {
+        borderColor: '#d1d5db'
+      }
+    }
+  })
 
   watch(isDark, (val) => {
     if (val) {
@@ -30,7 +57,7 @@ export const useThemeStore = defineStore('theme', () => {
   return {
     isDark,
     theme,
+    themeOverrides,
     toggleTheme
   }
 })
-

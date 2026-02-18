@@ -75,9 +75,9 @@ public class SearchService {
         }
 
         Sort sort;
-        boolean isSimilaritySort = "similarity".equalsIgnoreCase(sortProperty) || "distance".equalsIgnoreCase(sortProperty);
+        boolean isSimilaritySort = "similarity".equalsIgnoreCase(sortProperty);
 
-        if ("RANDOM".equalsIgnoreCase(sortProperty)) {
+        if ("random".equalsIgnoreCase(sortProperty)) {
             if (!StringUtils.hasText(request.getRandomSeed())) {
                 throw new RuntimeException("Random seed must be provided for random sorting");
             }
@@ -94,7 +94,10 @@ public class SearchService {
                         : java.util.UUID.randomUUID().toString();
                 searchDto.setRandomSeed(seed);
             } else {
-                sort = Sort.unsorted(); // 向量搜索时排序由 ImageSearchService 处理
+                // 虽然向量搜索时排序由 ImageSearchService 处理，但仍需传递排序方向
+                // 这样 ImageSearchService 可以决定是按相似度升序还是降序
+                // 注意：通常相似度越高越好（默认降序），但在某些情况下用户可能想要反向排序
+                sort = Sort.by(direction, "similarity");
             }
         } else if (StringUtils.hasText(sortProperty)) {
             sort = Sort.by(direction, sortProperty);

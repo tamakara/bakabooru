@@ -38,7 +38,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <n-config-provider :theme="themeStore.theme">
+  <n-config-provider :theme="themeStore.theme" :theme-overrides="themeStore.themeOverrides">
     <n-global-style/>
     <n-message-provider>
       <n-dialog-provider>

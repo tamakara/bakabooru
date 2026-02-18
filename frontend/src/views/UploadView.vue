@@ -239,7 +239,7 @@ const columns: DataTableColumns<UploadTask> = [
             </div>
 
             <!-- 待处理数量 -->
-            <div class="text-center px-4 border-l border-gray-200 dark:border-gray-700">
+            <div class="text-center px-4 border-l border-gray-300 dark:border-gray-700">
               <div class="text-xs text-gray-500 mb-1">待处理</div>
               <div class="text-xl font-semibold" :class="totalPending > 0 ? 'text-blue-500' : 'text-gray-400'">
                 {{ totalPending }}
@@ -247,7 +247,7 @@ const columns: DataTableColumns<UploadTask> = [
             </div>
 
             <!-- 失败数量 -->
-            <div class="text-center px-4 border-l border-gray-200 dark:border-gray-700">
+            <div class="text-center px-4 border-l border-gray-300 dark:border-gray-700">
               <div class="text-xs text-gray-500 mb-1">失败</div>
               <div class="text-xl font-semibold" :class="failedTasks.length > 0 ? 'text-red-500' : 'text-gray-400'">
                 {{ failedTasks.length }}

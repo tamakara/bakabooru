@@ -45,7 +45,7 @@ const formState = reactive({
   keyword: '',
   tags: '',
   semanticQuery: '',  // 语义描述搜索
-  sortBy: 'RANDOM',
+  sortBy: 'random',
   sortDirection: 'DESC',
   widthMin: null as number | null,
   widthMax: null as number | null,
@@ -87,7 +87,7 @@ function handleReset() {
   formState.keyword = ''
   formState.tags = ''
   formState.semanticQuery = ''
-  formState.sortBy = 'RANDOM'  // 重置时使用随机排序
+  formState.sortBy = 'random'  // 重置时使用随机排序
   formState.sortDirection = 'DESC'
   formState.widthMin = null
   formState.widthMax = null
@@ -103,8 +103,7 @@ function handleReset() {
     randomSeed: uuidv4()
   }
 
-  // 搜索后将表单排序改为相似度，用户下次搜索时默认相似度
-  formState.sortBy = 'SIMILARITY'
+  formState.sortBy = 'similarity'
 }
 
 // 查询
@@ -233,9 +232,9 @@ function openDetail(image: ImageThumbnailDto) {
 }
 
 const sortOptions = [
-  {label: '相似度', value: 'SIMILARITY'},
+  {label: '匹配度', value: 'similarity'},
   {label: '标题', value: 'title'},
-  {label: '随机', value: 'RANDOM'},
+  {label: '随机', value: 'random'},
   {label: '查看次数', value: 'viewCount'},
   {label: '创建时间', value: 'createdAt'},
   {label: '修改时间', value: 'updatedAt'},
@@ -448,9 +447,9 @@ async function handleBatchDownload() {
 
 // 第一次查询虽然是随机排序，但是查询之后要把排序改成相似度
 onMounted(() => {
-  // 第一次查询使用的是初始化的 activeSearchState (RANDOM)
+  // 第一次查询使用的是初始化的 activeSearchState (random)
   // 这里我们将表单显示的默认排序改为相似度，这样用户下一次点击搜索或者看设置时，默认就是相似度
-  formState.sortBy = 'SIMILARITY';
+  formState.sortBy = 'similarity';
 })
 
 </script>
@@ -468,7 +467,7 @@ onMounted(() => {
         :width="280"
     >
       <div class="flex flex-col h-full">
-        <div class="p-4 border-b border-gray-100 dark:border-gray-800">
+        <div class="p-4 border-b border-gray-300 dark:border-gray-800">
           <h2 class="text-lg font-medium">搜索</h2>
         </div>
 
@@ -502,7 +501,7 @@ onMounted(() => {
               </n-form-item>
 
               <div class="grid grid-cols-2 gap-4">
-                <n-form-item label="宽度">
+                <n-form-item label="宽度 (px)">
                   <div class="flex items-center gap-2 w-full">
                     <n-input-number v-model:value="formState.widthMin" placeholder="MIN" :min="0" class="flex-1" size="small" :show-button="false"/>
                     <span class="text-gray-400">-</span>
@@ -510,7 +509,7 @@ onMounted(() => {
                   </div>
                 </n-form-item>
 
-                <n-form-item label="高度">
+                <n-form-item label="高度 (px)">
                   <div class="flex items-center gap-2 w-full">
                     <n-input-number v-model:value="formState.heightMin" placeholder="MIN" :min="0" class="flex-1" size="small" :show-button="false"/>
                     <span class="text-gray-400">-</span>
@@ -528,15 +527,15 @@ onMounted(() => {
               </n-form-item>
 
               <div class="grid grid-cols-2 gap-4">
-                <n-form-item label="排序">
+                <n-form-item label="排序依据">
                   <n-select v-model:value="formState.sortBy" :options="sortOptions" />
                 </n-form-item>
 
-                <n-form-item label="方向">
+                <n-form-item label="顺序">
                    <n-radio-group v-model:value="formState.sortDirection" name="sortDirection">
                     <n-space :size="0" justify="space-between" class="w-full">
-                      <n-radio-button value="ASC" class="flex-1 text-center">升</n-radio-button>
-                      <n-radio-button value="DESC" class="flex-1 text-center">降</n-radio-button>
+                      <n-radio-button value="ASC" class="flex-1 text-center">升序</n-radio-button>
+                      <n-radio-button value="DESC" class="flex-1 text-center">降序</n-radio-button>
                     </n-space>
                   </n-radio-group>
                 </n-form-item>
@@ -545,7 +544,7 @@ onMounted(() => {
           </n-form>
         </div>
 
-        <div class="p-4 border-t border-gray-100 dark:border-gray-800 flex gap-2">
+        <div class="p-4 border-t border-gray-300 dark:border-gray-800 flex gap-2">
           <n-button type="primary" class="flex-1" @click="handleSearch">
             <template #icon>
               <n-icon>
