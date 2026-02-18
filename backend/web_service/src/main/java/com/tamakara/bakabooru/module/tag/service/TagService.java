@@ -10,6 +10,7 @@ import com.tamakara.bakabooru.module.tag.repository.TagRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,12 +35,13 @@ public class TagService {
     public List<TagDto> searchTags(String query) {
         long startTime = System.currentTimeMillis();
 
-        // 使用数据库级别的优化查询，限制返回20条结果
-        List<TagDto> results = tagRepository.searchTagsOptimized(query, PageRequest.of(0, 20));
+        List<TagDto> results = tagRepository.searchTags(query, Pageable.ofSize(20))
+                .stream()
+                .map(tagMapper::toDto)
+                .toList();
 
         log.debug("标签搜索完成 - 关键字: {}, 结果数: {}, 耗时: {}ms",
                 query, results.size(), System.currentTimeMillis() - startTime);
-
         return results;
     }
 

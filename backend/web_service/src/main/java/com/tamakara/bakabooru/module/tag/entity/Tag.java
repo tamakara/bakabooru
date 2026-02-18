@@ -25,10 +25,5 @@ public class Tag {
 
     @OneToMany(mappedBy = "tag")
     private Set<ImageTagRelation> imageRelations = new HashSet<>();
-
-    public Tag(String name, String type) {
-        this.name = name;
-        this.type = type;
-    }
 }
 

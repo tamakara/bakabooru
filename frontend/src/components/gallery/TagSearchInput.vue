@@ -23,7 +23,7 @@ const isLoading = ref(false)
 
 // 防抖定时器
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
-const DEBOUNCE_DELAY = 300 // 300ms 防抖延迟
+const DEBOUNCE_DELAY = 100 // 防抖延迟
 
 // 清理定时器
 onUnmounted(() => {

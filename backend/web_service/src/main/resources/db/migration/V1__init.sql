@@ -1,6 +1,5 @@
 -- 启用扩展
-CREATE EXTENSION IF NOT EXISTS vector;
-CREATE EXTENSION IF NOT EXISTS pg_trgm;
+CREATE EXTENSION vector;
 
 -- 图片表
 CREATE TABLE images
@@ -28,7 +27,7 @@ CREATE TABLE tags
     type      TEXT        NOT NULL,
     embedding vector(384)
 );
-CREATE INDEX idx_tags_name_trgm ON tags USING GIN (name gin_trgm_ops);
+CREATE INDEX idx_tags_name_lower_btree ON tags (LOWER(name) varchar_pattern_ops);
 CREATE INDEX idx_tags_embedding ON tags USING hnsw (embedding vector_cosine_ops);
 
 CREATE TABLE image_tag_relation
