@@ -40,7 +40,7 @@ public class UploadTaskService {
 
     private final ExecutorService taskExecutor = Executors.newSingleThreadExecutor();
 
-    private final TasksInfoDto tasksInfoDto = new TasksInfoDto();
+    private UploadTask processingTask = null;
 
     @PostConstruct
     public void initTaskProcessor() {
@@ -61,10 +61,7 @@ public class UploadTaskService {
                     log.warn("任务数据不存在: {}", taskId);
                     continue;
                 }
-
-                tasksInfoDto.setPendingCount(uploadTaskQueue.getPendingCount());
-                tasksInfoDto.setProcessingTask(task);
-                tasksInfoDto.setFailedTasks(uploadTaskQueue.getFailedTasks());
+                processingTask = task;
 
                 try {
                     processTask(task);
@@ -74,9 +71,7 @@ public class UploadTaskService {
                     log.error("任务处理失败: {}, 错误: {}", taskId, e.getMessage(), e);
                     uploadTaskQueue.moveToFailed(taskId, e.getMessage());
                 } finally {
-                    tasksInfoDto.setProcessingTask(null);
-                    tasksInfoDto.setPendingCount(uploadTaskQueue.getPendingCount());
-                    tasksInfoDto.setFailedTasks(uploadTaskQueue.getFailedTasks());
+                    processingTask = null;
                 }
             } catch (Exception e) {
                 log.error("任务处理循环异常: {}", e.getMessage(), e);
@@ -210,7 +205,17 @@ public class UploadTaskService {
      * 获取待处理数量
      */
     public TasksInfoDto getTasksInfo() {
-        return tasksInfoDto;
+        // 构建新的响应对象，获取即时数据
+        TasksInfoDto response = new TasksInfoDto();
+        // processingTask 由处理循环维护，直接读取当前状态
+        response.setProcessingTask(processingTask);
+
+        // pendingCount 和 failedTasks 直接从队列获取，确保数据实时性
+        // 特别是当处理循环处于空闲等待状态时，缓存的数据可能是旧的
+        response.setPendingCount(uploadTaskQueue.getPendingCount());
+        response.setFailedTasks(uploadTaskQueue.getFailedTasks());
+
+        return response;
     }
 
     /**

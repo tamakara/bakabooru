@@ -234,12 +234,12 @@ function openDetail(image: ImageThumbnailDto) {
 
 const sortOptions = [
   {label: '相似度', value: 'SIMILARITY'},
+  {label: '标题', value: 'title'},
   {label: '随机', value: 'RANDOM'},
   {label: '查看次数', value: 'viewCount'},
   {label: '创建时间', value: 'createdAt'},
   {label: '修改时间', value: 'updatedAt'},
   {label: '文件大小', value: 'size'},
-  {label: '标题', value: 'title'}
 ]
 
 // 选中状态管理
@@ -473,114 +473,75 @@ onMounted(() => {
         </div>
 
         <div class="flex-1 overflow-y-auto p-4">
-          <n-form size="small" label-placement="top">
-            <n-form-item label="语义描述">
-              <n-input
-                  v-model:value="formState.semanticQuery"
-                  placeholder="用自然语言描述想搜索的图片（如：赛博朋克风格的初音未来，不要眼镜）"
-                  type="textarea"
-                  :autosize="{ minRows: 2, maxRows: 4 }"
-                  @keydown.ctrl.enter="handleSearch"
-              />
-            </n-form-item>
-
-            <n-form-item label="关键字">
-              <n-input
-                  v-model:value="formState.keyword"
-                  placeholder="标题或文件名"
-                  type="textarea"
-                  :autosize="{ minRows:1, maxRows:1 }"
-                  @keydown.enter="handleSearch"/>
-            </n-form-item>
-
-            <n-form-item label="标签搜索">
-              <tag-search-input
-                  v-model:value="formState.tags"
-                  placeholder="输入标签，空格分隔，-排除"
-                  :autosize="{minRows:1, maxRows:5}"
-                  @search="handleSearch"
-              />
-            </n-form-item>
-
-            <n-form-item label="宽度范围">
-              <div class="flex gap-2 w-full">
-                <n-input-number
-                    v-model:value="formState.widthMin"
-                    placeholder="MIN"
-                    :min="0"
-                    class="flex-1"
-                    size="tiny"
-                    :show-button="false"
+          <n-form label-placement="top" :show-feedback="false">
+            <n-space vertical :size="24">
+              <n-form-item label="语义描述">
+                <n-input
+                    v-model:value="formState.semanticQuery"
+                    placeholder="描述图片特征..."
+                    type="textarea"
+                    :autosize="{ minRows: 2, maxRows: 5 }"
+                    @keydown.ctrl.enter="handleSearch"
                 />
-                <span class="text-gray-400 self-center">-</span>
-                <n-input-number
-                    v-model:value="formState.widthMax"
-                    placeholder="MAX"
-                    :min="0"
-                    class="flex-1"
-                    size="tiny"
-                    :show-button="false"
+              </n-form-item>
+
+              <n-form-item label="关键字">
+                <n-input
+                    v-model:value="formState.keyword"
+                    placeholder="标题或文件名"
+                    @keydown.enter="handleSearch"/>
+              </n-form-item>
+
+              <n-form-item label="标签">
+                <tag-search-input
+                    v-model:value="formState.tags"
+                    placeholder="空格分隔，-排除"
+                    :autosize="{ minRows: 2, maxRows: 5 }"
+                    @search="handleSearch"
                 />
+              </n-form-item>
+
+              <div class="grid grid-cols-2 gap-4">
+                <n-form-item label="宽度">
+                  <div class="flex items-center gap-2 w-full">
+                    <n-input-number v-model:value="formState.widthMin" placeholder="MIN" :min="0" class="flex-1" size="small" :show-button="false"/>
+                    <span class="text-gray-400">-</span>
+                    <n-input-number v-model:value="formState.widthMax" placeholder="MAX" :min="0" class="flex-1" size="small" :show-button="false"/>
+                  </div>
+                </n-form-item>
+
+                <n-form-item label="高度">
+                  <div class="flex items-center gap-2 w-full">
+                    <n-input-number v-model:value="formState.heightMin" placeholder="MIN" :min="0" class="flex-1" size="small" :show-button="false"/>
+                    <span class="text-gray-400">-</span>
+                    <n-input-number v-model:value="formState.heightMax" placeholder="MAX" :min="0" class="flex-1" size="small" :show-button="false"/>
+                  </div>
+                </n-form-item>
               </div>
-            </n-form-item>
 
-            <n-form-item label="高度范围">
-              <div class="flex gap-2 w-full">
-                <n-input-number
-                    v-model:value="formState.heightMin"
-                    placeholder="MIN"
-                    :min="0"
-                    class="flex-1"
-                    size="tiny"
-                    :show-button="false"
-                />
-                <span class="text-gray-400 self-center">-</span>
-                <n-input-number
-                    v-model:value="formState.heightMax"
-                    placeholder="MAX"
-                    :min="0"
-                    class="flex-1"
-                    size="tiny"
-                    :show-button="false"
-                />
+              <n-form-item label="大小 (MB)">
+                 <div class="flex items-center gap-2 w-full">
+                    <n-input-number v-model:value="formState.sizeMin" placeholder="MIN" :min="0" class="flex-1" size="small" :show-button="false"/>
+                    <span class="text-gray-400">-</span>
+                    <n-input-number v-model:value="formState.sizeMax" placeholder="MAX" :min="0" class="flex-1" size="small" :show-button="false"/>
+                  </div>
+              </n-form-item>
+
+              <div class="grid grid-cols-2 gap-4">
+                <n-form-item label="排序">
+                  <n-select v-model:value="formState.sortBy" :options="sortOptions" />
+                </n-form-item>
+
+                <n-form-item label="方向">
+                   <n-radio-group v-model:value="formState.sortDirection" name="sortDirection">
+                    <n-space :size="0" justify="space-between" class="w-full">
+                      <n-radio-button value="ASC" class="flex-1 text-center">升</n-radio-button>
+                      <n-radio-button value="DESC" class="flex-1 text-center">降</n-radio-button>
+                    </n-space>
+                  </n-radio-group>
+                </n-form-item>
               </div>
-            </n-form-item>
-
-            <n-form-item label="文件大小 (MB)">
-              <div class="flex gap-2 w-full">
-                <n-input-number
-                    v-model:value="formState.sizeMin"
-                    placeholder="MIN"
-                    :min="0"
-                    class="flex-1"
-                    size="tiny"
-                    :show-button="false"
-                />
-                <span class="text-gray-400 self-center">-</span>
-                <n-input-number
-                    v-model:value="formState.sizeMax"
-                    placeholder="MAX"
-                    :min="0"
-                    class="flex-1"
-                    size="tiny"
-                    :show-button="false"
-                />
-              </div>
-            </n-form-item>
-
-            <n-form-item label="排序依据">
-              <n-select v-model:value="formState.sortBy" :options="sortOptions"/>
-            </n-form-item>
-
-            <n-form-item label="排序方向">
-              <n-radio-group v-model:value="formState.sortDirection" name="sortDirection">
-                <n-space>
-                  <n-radio-button value="ASC">升序</n-radio-button>
-                  <n-radio-button value="DESC">降序</n-radio-button>
-                </n-space>
-              </n-radio-group>
-            </n-form-item>
-
+            </n-space>
           </n-form>
         </div>
 

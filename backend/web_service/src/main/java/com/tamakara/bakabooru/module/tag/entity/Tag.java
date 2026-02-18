@@ -1,11 +1,9 @@
 package com.tamakara.bakabooru.module.tag.entity;
 
-import com.tamakara.bakabooru.module.image.entity.Image;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Getter

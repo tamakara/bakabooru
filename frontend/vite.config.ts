@@ -4,7 +4,6 @@ import vue from '@vitejs/plugin-vue'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [vue()],
-  base: '/',
   server: {
     proxy: {
       '/api': {
@@ -13,7 +12,8 @@ export default defineConfig({
       },
       '/oss':{
         target: 'http://localhost:9000',
-        changeOrigin: true
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/oss/, '')
       }
     }
   }

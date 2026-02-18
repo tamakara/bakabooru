@@ -154,7 +154,7 @@ function handleEnter(e: KeyboardEvent) {
           @input="handleInput"
           @focus="handleFocus"
           @blur="handleBlur"
-          @keydown.enter="handleEnter"
+          @keydown.ctrl.enter="handleEnter"
       />
     </template>
   </n-auto-complete>

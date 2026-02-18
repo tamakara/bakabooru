@@ -1,4 +1,5 @@
 import axios from 'axios'
+import router from '../router'
 
 const apiClient = axios.create({
   baseURL: '/api',
@@ -19,9 +20,7 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      if (!window.location.hash.includes('#/login')) {
-          window.location.hash = '#/login'
-      }
+      router.push('login')
     }
     return Promise.reject(error)
   }

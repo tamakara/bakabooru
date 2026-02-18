@@ -102,8 +102,8 @@ const formatSize = (size: number) => {
 // 重试任务
 const {mutate: retryTask} = useMutation({
   mutationFn: uploadApi.retryTask,
-  onSuccess: () => {
-    queryClient.invalidateQueries({queryKey: ['uploadTasksInfo']})
+  onSuccess: async () => {
+    await queryClient.invalidateQueries({queryKey: ['uploadTasksInfo']})
     message.success('已重新加入队列')
   },
   onError: (err: Error) => message.error(`重试失败: ${err.message}`)
@@ -112,8 +112,8 @@ const {mutate: retryTask} = useMutation({
 // 清空失败任务
 const {mutate: clearFailedTasks} = useMutation({
   mutationFn: uploadApi.clearFailedTasks,
-  onSuccess: () => {
-    queryClient.invalidateQueries({queryKey: ['uploadTasksInfo']})
+  onSuccess: async () => {
+    await queryClient.invalidateQueries({queryKey: ['uploadTasksInfo']})
     message.success('已清空')
   },
   onError: (err: Error) => message.error(`清空失败: ${err.message}`)
