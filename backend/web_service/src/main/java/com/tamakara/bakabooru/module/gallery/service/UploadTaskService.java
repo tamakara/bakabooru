@@ -189,12 +189,13 @@ public class UploadTaskService {
             // 8. 移动文件到正式目录
             log.info("移动文件到正式存储目录...");
             storageService.copyFile(objectName, "original/" + hash);
+            tempFile.delete();
+
         } catch (Exception e) {
             throw new RuntimeException("处理图片失败: " + e.getMessage(), e);
         } finally {
             // 清理临时文件
             storageService.deleteFile(objectName);
-            tempFile.delete();
         }
     }
 
