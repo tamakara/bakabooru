@@ -147,7 +147,7 @@ public class SearchService {
                     }
                 }
             } catch (Exception e) {
-                log.warn("语义搜索解析失败，将忽略语义条件: {}", e.getMessage());
+                throw new RuntimeException("语义搜索解析失败: " + e.getMessage(), e);
             }
         }
 

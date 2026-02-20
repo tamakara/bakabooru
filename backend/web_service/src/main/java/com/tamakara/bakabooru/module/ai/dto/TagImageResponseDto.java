@@ -11,4 +11,3 @@ public class TagImageResponseDto {
     private Map<String,Double> data;
     private String error;
 }
-

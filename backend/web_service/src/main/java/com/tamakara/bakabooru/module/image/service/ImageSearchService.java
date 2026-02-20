@@ -90,11 +90,34 @@ public class ImageSearchService {
         // 如果处理了相似度排序，我们需要防止 Spring Data JPA 再次尝试排序 "similarity" 属性
         // 因为 Image 实体没有 similarity 属性，会导致 PropertyReferenceException
         Pageable effectivePageable = searchDto.getPageable();
-        if (searchDto.getEmbedding() != null && !searchDto.getEmbedding().isEmpty()) {
+        // 检查是否存在 "similarity" 排序
+        boolean hasSimilaritySort = effectivePageable.getSort().stream()
+                .anyMatch(order -> "similarity".equalsIgnoreCase(order.getProperty()));
+
+        if (hasSimilaritySort) {
+            // 如果存在 similarity 排序，必须移除它
+            // 只有当有 embedding 时，我们在 Specification 中手动处理排序
+            // 如果没有 embedding 但请求了 similarity 排序（可能是生成失败），则退化为无序或默认排序
+
+            List<Sort.Order> newOrders = new ArrayList<>();
+            effectivePageable.getSort().stream()
+                    .filter(order -> !"similarity".equalsIgnoreCase(order.getProperty()))
+                    .forEach(newOrders::add);
+
+            Sort newSort = newOrders.isEmpty() ? Sort.unsorted() : Sort.by(newOrders);
+
             effectivePageable = PageRequest.of(
+                    effectivePageable.getPageNumber(),
+                    effectivePageable.getPageSize(),
+                    newSort
+            );
+        } else if (searchDto.getEmbedding() != null && !searchDto.getEmbedding().isEmpty()) {
+             // 即使没有显式请求 similarity 排序，如果有 embedding，我们也可能想要强制重置排序?
+             // 原逻辑是这样的：
+             effectivePageable = PageRequest.of(
                     searchDto.getPageable().getPageNumber(),
                     searchDto.getPageable().getPageSize(),
-                    Sort.unsorted() // 移除排序，因为已经在 applyEmbeddingSort 中手动应用了
+                    Sort.unsorted()
             );
         }
 
