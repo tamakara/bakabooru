@@ -30,53 +30,46 @@ public class AuthService {
     }
 
     public String login(String password) {
-        String storedEncodedPassword = getEncodedPassword();
-        String currentPassword = "";
-
-        if (StringUtils.hasText(storedEncodedPassword)) {
-            try {
-                currentPassword = new String(Base64.getDecoder().decode(storedEncodedPassword), StandardCharsets.UTF_8);
-            } catch (IllegalArgumentException e) {
-                currentPassword = "";
-            }
-        }
+        // 简单解码 Base64 存储的密码 (注意: 生产环境应使用 BCrypt 等哈希算法)
+        String storedEncoded = getEncodedPassword();
+        String currentPassword = decodePassword(storedEncoded);
 
         if (!currentPassword.equals(password)) {
             throw new RuntimeException("密码错误");
         }
 
-        return JwtUtils.createToken(JwtUtils.generateSecretKey(currentPassword), 1000 * 60 * 60 * 24); //TODO: 自定义过期时间
+        // 生成 Token，有效期 24小时
+        return JwtUtils.createToken(JwtUtils.generateSecretKey(currentPassword), 1000 * 60 * 60 * 24);
     }
 
     public void setPassword(String password) {
         if (password == null) password = "";
         String encoded = Base64.getEncoder().encodeToString(password.getBytes(StandardCharsets.UTF_8));
-        Map<String, String> map = new HashMap<>();
-        map.put("system.auth-password", encoded);
-        map.put("system.auth-initialized", "true");
-        systemSettingService.updateSettings(map);
+
+        Map<String, String> settings = new HashMap<>();
+        settings.put("system.auth-password", encoded);
+        settings.put("system.auth-initialized", "true");
+
+        systemSettingService.updateSettings(settings);
     }
 
     public void validate(String token) {
         if (!isInitialized()) return;
 
-        String storedEncodedPassword = getEncodedPassword();
-
-        String currentPassword = "";
-        if (StringUtils.hasText(storedEncodedPassword)) {
-            try {
-                currentPassword = new String(Base64.getDecoder().decode(storedEncodedPassword), StandardCharsets.UTF_8);
-            } catch (IllegalArgumentException e) {
-                currentPassword = "";
-            }
-        }
-
-        if (!StringUtils.hasText(currentPassword)) {
-            return;
-        }
+        String currentPassword = decodePassword(getEncodedPassword());
+        if (!StringUtils.hasText(currentPassword)) return;
 
         if (JwtUtils.isTokenExpired(token, JwtUtils.generateSecretKey(currentPassword))) {
-            throw new RuntimeException("Token已过期 or 无效");
+            throw new RuntimeException("Token已过期或无效");
+        }
+    }
+
+    private String decodePassword(String encoded) {
+        if (!StringUtils.hasText(encoded)) return "";
+        try {
+            return new String(Base64.getDecoder().decode(encoded), StandardCharsets.UTF_8);
+        } catch (IllegalArgumentException e) {
+            return "";
         }
     }
 }

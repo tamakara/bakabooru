@@ -30,5 +30,17 @@ export const searchApi = {
       }
     })
     return response.data
+  },
+
+  searchByImage: async (file: File, threshold: number, page: number, size: number) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    const response = await apiClient.post<Page<ImageThumbnailDto>>('/search/image', formData, {
+      params: { threshold, page, size },
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+    return response.data
   }
 }

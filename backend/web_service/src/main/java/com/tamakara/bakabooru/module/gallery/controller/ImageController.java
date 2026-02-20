@@ -1,4 +1,4 @@
-package com.tamakara.bakabooru.module.image.controller;
+package com.tamakara.bakabooru.module.gallery.controller;
 
 import com.tamakara.bakabooru.module.image.dto.ImageDto;
 import com.tamakara.bakabooru.module.image.service.ImageService;
@@ -7,16 +7,24 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+/**
+ * 图片管理控制器
+ * 处理图片的增删改查、标签管理及批量操作
+ */
 @RestController
 @RequestMapping("/api/images")
 @RequiredArgsConstructor
-@Tag(name = "图库", description = "图片库操作")
+@Tag(name = "图库管理", description = "图片库核心操作")
 public class ImageController {
 
     private final ImageService imageService;
 
     @GetMapping("/{id}")
-    @Operation(summary = "获取图片详情", description = "获取图片详细信息并增加查看次数")
+    @Operation(summary = "获取详情", description = "获取图片详细信息并增加查看次数")
     public ImageDto getImage(@PathVariable Long id) {
         return imageService.getImage(id);
     }
@@ -28,7 +36,7 @@ public class ImageController {
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "更新图片详情")
+    @Operation(summary = "更新信息")
     public ImageDto updateImage(@PathVariable Long id, @RequestBody ImageDto dto) {
         return imageService.updateImage(id, dto);
     }
@@ -46,14 +54,14 @@ public class ImageController {
     }
 
     @PostMapping("/batch/delete")
-    @Operation(summary = "批量删除图片")
-    public void deleteImages(@RequestBody java.util.List<Long> ids) {
+    @Operation(summary = "批量删除")
+    public void deleteImages(@RequestBody List<Long> ids) {
         imageService.deleteImages(ids);
     }
 
     @PostMapping("/batch/download")
-    @Operation(summary = "批量下载图片 (ZIP)")
-    public void downloadImages(@RequestBody java.util.List<Long> ids, jakarta.servlet.http.HttpServletResponse response) throws java.io.IOException {
+    @Operation(summary = "批量下载")
+    public void downloadImages(@RequestBody List<Long> ids, HttpServletResponse response) throws IOException {
         response.setContentType("application/zip");
         response.setHeader("Content-Disposition", "attachment; filename=\"images.zip\"");
         imageService.downloadImages(ids, response.getOutputStream());

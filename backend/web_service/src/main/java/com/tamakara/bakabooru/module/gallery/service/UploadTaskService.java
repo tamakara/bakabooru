@@ -7,7 +7,7 @@ import com.tamakara.bakabooru.module.gallery.model.UploadTaskQueue;
 import com.tamakara.bakabooru.module.gallery.dto.TasksInfoDto;
 import com.tamakara.bakabooru.module.image.entity.Image;
 import com.tamakara.bakabooru.module.image.service.ImageService;
-import com.tamakara.bakabooru.module.storage.service.StorageService;
+import com.tamakara.bakabooru.module.image.service.StorageService;
 import com.tamakara.bakabooru.module.system.service.SystemSettingService;
 import com.tamakara.bakabooru.module.tag.entity.Tag;
 import com.tamakara.bakabooru.module.tag.service.TagService;
@@ -106,97 +106,82 @@ public class UploadTaskService {
     }
 
     private void processTask(UploadTask task) {
-        String objectName = "temp/" + task.getId();
-
-        long size = task.getSize();
-        String filename = task.getFilename();
-        String title = FilenameUtils.getBaseName(filename);
-
+        String objectName = "temp/upload/" + task.getId();
         File tempFile = new File(task.getTempFilePath());
 
-        // 1. 上传临时文件到 MinIO
-        log.info("上传临时文件到 MinIO: {}", objectName);
         try {
+            // 1. 上传临时文件到 MinIO
+            log.info("上传临时文件: {}", objectName);
             storageService.uploadFile(objectName, tempFile);
-        } catch (Exception e) {
-            throw new RuntimeException("上传文件失败: " + e.getMessage(), e);
-        }
 
-        try {
             // 2. 计算文件哈希
-            log.info("计算文件哈希...");
-            String hash;
-            try (InputStream stream = new FileInputStream(tempFile)) {
-                hash = DigestUtils.sha256Hex(stream);
-            } catch (Exception e) {
-                throw new RuntimeException("计算哈希值失败: " + e.getMessage(), e);
-            }
+            String hash = calculateHash(tempFile);
 
-            // 3. 检查图片是否已存在
+            // 3. 查重
             if (imageService.existImageByHash(hash)) {
-                throw new RuntimeException("图片已存在");
+                throw new RuntimeException("图片已存在 (Hash: " + hash + ")");
             }
 
-            // 4. 获取图片信息（尺寸、格式等）
-            log.info("获取图片信息...");
+            // 4. 解析图片信息
             ImageInfo imageInfo = new ImageInfo(tempFile);
-
             if (imageInfo.isAnimated()) {
-                throw new RuntimeException("暂不支持动图");
+                throw new UnsupportedOperationException("暂不支持动图");
             }
 
-            // 5. 生成标签
-            log.info("生成图片标签...");
-            Map<String, Double> tagsMap;
-            try {
-                double threshold = systemSettingService.getDoubleSetting("tag.threshold");
-                tagsMap = tagService.tagImage(objectName, threshold);
-                log.info("生成了 {} 个标签", tagsMap.size());
-            } catch (Exception e) {
-                throw new RuntimeException("标签生成失败: " + e.getMessage(), e);
-            }
+            // 5. 生成标签 (AI)
+            log.info("正在生成标签...");
+            double threshold = systemSettingService.getDoubleSetting("tag.threshold");
+            Map<String, Double> tagsMap = tagService.tagImage(objectName, threshold);
 
-            // 6. 生成图片 embedding
-            log.info("生成图片 embedding...");
-            double[] embedding;
-            try {
-                embedding = embeddingService.generateImageEmbedding(objectName);
-                log.info("Embedding 生成完成，维度: {}", embedding.length);
-            } catch (Exception e) {
-                throw new RuntimeException("Embedding生成失败: " + e.getMessage(), e);
-            }
+            // 6. 生成向量 (Embedding)
+            log.info("正在生成向量...");
+            double[] embedding = embeddingService.generateImageEmbedding(objectName);
 
-            // 7. 创建并保存 Image 实体
-            log.info("保存图片信息到数据库...");
-            Image image = new Image();
-            image.setTitle(title);
-            image.setFileName(filename);
-            image.setExtension(imageInfo.getExtension());
-            image.setSize(size);
-            image.setWidth(imageInfo.getWidth());
-            image.setHeight(imageInfo.getHeight());
-            image.setHash(hash);
-            image.setEmbedding(embedding);
+            // 7. 保存元数据
+            saveImageMetadata(task, imageInfo, hash, embedding, tagsMap);
 
-            // 设置标签关系（需要在 Image 创建后设置关联）
-            for (Map.Entry<String, Double> entry : tagsMap.entrySet()) {
-                Tag tag = tagService.getTagByName(entry.getKey());
-                image.addTag(tag, entry.getValue());
-            }
-
-            imageService.addImage(image);
-
-            // 8. 移动文件到正式目录
-            log.info("移动文件到正式存储目录...");
+            // 8. 归档文件
+            log.info("归档文件到正式目录...");
             storageService.copyFile(objectName, "original/" + hash);
-            tempFile.delete();
 
         } catch (Exception e) {
             throw new RuntimeException("处理图片失败: " + e.getMessage(), e);
         } finally {
-            // 清理临时文件
-            storageService.deleteFile(objectName);
+            // 清理临时资源
+            if (tempFile.exists()) tempFile.delete();
+            try {
+                storageService.deleteFile(objectName);
+            } catch (Exception ignored) {
+                log.warn("无法清理临时文件对象: {}", objectName);
+            }
         }
+    }
+
+    private String calculateHash(File file) {
+         try (InputStream stream = new FileInputStream(file)) {
+            return DigestUtils.sha256Hex(stream);
+        } catch (Exception e) {
+            throw new RuntimeException("计算哈希失败", e);
+        }
+    }
+
+    private void saveImageMetadata(UploadTask task, ImageInfo info, String hash, double[] embedding, Map<String, Double> tags) {
+        Image image = new Image();
+        image.setTitle(FilenameUtils.getBaseName(task.getFilename()));
+        image.setFileName(task.getFilename());
+        image.setExtension(info.getExtension());
+        image.setSize(task.getSize());
+        image.setWidth(info.getWidth());
+        image.setHeight(info.getHeight());
+        image.setHash(hash);
+        image.setEmbedding(embedding);
+
+        for (Map.Entry<String, Double> entry : tags.entrySet()) {
+            Tag tag = tagService.getTagByName(entry.getKey());
+            image.addTag(tag, entry.getValue());
+        }
+
+        imageService.addImage(image);
     }
 
 

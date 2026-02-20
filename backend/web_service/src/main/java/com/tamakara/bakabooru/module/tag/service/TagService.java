@@ -35,13 +35,15 @@ public class TagService {
     public List<TagDto> searchTags(String query) {
         long startTime = System.currentTimeMillis();
 
-        List<TagDto> results = tagRepository.searchTags(query, Pageable.ofSize(20))
+        // 默认返回前 20 条匹配结果
+        List<TagDto> results = tagRepository.searchTags(query, PageRequest.of(0, 20))
                 .stream()
                 .map(tagMapper::toDto)
                 .toList();
 
-        log.debug("标签搜索完成 - 关键字: {}, 结果数: {}, 耗时: {}ms",
-                query, results.size(), System.currentTimeMillis() - startTime);
+        if (log.isDebugEnabled()) {
+            log.debug("标签搜索 - 关键词: {}, 结果: {}, 耗时: {}ms", query, results.size(), System.currentTimeMillis() - startTime);
+        }
         return results;
     }
 

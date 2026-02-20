@@ -4,7 +4,6 @@ import com.tamakara.bakabooru.module.image.dto.ImageDto;
 import com.tamakara.bakabooru.module.image.entity.Image;
 import com.tamakara.bakabooru.module.image.mapper.ImageMapper;
 import com.tamakara.bakabooru.module.image.repository.ImageRepository;
-import com.tamakara.bakabooru.module.storage.service.StorageService;
 import com.tamakara.bakabooru.module.tag.entity.Tag;
 import com.tamakara.bakabooru.module.tag.service.TagService;
 import lombok.RequiredArgsConstructor;
@@ -114,9 +113,9 @@ public class ImageService {
                 String objectName = "original/" + image.getHash();
                 File file = storageService.getFile(objectName);
                 if (file.exists()) {
-                    String entryName = image.getId() + "_" + image.getTitle() + "." + image.getExtension();
-                    ZipEntry zipEntry = new ZipEntry(entryName);
-                    zos.putNextEntry(zipEntry);
+                    // 使用 ID_标题.扩展名 格式防止文件名冲突
+                    String fileName = String.format("%d_%s.%s", image.getId(), image.getTitle(), image.getExtension());
+                    zos.putNextEntry(new ZipEntry(fileName));
                     Files.copy(file.toPath(), zos);
                     zos.closeEntry();
                 }

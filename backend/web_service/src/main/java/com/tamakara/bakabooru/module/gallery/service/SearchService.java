@@ -2,12 +2,14 @@ package com.tamakara.bakabooru.module.gallery.service;
 
 import com.tamakara.bakabooru.module.ai.dto.EmbeddingResponseDto;
 import com.tamakara.bakabooru.module.ai.dto.TagsResponseDto;
+import com.tamakara.bakabooru.module.ai.service.EmbeddingService;
 import com.tamakara.bakabooru.module.ai.service.ParseQueryService;
 import com.tamakara.bakabooru.module.gallery.dto.SearchRequestDto;
 import com.tamakara.bakabooru.module.image.dto.ImageThumbnailDto;
 import com.tamakara.bakabooru.module.image.dto.SearchDto;
 import com.tamakara.bakabooru.module.image.mapper.ImageMapper;
 import com.tamakara.bakabooru.module.image.service.ImageSearchService;
+import com.tamakara.bakabooru.module.image.service.StorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -17,9 +19,13 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
+import java.util.stream.DoubleStream;
 
 @Slf4j
 @Service
@@ -29,85 +35,25 @@ public class SearchService {
     private final ImageSearchService imageSearchService;
     private final ImageMapper imageMapper;
     private final ParseQueryService parseQueryService;
+    private final StorageService storageService;
+    private final EmbeddingService embeddingService;
 
     @Transactional(readOnly = true)
     public Page<ImageThumbnailDto> search(SearchRequestDto request) {
         long startTime = System.currentTimeMillis();
-        log.info("开始搜索 - 标签: {}, 关键字: {}, 语义查询: {}, 页码: {}, 页大小: {}",
-                request.getTags(), request.getKeyword(), request.getSemanticQuery(),
-                request.getPage(), request.getSize());
+
+        // 1. 基础参数校验
+        validateRequest(request);
 
         SearchDto searchDto = new SearchDto();
-        if (request.getKeyword() == null) {
-            request.setKeyword("");
-        } else {
-            request.setKeyword(request.getKeyword().trim());
-        }
+        searchDto.setKeyword(StringUtils.hasText(request.getKeyword()) ? request.getKeyword().trim() : "");
 
-        if (request.getPage() == null || request.getPage() < 0) {
-            throw new RuntimeException("Page index must be non-negative");
-        }
-        int page = request.getPage();
-
-        if (request.getSize() == null || request.getSize() <= 0) {
-            throw new RuntimeException("Page size must be greater than zero");
-        }
-        int size = request.getSize();
-
-        if (!StringUtils.hasText(request.getSort())) {
-            throw new RuntimeException("Sort must be non-empty");
-        }
-
-        String[] parts = request.getSort().split(",");
-        if (parts.length != 2) {
-            throw new RuntimeException("Sort format must be 'property,direction'");
-        }
-        String sortProperty = parts[0].trim();
-        String sortDirection = parts[1].trim();
-
-        Sort.Direction direction;
-        if ("ASC".equalsIgnoreCase(sortDirection)) {
-            direction = Sort.Direction.ASC;
-        } else if ("DESC".equalsIgnoreCase(sortDirection)) {
-            direction = Sort.Direction.DESC;
-        } else {
-            throw new RuntimeException("Sort direction must be 'ASC' or 'DESC'");
-        }
-
-        Sort sort;
-        boolean isSimilaritySort = "similarity".equalsIgnoreCase(sortProperty);
-
-        if ("random".equalsIgnoreCase(sortProperty)) {
-            if (!StringUtils.hasText(request.getRandomSeed())) {
-                throw new RuntimeException("Random seed must be provided for random sorting");
-            }
-            sort = Sort.unsorted();
-            searchDto.setRandomSeed(request.getRandomSeed());
-        } else if (isSimilaritySort) {
-            // 相似度排序需要语义描述，如果为空则回退到随机排序
-            if (!StringUtils.hasText(request.getSemanticQuery())) {
-                log.info("相似度排序但语义描述为空，回退到随机排序");
-                sort = Sort.unsorted();
-                // 使用请求中的 randomSeed，如果没有则生成一个
-                String seed = StringUtils.hasText(request.getRandomSeed())
-                        ? request.getRandomSeed()
-                        : java.util.UUID.randomUUID().toString();
-                searchDto.setRandomSeed(seed);
-            } else {
-                // 虽然向量搜索时排序由 ImageSearchService 处理，但仍需传递排序方向
-                // 这样 ImageSearchService 可以决定是按相似度升序还是降序
-                // 注意：通常相似度越高越好（默认降序），但在某些情况下用户可能想要反向排序
-                sort = Sort.by(direction, "similarity");
-            }
-        } else if (StringUtils.hasText(sortProperty)) {
-            sort = Sort.by(direction, sortProperty);
-        } else {
-            throw new RuntimeException("Sort property cannot be empty");
-        }
-
-        Pageable pageable = PageRequest.of(page, size, sort);
+        // 2. 构建排序规则
+        Sort sort = buildSort(request, searchDto);
+        Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);
         searchDto.setPageable(pageable);
 
+        // 3. 设置过滤参数
         searchDto.setWidthMin(request.getWidthMin());
         searchDto.setWidthMax(request.getWidthMax());
         searchDto.setHeightMin(request.getHeightMin());
@@ -115,55 +61,158 @@ public class SearchService {
         searchDto.setSizeMin(request.getSizeMin());
         searchDto.setSizeMax(request.getSizeMax());
 
-        // 解析用户表单中的标签
+        // 4. 解析标签
         Set<String> positiveTags = new HashSet<>();
         Set<String> negativeTags = new HashSet<>();
         parseTags(request.getTags(), positiveTags, negativeTags);
 
-        // 处理语义描述搜索
+        // 5. 处理语义搜索
         if (StringUtils.hasText(request.getSemanticQuery())) {
-            try {
-                // 1. 提取语义标签
-                TagsResponseDto tagResult = parseQueryService.extractTags(request.getSemanticQuery());
-
-                // 合并 AI 生成的标签与用户表单标签
-                if (tagResult.getPositive() != null) {
-                    positiveTags.addAll(tagResult.getPositive());
-                }
-                if (tagResult.getNegative() != null) {
-                    negativeTags.addAll(tagResult.getNegative());
-                }
-
-                // 2. 仅当排序为 similarity 时，调用 CLIP 向量生成
-                if (isSimilaritySort) {
-                    EmbeddingResponseDto embeddingResult = parseQueryService.generateEmbedding(request.getSemanticQuery());
-
-                    if (embeddingResult.getEmbedding() != null) {
-                        searchDto.setEmbedding(embeddingResult.getEmbedding().stream()
-                                .map(Double::floatValue)
-                                .toList());
-
-                        log.info("语义搜索 CLIP 文本: {}", embeddingResult.getText());
-                    }
-                }
-            } catch (Exception e) {
-                throw new RuntimeException("语义搜索解析失败: " + e.getMessage(), e);
-            }
+            processSemanticQuery(request.getSemanticQuery(), positiveTags, negativeTags, searchDto, isSimilaritySort(request));
         }
 
         searchDto.setPositiveTags(positiveTags);
         searchDto.setNegativeTags(negativeTags);
 
-        log.info("解析完成 - 正向标签: {}, 负向标签: {}", positiveTags, negativeTags);
-
+        // 6. 执行搜索
         Page<ImageThumbnailDto> result = imageSearchService
                 .searchImages(searchDto)
                 .map(imageMapper::toThumbnailDto);
 
-        log.info("搜索完成 - 总耗时: {}ms, 结果数: {}, 总数: {}",
-                System.currentTimeMillis() - startTime, result.getNumberOfElements(), result.getTotalElements());
+        if (log.isDebugEnabled()) {
+             log.debug("搜索完成 - 耗时: {}ms, 结果数: {}, 总数: {}",
+                    System.currentTimeMillis() - startTime, result.getNumberOfElements(), result.getTotalElements());
+        }
 
         return result;
+    }
+
+    public Page<ImageThumbnailDto> searchByImage(MultipartFile file, Double threshold, Integer page, Integer size) {
+        String taskId = UUID.randomUUID().toString();
+        String objectName = "temp/search/" + taskId;
+        File tempFile = null;
+
+        try {
+            tempFile = File.createTempFile("search-" + taskId, null);
+            file.transferTo(tempFile);
+
+            // 1. 上传图片到MinIO
+            storageService.uploadFile(objectName, tempFile);
+
+            // 2. 生成Embedding
+            double[] embedding = embeddingService.generateImageEmbedding(objectName);
+
+            // 3. 构建查询
+            SearchDto searchDto = new SearchDto();
+            searchDto.setEmbedding(DoubleStream.of(embedding).mapToObj(d -> (float) d).toList());
+
+            // 转换相似度阈值为距离阈值 (Cosine Distance = 1 - Similarity)
+            if (threshold != null && threshold > 0) {
+                // 如果用户输入 0.8 (要求至少80%相似)，则距离必须小于等于 0.2
+                searchDto.setDistanceThreshold(Math.max(0, 1.0 - threshold));
+            }
+
+            // 默认按相似度排序 (Distance ASC)
+            Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "similarity"));
+            searchDto.setPageable(pageable);
+
+            // 4. 执行搜索
+            return imageSearchService.searchImages(searchDto)
+                    .map(imageMapper::toThumbnailDto);
+
+        } catch (Exception e) {
+            throw new RuntimeException("以图搜图失败: " + e.getMessage(), e);
+        } finally {
+            // 清理临时文件
+            if (tempFile != null && tempFile.exists()) {
+                tempFile.delete();
+            }
+            try {
+                storageService.deleteFile(objectName);
+            } catch (Exception e) {
+                log.warn("清理临时搜索图片失败: {}", objectName);
+            }
+        }
+    }
+
+    private void validateRequest(SearchRequestDto request) {
+        if (request.getPage() == null || request.getPage() < 0) {
+            throw new IllegalArgumentException("Page index must be non-negative");
+        }
+        if (request.getSize() == null || request.getSize() <= 0) {
+            throw new IllegalArgumentException("Page size must be greater than zero");
+        }
+        if (!StringUtils.hasText(request.getSort())) {
+            throw new IllegalArgumentException("Sort must be non-empty");
+        }
+    }
+
+    private boolean isSimilaritySort(SearchRequestDto request) {
+        String[] parts = request.getSort().split(",");
+        return parts.length > 0 && "similarity".equalsIgnoreCase(parts[0].trim());
+    }
+
+    private Sort buildSort(SearchRequestDto request, SearchDto searchDto) {
+        String[] parts = request.getSort().split(",");
+        if (parts.length != 2) {
+            throw new IllegalArgumentException("Sort format must be 'property,direction'");
+        }
+
+        String property = parts[0].trim();
+        String directionStr = parts[1].trim();
+        Sort.Direction direction;
+
+        try {
+            direction = Sort.Direction.fromString(directionStr);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Sort direction must be 'ASC' or 'DESC'");
+        }
+
+        if ("random".equalsIgnoreCase(property)) {
+            if (!StringUtils.hasText(request.getRandomSeed())) {
+                throw new IllegalArgumentException("Random seed must be provided for random sorting");
+            }
+            searchDto.setRandomSeed(request.getRandomSeed());
+            return Sort.unsorted();
+        }
+
+        if ("similarity".equalsIgnoreCase(property)) {
+            // 相似度排序但无语义描述，回退到随机排序
+            if (!StringUtils.hasText(request.getSemanticQuery())) {
+                String seed = StringUtils.hasText(request.getRandomSeed())
+                        ? request.getRandomSeed()
+                        : java.util.UUID.randomUUID().toString();
+                searchDto.setRandomSeed(seed);
+                return Sort.unsorted();
+            }
+            return Sort.by(direction, "similarity");
+        }
+
+        if (!StringUtils.hasText(property)) {
+            throw new IllegalArgumentException("Sort property cannot be empty");
+        }
+        return Sort.by(direction, property);
+    }
+
+    private void processSemanticQuery(String query, Set<String> positive, Set<String> negative, SearchDto searchDto, boolean isSimilarity) {
+        try {
+            // 提取语义标签
+            TagsResponseDto tagResult = parseQueryService.extractTags(query);
+            if (tagResult.getPositive() != null) positive.addAll(tagResult.getPositive());
+            if (tagResult.getNegative() != null) negative.addAll(tagResult.getNegative());
+
+            // 仅当排序为 similarity 时，调用 CLIP 向量生成
+            if (isSimilarity) {
+                EmbeddingResponseDto embeddingResult = parseQueryService.generateEmbedding(query);
+                if (embeddingResult.getEmbedding() != null) {
+                    searchDto.setEmbedding(embeddingResult.getEmbedding().stream()
+                            .map(Double::floatValue)
+                            .toList());
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("语义搜索解析失败: " + e.getMessage(), e);
+        }
     }
 
     private void parseTags(String search, Set<String> positive, Set<String> negative) {

@@ -1,7 +1,6 @@
 package com.tamakara.bakabooru.module.image.service;
 
 import com.tamakara.bakabooru.module.image.entity.Image;
-import com.tamakara.bakabooru.module.storage.service.StorageService;
 import com.tamakara.bakabooru.module.system.service.SystemSettingService;
 import lombok.RequiredArgsConstructor;
 import net.coobird.thumbnailator.Thumbnails;

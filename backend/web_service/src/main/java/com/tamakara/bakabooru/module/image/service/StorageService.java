@@ -1,4 +1,4 @@
-package com.tamakara.bakabooru.module.storage.service;
+package com.tamakara.bakabooru.module.image.service;
 
 import com.tamakara.bakabooru.config.MinioConfig;
 import io.minio.*;
@@ -6,17 +6,13 @@ import io.minio.errors.*;
 import io.minio.http.Method;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;

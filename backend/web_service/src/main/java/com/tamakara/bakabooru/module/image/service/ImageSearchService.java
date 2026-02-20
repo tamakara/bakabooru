@@ -74,6 +74,11 @@ public class ImageSearchService {
                         cb.literal(embeddingStr)
                 );
 
+                // 如果设置了阈值，增加过滤条件
+                if (searchDto.getDistanceThreshold() != null) {
+                    predicates.add(cb.le(distance, searchDto.getDistanceThreshold()));
+                }
+
                 if (!isCountQuery(query)) {
                     applyEmbeddingSort(query, cb, root, searchDto.getPageable(), distance);
                 }

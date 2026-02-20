@@ -17,6 +17,7 @@ public class SearchDto {
     private Integer heightMax;
     private Long sizeMin;
     private Long sizeMax;
+    private Double distanceThreshold;
     private Set<String> positiveTags;
     private Set<String> negativeTags;
     private List<Float> embedding;  // CLIP 向量用于语义搜索

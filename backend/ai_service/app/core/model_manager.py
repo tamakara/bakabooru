@@ -159,7 +159,6 @@ class ModelManager:
         # 转换为 numpy 用于 ONNX 推理
         ort_inputs = {
             "input_ids": inputs["input_ids"].astype(np.int64),
-#             "attention_mask": inputs["attention_mask"].astype(np.int64),
         }
         outputs = self.clip_text_session.run(None, ort_inputs)
         text_embeds = outputs[0]  # text_embeds

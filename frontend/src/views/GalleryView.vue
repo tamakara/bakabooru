@@ -2,7 +2,7 @@
 import {useQuery} from '@tanstack/vue-query'
 import {searchApi} from '../api/search'
 import {galleryApi, type ImageDto, type ImageThumbnailDto} from '../api/gallery'
-import {computed, h, nextTick, onMounted, reactive, ref, watch} from 'vue'
+import {computed, h, nextTick, onMounted, reactive, ref, shallowRef, watch} from 'vue'
 import {
   NButton,
   NDropdown,
@@ -20,15 +20,21 @@ import {
   NRadioButton,
   NRadioGroup,
   NSelect,
+  NSlider,
   NSpace,
   NSpin,
+  NTabPane,
+  NTabs,
+  NText,
+  NUpload,
+  NUploadDragger,
   useDialog,
   useMessage
 } from 'naive-ui'
 import ImageDetail from '../components/gallery/ImageDetail.vue'
 import TagSearchInput from '../components/gallery/TagSearchInput.vue'
 import {breakpointsTailwind, useBreakpoints} from '@vueuse/core'
-import {CheckmarkCircle24Filled, Dismiss24Regular, Search24Regular} from '@vicons/fluent'
+import {Archive24Regular, CheckmarkCircle24Filled, Dismiss24Regular, Search24Regular} from '@vicons/fluent'
 import {
   Checkbox,
   CloseCircleOutline,
@@ -38,7 +44,11 @@ import {
   SquareOutline,
   TrashOutline
 } from '@vicons/ionicons5'
+
 import {v4 as uuidv4} from 'uuid';
+
+// 搜索模式
+const searchMode = ref<'TEXT' | 'IMAGE'>('TEXT')
 
 // 表单状态
 const formState = reactive({
@@ -55,6 +65,22 @@ const formState = reactive({
   sizeMax: null as number | null  // MB
 })
 
+// 以图搜图状态
+const imageSearchState = reactive({
+  file: undefined as File | undefined,
+  threshold: 0.7
+})
+
+// 图搜上传
+const fileList = ref<any[]>([])
+function handleUploadChange(data: { fileList: any[] }) {
+  fileList.value = data.fileList
+  if (data.fileList.length > 0) {
+    imageSearchState.file = data.fileList[0].file
+  } else {
+    imageSearchState.file = undefined
+  }
+}
 
 // 响应式布局控制
 const breakpoints = useBreakpoints(breakpointsTailwind)
@@ -66,7 +92,9 @@ watch(isMobile, (val) => {
 })
 
 // 激活的搜索状态（点击搜索时应用）
-const activeSearchState = ref({
+// 使用 shallowRef 避免深层递归监听 File 对象导致性能问题
+const activeSearchState = shallowRef<any>({
+  mode: 'TEXT',
   ...formState,
   randomSeed: uuidv4()
 })
@@ -77,33 +105,55 @@ const pageSize = ref(20)
 function handleSearch() {
   page.value = 1
 
-  activeSearchState.value = {
-    ...formState,
-    randomSeed: uuidv4()
+  if (searchMode.value === 'TEXT') {
+    activeSearchState.value = {
+      mode: 'TEXT',
+      ...formState,
+      randomSeed: uuidv4()
+    }
+  } else {
+    if (!imageSearchState.file) {
+      message.warning('请先上传图片')
+      return
+    }
+    activeSearchState.value = {
+      mode: 'IMAGE',
+      file: imageSearchState.file,
+      threshold: imageSearchState.threshold,
+      // 这里的 randomSeed 主要用于触发 useQuery 更新
+      randomSeed: uuidv4()
+    }
   }
 }
 
 function handleReset() {
-  formState.keyword = ''
-  formState.tags = ''
-  formState.semanticQuery = ''
-  formState.sortBy = 'random'  // 重置时使用随机排序
-  formState.sortDirection = 'DESC'
-  formState.widthMin = null
-  formState.widthMax = null
-  formState.heightMin = null
-  formState.heightMax = null
-  formState.sizeMin = null
-  formState.sizeMax = null
+  if (searchMode.value === 'TEXT') {
+    formState.keyword = ''
+    formState.tags = ''
+    formState.semanticQuery = ''
+    formState.sortBy = 'random'  // 重置时使用随机排序
+    formState.sortDirection = 'DESC'
+    formState.widthMin = null
+    formState.widthMax = null
+    formState.heightMin = null
+    formState.heightMax = null
+    formState.sizeMin = null
+    formState.sizeMax = null
 
-  // 执行随机排序搜索
-  page.value = 1
-  activeSearchState.value = {
-    ...formState,
-    randomSeed: uuidv4()
+    // 执行随机排序搜索
+    page.value = 1
+    activeSearchState.value = {
+      mode: 'TEXT',
+      ...formState,
+      randomSeed: uuidv4()
+    }
+
+    formState.sortBy = 'similarity'
+  } else {
+    fileList.value = []
+    imageSearchState.file = undefined
+    imageSearchState.threshold = 0.7
   }
-
-  formState.sortBy = 'similarity'
 }
 
 // 查询
@@ -118,39 +168,63 @@ const {
   retry: false,
   refetchOnWindowFocus: false, // 禁止窗口聚焦时自动刷新
   queryFn: async () => {
-    const sort = `${activeSearchState.value.sortBy},${activeSearchState.value.sortDirection}`
+    const currentState = activeSearchState.value
 
-    const startTime = performance.now()
-    console.log('[Gallery] 开始搜索图片...')
-    console.log('[Gallery] 搜索参数:', {
-      keyword: activeSearchState.value.keyword,
-      tags: activeSearchState.value.tags,
-      semanticQuery: activeSearchState.value.semanticQuery,
-      page: page.value,
-      size: pageSize.value,
-      sort
-    })
+    // 文本/高级搜索模式
+    if (currentState.mode === 'TEXT') {
+       const sort = `${currentState.sortBy},${currentState.sortDirection}`
 
-    const result = await searchApi.search({
-      keyword: activeSearchState.value.keyword,
-      tags: activeSearchState.value.tags,
-      semanticQuery: activeSearchState.value.semanticQuery || undefined,
-      randomSeed: activeSearchState.value.randomSeed,
-      widthMin: activeSearchState.value.widthMin ?? undefined,
-      widthMax: activeSearchState.value.widthMax ?? undefined,
-      heightMin: activeSearchState.value.heightMin ?? undefined,
-      heightMax: activeSearchState.value.heightMax ?? undefined,
-      sizeMin: activeSearchState.value.sizeMin ? activeSearchState.value.sizeMin * 1024 * 1024 : undefined,
-      sizeMax: activeSearchState.value.sizeMax ? activeSearchState.value.sizeMax * 1024 * 1024 : undefined,
-      page: page.value - 1,
-      size: pageSize.value,
-      sort: sort
-    })
+        const startTime = performance.now()
+        console.log('[Gallery] 开始搜索图片 (文本模式)...')
+        console.log('[Gallery] 搜索参数:', {
+          keyword: currentState.keyword,
+          tags: currentState.tags,
+          semanticQuery: currentState.semanticQuery,
+          page: page.value,
+          size: pageSize.value,
+          sort
+        })
 
-    const elapsed = (performance.now() - startTime).toFixed(2)
-    console.log(`[Gallery] 搜索完成: 找到 ${result.totalElements} 张图片, 耗时 ${elapsed}ms`)
+        const result = await searchApi.search({
+          keyword: currentState.keyword,
+          tags: currentState.tags,
+          semanticQuery: currentState.semanticQuery || undefined,
+          randomSeed: currentState.randomSeed,
+          widthMin: currentState.widthMin ?? undefined,
+          widthMax: currentState.widthMax ?? undefined,
+          heightMin: currentState.heightMin ?? undefined,
+          heightMax: currentState.heightMax ?? undefined,
+          sizeMin: currentState.sizeMin ? currentState.sizeMin * 1024 * 1024 : undefined,
+          sizeMax: currentState.sizeMax ? currentState.sizeMax * 1024 * 1024 : undefined,
+          page: page.value - 1,
+          size: pageSize.value,
+          sort: sort
+        })
 
-    return result
+        const elapsed = (performance.now() - startTime).toFixed(2)
+        console.log(`[Gallery] 搜索完成: 找到 ${result.totalElements} 张图片, 耗时 ${elapsed}ms`)
+
+        return result
+    }
+    // 以图搜图模式
+    else {
+        if (!currentState.file) return { content: [], totalElements: 0 }
+
+        const startTime = performance.now()
+        console.log('[Gallery] 开始搜索图片 (图搜模式)...')
+
+        const result = await searchApi.searchByImage(
+            currentState.file,
+            currentState.threshold,
+            page.value - 1,
+            pageSize.value
+        )
+
+        const elapsed = (performance.now() - startTime).toFixed(2)
+        console.log(`[Gallery] 图搜完成: 找到 ${result.totalElements} 张图片, 耗时 ${elapsed}ms`)
+
+        return result
+    }
   }
 })
 
@@ -472,76 +546,127 @@ onMounted(() => {
         </div>
 
         <div class="flex-1 overflow-y-auto p-4">
-          <n-form label-placement="top" :show-feedback="false">
-            <n-space vertical :size="24">
-              <n-form-item label="语义描述">
-                <n-input
-                    v-model:value="formState.semanticQuery"
-                    placeholder="描述图片特征..."
-                    type="textarea"
-                    :autosize="{ minRows: 2, maxRows: 5 }"
-                    @keydown.ctrl.enter="handleSearch"
-                />
-              </n-form-item>
+          <n-tabs type="segment" animated v-model:value="searchMode">
+            <n-tab-pane name="TEXT" tab="高级搜索">
+              <n-form label-placement="top" :show-feedback="false" class="mt-4">
+                <n-space vertical :size="16">
+                  <n-form-item label="语义描述">
+                    <n-input
+                        v-model:value="formState.semanticQuery"
+                        placeholder="描述图片特征..."
+                        type="textarea"
+                        :autosize="{ minRows: 2, maxRows: 5 }"
+                        @keydown.ctrl.enter="handleSearch"
+                    />
+                  </n-form-item>
 
-              <n-form-item label="关键字">
-                <n-input
-                    v-model:value="formState.keyword"
-                    placeholder="标题或文件名"
-                    @keydown.enter="handleSearch"/>
-              </n-form-item>
+                  <n-form-item label="关键字">
+                    <n-input
+                        v-model:value="formState.keyword"
+                        placeholder="标题或文件名"
+                        @keydown.enter="handleSearch"/>
+                  </n-form-item>
 
-              <n-form-item label="标签">
-                <tag-search-input
-                    v-model:value="formState.tags"
-                    placeholder="空格分隔，-排除"
-                    :autosize="{ minRows: 2, maxRows: 5 }"
-                    @search="handleSearch"
-                />
-              </n-form-item>
+                  <n-form-item label="标签">
+                    <tag-search-input
+                        v-model:value="formState.tags"
+                        placeholder="空格分隔，-排除"
+                        :autosize="{ minRows: 2, maxRows: 5 }"
+                        @search="handleSearch"
+                    />
+                  </n-form-item>
 
-              <div class="grid grid-cols-2 gap-4">
-                <n-form-item label="宽度 (px)">
-                  <div class="flex items-center gap-2 w-full">
-                    <n-input-number v-model:value="formState.widthMin" placeholder="MIN" :min="0" class="flex-1" size="small" :show-button="false"/>
-                    <span class="text-gray-400">-</span>
-                    <n-input-number v-model:value="formState.widthMax" placeholder="MAX" :min="0" class="flex-1" size="small" :show-button="false"/>
+                  <div class="grid grid-cols-2 gap-2">
+                    <div class="col-span-1">
+                      <n-form-item label="宽度 (px)">
+                        <div class="flex items-center gap-1 w-full">
+                          <n-input-number v-model:value="formState.widthMin" placeholder="MIN" :min="0" class="flex-1" size="small" :show-button="false"/>
+                          <span class="text-gray-400">-</span>
+                          <n-input-number v-model:value="formState.widthMax" placeholder="MAX" :min="0" class="flex-1" size="small" :show-button="false"/>
+                        </div>
+                      </n-form-item>
+                    </div>
+
+                    <div class="col-span-1">
+                      <n-form-item label="高度 (px)">
+                        <div class="flex items-center gap-1 w-full">
+                          <n-input-number v-model:value="formState.heightMin" placeholder="MIN" :min="0" class="flex-1" size="small" :show-button="false"/>
+                          <span class="text-gray-400">-</span>
+                          <n-input-number v-model:value="formState.heightMax" placeholder="MAX" :min="0" class="flex-1" size="small" :show-button="false"/>
+                        </div>
+                      </n-form-item>
+                    </div>
                   </div>
-                </n-form-item>
 
-                <n-form-item label="高度 (px)">
-                  <div class="flex items-center gap-2 w-full">
-                    <n-input-number v-model:value="formState.heightMin" placeholder="MIN" :min="0" class="flex-1" size="small" :show-button="false"/>
-                    <span class="text-gray-400">-</span>
-                    <n-input-number v-model:value="formState.heightMax" placeholder="MAX" :min="0" class="flex-1" size="small" :show-button="false"/>
+                  <n-form-item label="大小 (MB)">
+                     <div class="flex items-center gap-2 w-full">
+                        <n-input-number v-model:value="formState.sizeMin" placeholder="MIN" :min="0" class="flex-1" size="small" :show-button="false"/>
+                        <span class="text-gray-400">-</span>
+                        <n-input-number v-model:value="formState.sizeMax" placeholder="MAX" :min="0" class="flex-1" size="small" :show-button="false"/>
+                      </div>
+                  </n-form-item>
+
+                  <div class="grid grid-cols-2 gap-2">
+                    <n-form-item label="排序依据">
+                      <n-select v-model:value="formState.sortBy" :options="sortOptions" size="small" />
+                    </n-form-item>
+
+                    <n-form-item label="顺序">
+                       <n-radio-group v-model:value="formState.sortDirection" name="sortDirection" size="small">
+                        <n-space :size="0">
+                          <n-radio-button value="ASC">升序</n-radio-button>
+                          <n-radio-button value="DESC">降序</n-radio-button>
+                        </n-space>
+                      </n-radio-group>
+                    </n-form-item>
                   </div>
-                </n-form-item>
-              </div>
+                </n-space>
+              </n-form>
+            </n-tab-pane>
 
-              <n-form-item label="大小 (MB)">
-                 <div class="flex items-center gap-2 w-full">
-                    <n-input-number v-model:value="formState.sizeMin" placeholder="MIN" :min="0" class="flex-1" size="small" :show-button="false"/>
-                    <span class="text-gray-400">-</span>
-                    <n-input-number v-model:value="formState.sizeMax" placeholder="MAX" :min="0" class="flex-1" size="small" :show-button="false"/>
+            <n-tab-pane name="IMAGE" tab="以图搜图" display-directive="show" content-style="height: 100%; display: flex; flex-direction: column;">
+               <n-form label-placement="top" :show-feedback="false" class="mt-4 flex flex-col flex-1 h-full">
+                <div class="flex flex-col h-full gap-4">
+                  <div class="flex-1 min-h-[200px] flex flex-col">
+                    <n-form-item label="上传图片" class="flex-1 h-full" content-style="height: 100%;">
+                        <n-upload
+                            class="w-full h-full flex flex-col"
+                            :max="1"
+                            directory-dnd
+                            accept="image/*"
+                            :default-upload="false"
+                            :file-list="fileList"
+                            @change="handleUploadChange"
+                            list-type="image"
+                        >
+                        <n-upload-dragger class="h-full flex flex-col justify-center items-center bg-gray-50 dark:bg-gray-800 border-dashed border-2 border-gray-300 dark:border-gray-700 rounded-lg hover:border-primary-500 transition-colors">
+                            <div class="mb-2">
+                            <n-icon size="48" :depth="3">
+                                <Archive24Regular />
+                            </n-icon>
+                            </div>
+                            <n-text class="text-base text-gray-500">
+                            点击或拖拽上传
+                            </n-text>
+                        </n-upload-dragger>
+                        </n-upload>
+                    </n-form-item>
                   </div>
-              </n-form-item>
 
-              <div class="grid grid-cols-2 gap-4">
-                <n-form-item label="排序依据">
-                  <n-select v-model:value="formState.sortBy" :options="sortOptions" />
-                </n-form-item>
-
-                <n-form-item label="顺序">
-                   <n-radio-group v-model:value="formState.sortDirection" name="sortDirection">
-                    <n-space :size="0" justify="space-between" class="w-full">
-                      <n-radio-button value="ASC" class="flex-1 text-center">升序</n-radio-button>
-                      <n-radio-button value="DESC" class="flex-1 text-center">降序</n-radio-button>
-                    </n-space>
-                  </n-radio-group>
-                </n-form-item>
-              </div>
-            </n-space>
-          </n-form>
+                  <n-form-item label="相似度阈值">
+                    <div class="w-full px-2">
+                       <n-slider v-model:value="imageSearchState.threshold" :min="0" :max="1" :step="0.01" :format-tooltip="(v) => `${(v * 100).toFixed(0)}%`" />
+                       <div class="flex justify-between text-xs text-gray-500 mt-1">
+                         <span>0%</span>
+                         <span>{{ (imageSearchState.threshold * 100).toFixed(0) }}%</span>
+                         <span>100%</span>
+                       </div>
+                    </div>
+                  </n-form-item>
+                </div>
+              </n-form>
+            </n-tab-pane>
+          </n-tabs>
         </div>
 
         <div class="p-4 border-t border-gray-300 dark:border-gray-800 flex gap-2">
