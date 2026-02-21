@@ -161,7 +161,7 @@ public class StorageService {
                     .extraQueryParams(extraParams)
                     .build();
             String internalUrl = minioClient.getPresignedObjectUrl(args);
-            String externalUrl = internalUrl.replace(minioConfig.getEndpoint(), minioConfig.getPublicEndpoint());
+            String externalUrl = internalUrl.replace(minioConfig.getEndpoint(), "/oss");
             return externalUrl;
         } catch (Exception e) {
             throw new RuntimeException("获取文件URL失败: " + e.getMessage());
