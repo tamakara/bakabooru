@@ -237,19 +237,41 @@ const columns: DataTableColumns<UploadTask> = [
               </div>
               <div v-else class="text-sm text-gray-400">无</div>
             </div>
+          </div>
 
-            <!-- 待处理数量 -->
-            <div class="text-center px-4 border-l border-gray-300 dark:border-gray-700">
-              <div class="text-xs text-gray-500 mb-1">待处理</div>
-              <div class="text-xl font-semibold" :class="totalPending > 0 ? 'text-blue-500' : 'text-gray-400'">
+          <!-- 分阶段队列统计 -->
+          <div class="grid grid-cols-2 md:grid-cols-5 gap-2">
+            <div class="rounded-lg border border-gray-200 dark:border-gray-700 p-2">
+              <div class="text-xs text-gray-500 mb-1">本地待上传</div>
+              <div class="text-lg font-semibold" :class="localWaiting > 0 ? 'text-cyan-600 dark:text-cyan-400' : 'text-gray-400'">
+                {{ localWaiting }}
+              </div>
+            </div>
+
+            <div class="rounded-lg border border-gray-200 dark:border-gray-700 p-2">
+              <div class="text-xs text-gray-500 mb-1">本地上传中</div>
+              <div class="text-lg font-semibold" :class="localUploading > 0 ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400'">
+                {{ localUploading }}
+              </div>
+            </div>
+
+            <div class="rounded-lg border border-gray-200 dark:border-gray-700 p-2">
+              <div class="text-xs text-gray-500 mb-1">服务端排队</div>
+              <div class="text-lg font-semibold" :class="serverPending > 0 ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-400'">
+                {{ serverPending }}
+              </div>
+            </div>
+
+            <div class="rounded-lg border border-gray-200 dark:border-gray-700 p-2">
+              <div class="text-xs text-gray-500 mb-1">总待处理</div>
+              <div class="text-lg font-semibold" :class="totalPending > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400'">
                 {{ totalPending }}
               </div>
             </div>
 
-            <!-- 失败数量 -->
-            <div class="text-center px-4 border-l border-gray-300 dark:border-gray-700">
+            <div class="rounded-lg border border-gray-200 dark:border-gray-700 p-2">
               <div class="text-xs text-gray-500 mb-1">失败</div>
-              <div class="text-xl font-semibold" :class="failedTasks.length > 0 ? 'text-red-500' : 'text-gray-400'">
+              <div class="text-lg font-semibold" :class="failedTasks.length > 0 ? 'text-red-500' : 'text-gray-400'">
                 {{ failedTasks.length }}
               </div>
             </div>
