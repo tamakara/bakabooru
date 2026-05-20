@@ -47,7 +47,7 @@
 
 ### 🔒 离线与隐私
 
-- **本地优先**：Tagger 与 CLIP 模型完全本地运行，通过 `.env` 配置一键管理。
+- **本地优先**：Tagger 与 CLIP 模型完全本地运行，通过 `docker-compose.yml` 配置一键管理。
 - **混合部署**：语义搜索默认使用在线 LLM (推荐 DeepSeek V3.2)，也可对接本地 LLM 实现 100% 离线运行，数据完全掌控。
 
 ---
@@ -97,18 +97,11 @@ graph TD
 ### 前置要求
 
 - **Docker & Docker Compose**
+- 使用 GPU 加速时需安装 **NVIDIA Driver** 与 **NVIDIA Container Toolkit**
 
 ### 配置
 
-复制环境变量模板：
-
-```bash
-# Windows (PowerShell)
-Copy-Item .env.template .env
-
-# Linux / macOS
-cp .env.template .env
-```
+默认环境变量已内置在根目录 `docker-compose.yml` 中，如需修改数据库/对象存储/Redis 账号密码与端口，请直接编辑该文件。
 
 ### 启动服务
 
@@ -149,7 +142,7 @@ pnpm install && pnpm dev
 
 ## 🛠️ 配置说明
 
-- 所有配置通过根目录 `.env` 文件管理
+- 所有配置通过根目录 `docker-compose.yml` 管理
 - AI 模型首次下载后存储在 `data/model_cache`，支持离线运行
 
 ---

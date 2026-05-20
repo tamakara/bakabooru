@@ -8,13 +8,13 @@ uvicorn
 fastapi
 
 # === ONNX Runtime ===
-onnxruntime
+onnxruntime-gpu
 
 # === LangChain ===
 langchain-core
 langchain-openai
 langchain-community
-fastembed
+fastembed-gpu
 
 # === 数据库 ===
 psycopg2-binary

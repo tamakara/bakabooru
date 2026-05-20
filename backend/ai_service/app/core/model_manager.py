@@ -3,8 +3,8 @@ from typing import Optional
 
 import numpy as np
 import onnxruntime as ort
+from fastembed import TextEmbedding
 from huggingface_hub import hf_hub_download
-from langchain_community.embeddings import FastEmbedEmbeddings
 from transformers import CLIPProcessor
 
 from app.core.settings import settings
@@ -78,7 +78,7 @@ class ModelManager:
         return self._clip_processor
 
     @property
-    def embeddings(self) -> FastEmbedEmbeddings:
+    def embeddings(self):
         """懒加载文本嵌入模型"""
         if self._embeddings is None:
             self._load_embeddings()
@@ -136,7 +136,7 @@ class ModelManager:
     def _load_embeddings(self):
         """加载文本嵌入模型"""
         print("正在加载文本嵌入模型...")
-        self._embeddings = FastEmbedEmbeddings(
+        self._embeddings = _FastEmbedAdapter(
             model_name="sentence-transformers/all-MiniLM-L6-v2",
             cache_dir=str(settings.MODEL_CACHE_DIR),
         )
@@ -193,3 +193,22 @@ class ModelManager:
 
 # 全局单例
 model_manager = ModelManager()
+
+
+class _FastEmbedAdapter:
+    """统一 fastembed 接口，兼容项目里现有 embed_query 调用。"""
+
+    def __init__(self, model_name: str, cache_dir: str):
+        try:
+            self._model = TextEmbedding(model_name=model_name, cache_dir=cache_dir)
+        except TypeError:
+            # 某些 fastembed 版本不支持 cache_dir 参数
+            self._model = TextEmbedding(model_name=model_name)
+
+    def embed_query(self, text: str) -> list[float]:
+        vector = next(self._model.embed([text]))
+        return vector.astype(np.float32).tolist()
+
+    def embed_documents(self, texts: list[str]) -> list[list[float]]:
+        vectors = self._model.embed(texts)
+        return [v.astype(np.float32).tolist() for v in vectors]
