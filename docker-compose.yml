@@ -169,3 +169,5 @@ services:
     depends_on:
       backend-web-service:
         condition: service_healthy
+      minio:
+        condition: service_healthy
