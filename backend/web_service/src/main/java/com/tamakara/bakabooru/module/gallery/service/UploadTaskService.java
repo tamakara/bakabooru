@@ -1,6 +1,6 @@
 package com.tamakara.bakabooru.module.gallery.service;
 
-import com.tamakara.bakabooru.module.ai.service.EmbeddingService;
+import com.tamakara.bakabooru.module.ai.service.AiProcessingService;
 import com.tamakara.bakabooru.module.gallery.model.ImageInfo;
 import com.tamakara.bakabooru.module.gallery.model.UploadTask;
 import com.tamakara.bakabooru.module.gallery.model.UploadTaskQueue;
@@ -8,9 +8,7 @@ import com.tamakara.bakabooru.module.gallery.dto.TasksInfoDto;
 import com.tamakara.bakabooru.module.image.entity.Image;
 import com.tamakara.bakabooru.module.image.service.ImageService;
 import com.tamakara.bakabooru.module.image.service.StorageService;
-import com.tamakara.bakabooru.module.system.service.SystemSettingService;
-import com.tamakara.bakabooru.module.tag.entity.Tag;
-import com.tamakara.bakabooru.module.tag.service.TagService;
+import com.tamakara.bakabooru.module.image.service.ThumbnailService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,10 +31,9 @@ public class UploadTaskService {
 
     private final UploadTaskQueue uploadTaskQueue;
     private final StorageService storageService;
-    private final TagService tagService;
     private final ImageService imageService;
-    private final SystemSettingService systemSettingService;
-    private final EmbeddingService embeddingService;
+    private final ThumbnailService thumbnailService;
+    private final AiProcessingService aiProcessingService;
 
     private final ExecutorService taskExecutor = Executors.newSingleThreadExecutor();
 
@@ -106,54 +103,38 @@ public class UploadTaskService {
     }
 
     private void processTask(UploadTask task) {
-        String objectName = "temp/upload/" + task.getId();
         File tempFile = new File(task.getTempFilePath());
 
         try {
-            // 1. 上传临时文件到 MinIO
-            log.info("上传临时文件: {}", objectName);
-            storageService.uploadFile(objectName, tempFile);
-
-            // 2. 计算文件哈希
+            // 1. 计算文件哈希
             String hash = calculateHash(tempFile);
+            String objectName = "original/" + hash;
 
-            // 3. 查重
+            // 2. 查重
             if (imageService.existImageByHash(hash)) {
                 throw new RuntimeException("图片已存在 (Hash: " + hash + ")");
             }
 
-            // 4. 解析图片信息
+            // 3. 解析图片信息
             ImageInfo imageInfo = new ImageInfo(tempFile);
             if (imageInfo.isAnimated()) {
                 throw new UnsupportedOperationException("暂不支持动图");
             }
 
-            // 5. 生成标签 (AI)
-            log.info("正在生成标签...");
-            double threshold = systemSettingService.getDoubleSetting("tag.threshold");
-            Map<String, Double> tagsMap = tagService.tagImage(objectName, threshold);
+            // 4. 归档原图与固定缩略图
+            log.info("上传原图: {}", objectName);
+            storageService.uploadFile(objectName, tempFile);
+            thumbnailService.generateAndUploadThumbnail(tempFile, hash);
 
-            // 6. 生成向量 (Embedding)
-            log.info("正在生成向量...");
-            double[] embedding = embeddingService.generateImageEmbedding(objectName);
-
-            // 7. 保存元数据
-            saveImageMetadata(task, imageInfo, hash, embedding, tagsMap);
-
-            // 8. 归档文件
-            log.info("归档文件到正式目录...");
-            storageService.copyFile(objectName, "original/" + hash);
+            // 5. 保存元数据并异步触发 AI 后处理
+            Image image = saveImageMetadata(task, imageInfo, hash);
+            aiProcessingService.requestProcessing(image.getId());
 
         } catch (Exception e) {
             throw new RuntimeException("处理图片失败: " + e.getMessage(), e);
         } finally {
             // 清理临时资源
             if (tempFile.exists()) tempFile.delete();
-            try {
-                storageService.deleteFile(objectName);
-            } catch (Exception ignored) {
-                log.warn("无法清理临时文件对象: {}", objectName);
-            }
         }
     }
 
@@ -165,7 +146,7 @@ public class UploadTaskService {
         }
     }
 
-    private void saveImageMetadata(UploadTask task, ImageInfo info, String hash, double[] embedding, Map<String, Double> tags) {
+    private Image saveImageMetadata(UploadTask task, ImageInfo info, String hash) {
         Image image = new Image();
         image.setTitle(FilenameUtils.getBaseName(task.getFilename()));
         image.setFileName(task.getFilename());
@@ -174,14 +155,9 @@ public class UploadTaskService {
         image.setWidth(info.getWidth());
         image.setHeight(info.getHeight());
         image.setHash(hash);
-        image.setEmbedding(embedding);
+        image.setAiStatus(AiProcessingService.STATUS_PENDING);
 
-        for (Map.Entry<String, Double> entry : tags.entrySet()) {
-            Tag tag = tagService.getTagByName(entry.getKey());
-            image.addTag(tag, entry.getValue());
-        }
-
-        imageService.addImage(image);
+        return imageService.addImage(image);
     }
 
 

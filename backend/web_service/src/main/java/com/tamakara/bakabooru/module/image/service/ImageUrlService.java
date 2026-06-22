@@ -1,54 +1,43 @@
 package com.tamakara.bakabooru.module.image.service;
 
+import com.tamakara.bakabooru.config.ThumbnailProperties;
 import com.tamakara.bakabooru.module.image.entity.Image;
-import com.tamakara.bakabooru.module.system.service.SystemSettingService;
 import lombok.RequiredArgsConstructor;
-import net.coobird.thumbnailator.Thumbnails;
 import org.mapstruct.Named;
 import org.springframework.stereotype.Service;
-
-import java.io.File;
 
 @Service
 @RequiredArgsConstructor
 public class ImageUrlService {
 
     private final StorageService storageService;
-    private final SystemSettingService systemSettingService;
+    private final ThumbnailProperties thumbnailProperties;
 
     @Named("toImageUrl")
     public String getImageUrl(Image image) {
-        String objectName = "original/" + image.getHash();
-        if (!storageService.existFile(objectName)) {
-            throw new RuntimeException("文件不存在: " + objectName);
-        }
-        String finename = image.getId() + "_" + image.getTitle() + "." + image.getExtension();
-        return storageService.getFileUrl(objectName, finename, 24);
+        return getImageUrl(image.getHash(), image.getId(), image.getTitle(), image.getExtension());
     }
 
     @Named("toThumbnailUrl")
     public String getThumbnailUrl(Image image) {
-        int size = systemSettingService.getIntSetting("file.thumbnail.size");
-        String thumbnailObjectName = "thumbnail/" + size + "/" + image.getHash();
+        return getThumbnailUrl(image.getHash());
+    }
 
-        if (!storageService.existFile(thumbnailObjectName)) {
-            try {
-                String imageObjectName = "original/" + image.getHash();
-                File tempFile = storageService.getFile(imageObjectName);
-                // 创建单独的缩略图输出文件，避免 Thumbnails 自动添加扩展名的问题
-                File thumbnailFile = new File(tempFile.getParent(), image.getHash() + "_thumb.jpg");
-                Thumbnails.of(tempFile)
-                        .size(size, size)
-                        .outputFormat("jpg")
-                        .toFile(thumbnailFile);
-                storageService.uploadFile(thumbnailObjectName, thumbnailFile);
-                tempFile.delete();
-                thumbnailFile.delete();
-            } catch (Exception e) {
-                throw new RuntimeException("生成缩略图失败: " + e.getMessage(), e);
-            }
-        }
+    @Named("resolveThumbnailUrl")
+    public String getThumbnailUrl(String hash) {
+        String thumbnailObjectName = getThumbnailObjectName(hash);
+        return storageService.getFileUrl(thumbnailObjectName, hash + "." + thumbnailProperties.getFormat(), 24);
+    }
 
-        return storageService.getFileUrl(thumbnailObjectName, image.getHash(), 24);
+    @Named("resolveImageUrl")
+    public String getImageUrl(String hash, Long id, String title, String extension) {
+        String objectName = "original/" + hash;
+        String filename = id + "_" + title + "." + extension;
+        return storageService.getFileUrl(objectName, filename, 24);
+    }
+
+    @Named("resolveThumbnailObjectName")
+    public String getThumbnailObjectName(String hash) {
+        return "thumbnail/" + thumbnailProperties.getMaxSize() + "/" + hash + "." + thumbnailProperties.getFormat();
     }
 }

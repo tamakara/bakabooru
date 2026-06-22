@@ -2,7 +2,7 @@
 import {useQuery} from '@tanstack/vue-query'
 import {searchApi} from '../api/search'
 import {galleryApi, type ImageDto, type ImageThumbnailDto} from '../api/gallery'
-import {computed, h, nextTick, onMounted, reactive, ref, shallowRef, watch} from 'vue'
+import {computed, h, nextTick, reactive, ref, shallowRef, watch} from 'vue'
 import {
   NButton,
   NDropdown,
@@ -16,7 +16,6 @@ import {
   NLayoutContent,
   NLayoutFooter,
   NLayoutSider,
-  NPagination,
   NRadioButton,
   NRadioGroup,
   NSelect,
@@ -55,7 +54,8 @@ const formState = reactive({
   keyword: '',
   tags: '',
   semanticQuery: '',  // 语义描述搜索
-  sortBy: 'random',
+  aiStatus: null as 'PENDING' | 'PROCESSING' | 'READY' | null,
+  sortBy: 'createdAt',
   sortDirection: 'DESC',
   widthMin: null as number | null,
   widthMax: null as number | null,
@@ -100,6 +100,48 @@ const activeSearchState = shallowRef<any>({
 })
 const page = ref(1)
 const pageSize = ref(20)
+const pageSizeOptions = [
+  {label: '10 / 页', value: 10},
+  {label: '20 / 页', value: 20},
+  {label: '50 / 页', value: 50},
+  {label: '100 / 页', value: 100}
+]
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const aiStatusOptions: any[] = [
+  {label: '全部', value: null},
+  {label: '待处理', value: 'PENDING'},
+  {label: '处理中', value: 'PROCESSING'},
+  {label: '已完成', value: 'READY'}
+]
+
+function aiStatusLabel(status?: string) {
+  if (status === 'READY') return '已完成'
+  if (status === 'PROCESSING') return '处理中'
+  return '待处理'
+}
+
+function aiStatusClass(status?: string) {
+  if (status === 'READY') return 'bg-emerald-500/90 text-white'
+  if (status === 'PROCESSING') return 'bg-sky-500/90 text-white'
+  return 'bg-amber-500/90 text-black'
+}
+
+// 批量 AI 处理
+const enqueuingAll = ref(false)
+async function handleEnqueueAllAi() {
+  if (enqueuingAll.value) return
+  enqueuingAll.value = true
+  try {
+    const result = await galleryApi.enqueueAllAi()
+    message.success(`已入队 ${result.enqueued} 张图片进行 AI 处理`)
+    handleSearch()
+  } catch (e) {
+    message.error('批量触发 AI 处理失败')
+  } finally {
+    enqueuingAll.value = false
+  }
+}
 
 // 搜索操作
 function handleSearch() {
@@ -131,7 +173,8 @@ function handleReset() {
     formState.keyword = ''
     formState.tags = ''
     formState.semanticQuery = ''
-    formState.sortBy = 'random'  // 重置时使用随机排序
+    formState.aiStatus = null
+    formState.sortBy = 'createdAt'
     formState.sortDirection = 'DESC'
     formState.widthMin = null
     formState.widthMax = null
@@ -140,15 +183,12 @@ function handleReset() {
     formState.sizeMin = null
     formState.sizeMax = null
 
-    // 执行随机排序搜索
     page.value = 1
     activeSearchState.value = {
       mode: 'TEXT',
       ...formState,
       randomSeed: uuidv4()
     }
-
-    formState.sortBy = 'similarity'
   } else {
     fileList.value = []
     imageSearchState.file = undefined
@@ -180,6 +220,7 @@ const {
           keyword: currentState.keyword,
           tags: currentState.tags,
           semanticQuery: currentState.semanticQuery,
+          aiStatus: currentState.aiStatus,
           page: page.value,
           size: pageSize.value,
           sort
@@ -189,6 +230,7 @@ const {
           keyword: currentState.keyword,
           tags: currentState.tags,
           semanticQuery: currentState.semanticQuery || undefined,
+          aiStatus: currentState.aiStatus ?? undefined,
           randomSeed: currentState.randomSeed,
           widthMin: currentState.widthMin ?? undefined,
           widthMax: currentState.widthMax ?? undefined,
@@ -202,13 +244,13 @@ const {
         })
 
         const elapsed = (performance.now() - startTime).toFixed(2)
-        console.log(`[Gallery] 搜索完成: 找到 ${result.totalElements} 张图片, 耗时 ${elapsed}ms`)
+        console.log(`[Gallery] 搜索完成: 返回 ${result.content.length} 张图片, hasNext=${result.hasNext}, 耗时 ${elapsed}ms`)
 
         return result
     }
     // 以图搜图模式
     else {
-        if (!currentState.file) return { content: [], totalElements: 0 }
+        if (!currentState.file) return { content: [], page: page.value - 1, size: pageSize.value, hasNext: false }
 
         const startTime = performance.now()
         console.log('[Gallery] 开始搜索图片 (图搜模式)...')
@@ -221,7 +263,7 @@ const {
         )
 
         const elapsed = (performance.now() - startTime).toFixed(2)
-        console.log(`[Gallery] 图搜完成: 找到 ${result.totalElements} 张图片, 耗时 ${elapsed}ms`)
+        console.log(`[Gallery] 图搜完成: 返回 ${result.content.length} 张图片, hasNext=${result.hasNext}, 耗时 ${elapsed}ms`)
 
         return result
     }
@@ -237,7 +279,24 @@ watch(isError, (val) => {
 })
 
 const images = computed(() => data.value?.content || [])
-const totalCount = computed(() => data.value?.totalElements || 0)
+const hasNextPage = computed(() => data.value?.hasNext || false)
+const hasPrevPage = computed(() => page.value > 1)
+
+function handlePrevPage() {
+  if (hasPrevPage.value) {
+    page.value -= 1
+  }
+}
+
+function handleNextPage() {
+  if (hasNextPage.value) {
+    page.value += 1
+  }
+}
+
+function handlePageSizeChange() {
+  page.value = 1
+}
 
 // 详情弹窗
 const showDetail = ref(false)
@@ -305,15 +364,27 @@ function openDetail(image: ImageThumbnailDto) {
   })
 }
 
-const sortOptions = [
-  {label: '匹配度', value: 'similarity'},
-  {label: '标题', value: 'title'},
-  {label: '随机', value: 'random'},
-  {label: '查看次数', value: 'viewCount'},
-  {label: '创建时间', value: 'createdAt'},
-  {label: '修改时间', value: 'updatedAt'},
-  {label: '文件大小', value: 'size'},
-]
+const sortOptions = computed(() => {
+  const base = [
+    {label: '标题', value: 'title'},
+    {label: '随机', value: 'random'},
+    {label: '查看次数', value: 'viewCount'},
+    {label: '创建时间', value: 'createdAt'},
+    {label: '修改时间', value: 'updatedAt'},
+    {label: '文件大小', value: 'size'},
+  ]
+  if (formState.semanticQuery.trim()) {
+    return [{label: '匹配度', value: 'similarity'}, ...base]
+  }
+  return base
+})
+
+watch(() => formState.semanticQuery, (value) => {
+  if (!value.trim() && formState.sortBy === 'similarity') {
+    formState.sortBy = 'createdAt'
+    formState.sortDirection = 'DESC'
+  }
+})
 
 // 选中状态管理
 const selectedIds = ref<Set<number>>(new Set())
@@ -374,6 +445,13 @@ function handleImageClick(image: any) {
     toggleSelection(image.id)
   } else {
     openDetail(image)
+  }
+}
+
+function handleThumbnailError(event: Event, image: ImageThumbnailDto) {
+  const target = event.target as HTMLImageElement
+  if (image.imageUrl && target.src !== image.imageUrl) {
+    target.src = image.imageUrl
   }
 }
 
@@ -519,13 +597,6 @@ async function handleBatchDownload() {
   }
 }
 
-// 第一次查询虽然是随机排序，但是查询之后要把排序改成相似度
-onMounted(() => {
-  // 第一次查询使用的是初始化的 activeSearchState (random)
-  // 这里我们将表单显示的默认排序改为相似度，这样用户下一次点击搜索或者看设置时，默认就是相似度
-  formState.sortBy = 'similarity';
-})
-
 </script>
 
 <template>
@@ -559,6 +630,25 @@ onMounted(() => {
                         @keydown.ctrl.enter="handleSearch"
                     />
                   </n-form-item>
+
+                  <n-form-item label="AI 状态">
+                    <n-select
+                        v-model:value="formState.aiStatus"
+                        :options="aiStatusOptions"
+                        clearable
+                        size="small"
+                    />
+                  </n-form-item>
+
+                  <n-button
+                      block
+                      size="small"
+                      :loading="enqueuingAll"
+                      :disabled="enqueuingAll"
+                      @click="handleEnqueueAllAi"
+                  >
+                    处理所有待处理图片
+                  </n-button>
 
                   <n-form-item label="关键字">
                     <n-input
@@ -767,6 +857,7 @@ onMounted(() => {
                 :alt="image.title || 'image'"
                 class="w-full h-full object-cover transition-transform duration-300 transform select-none"
                 :class="{ 'scale-90': selectedIds.has(image.id) }"
+                @error="handleThumbnailError($event, image)"
                 loading="lazy"
                 draggable="false"
             />
@@ -785,6 +876,13 @@ onMounted(() => {
             </div>
 
             <div
+                class="absolute top-2 left-2 z-10 px-2 py-0.5 rounded text-[11px] font-medium shadow"
+                :class="aiStatusClass(image.aiStatus)"
+            >
+              {{ aiStatusLabel(image.aiStatus) }}
+            </div>
+
+            <div
                 class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity">
               <p class="text-white text-xs truncate">{{ image.title }}</p>
             </div>
@@ -792,15 +890,16 @@ onMounted(() => {
         </div>
       </n-layout-content>
       <n-layout-footer bordered class="p-4">
-        <div class="flex justify-center">
-          <n-pagination
-              v-model:page="page"
-              v-model:page-size="pageSize"
-              :item-count="totalCount"
-              :page-sizes="[10, 20, 50, 100]"
-              :display-order="['size-picker','pages', 'quick-jumper']"
-              show-size-picker
-              show-quick-jumper
+        <div class="flex justify-center items-center gap-3">
+          <n-button secondary :disabled="!hasPrevPage || isLoading" @click="handlePrevPage">上一页</n-button>
+          <span class="text-sm text-gray-500">第 {{ page }} 页</span>
+          <n-button secondary :disabled="!hasNextPage || isLoading" @click="handleNextPage">下一页</n-button>
+          <n-select
+              v-model:value="pageSize"
+              :options="pageSizeOptions"
+              size="small"
+              class="w-28"
+              @update:value="handlePageSizeChange"
           />
         </div>
       </n-layout-footer>

@@ -6,14 +6,11 @@ pydantic
 pydantic-settings
 uvicorn
 fastapi
+python-multipart
 
 # === ONNX Runtime ===
 onnxruntime-gpu
 
-# === LangChain ===
-langchain-core
-langchain-openai
-langchain-community
 fastembed-gpu
 
 # === 数据库 ===

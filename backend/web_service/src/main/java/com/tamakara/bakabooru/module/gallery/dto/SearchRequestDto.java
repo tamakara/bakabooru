@@ -7,6 +7,7 @@ public class SearchRequestDto {
     private String tags;
     private String keyword;
     private String semanticQuery;  // 语义描述搜索
+    private String aiStatus;
     private String randomSeed;
     private Integer widthMin;
     private Integer widthMax;

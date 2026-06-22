@@ -8,18 +8,18 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat-square&logo=postgresql)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)
 
-一个支持 AI 辅助标注和基于 RAG (检索增强生成) 语义搜索的本地图库管理系统。
+一个支持 AI 辅助标注和基于 CLIP 向量语义搜索的本地图库管理系统。
 
 ---
 
 ## ✨ 核心功能
 
-### 🔍 多模态 RAG 搜索
+### 🔍 多模态语义搜索
 
-基于 CLIP 模型与 LangChain 框架，打造下一代搜图体验：
+基于 CLIP 模型与 pgvector，打造本地优先的搜图体验：
 
 - **以图搜图**：基于 CLIP 视觉特征向量，实现高精度图像相似度匹配。
-- **语义搜索（RAG）**：支持自然语言描述，自动通过 LLM 提取标签并结合向量检索，实现“意图->视觉”的精准跨模态搜索。
+- **语义搜索**：支持自然语言描述，通过 CLIP 文本向量直接检索图片向量，不依赖在线 LLM。
 - **混合检索**：融合向量相似度、标签精确匹配与元数据过滤，召回率与准确率兼备。
 - **高级过滤**：支持按分辨率、文件大小、宽高比等元数据进行多维度筛选。
 
@@ -41,14 +41,14 @@
 
 ### 🎨 极致体验
 
-- **流畅浏览**：虚拟滚动 + 瀑布流布局，轻松承载万级图片列表。
+- **流畅浏览**：固定尺寸缩略图预生成，搜索接口只返回轻量列表数据。
 - **交互优化**：支持批量/拖拽上传，实时进度反馈，TanStack Query 智能缓存。
 - **深色模式**：精心调优的 UI，适应各种光照环境。
 
 ### 🔒 离线与隐私
 
 - **本地优先**：Tagger 与 CLIP 模型完全本地运行，通过 `docker-compose.yml` 配置一键管理。
-- **混合部署**：语义搜索默认使用在线 LLM (推荐 DeepSeek V3.2)，也可对接本地 LLM 实现 100% 离线运行，数据完全掌控。
+- **离线语义检索**：语义搜索不调用在线 LLM，图片和检索向量都保留在本地服务内。
 
 ---
 
@@ -67,7 +67,7 @@ graph TD
 
     subgraph Backend ["后端服务"]
         WebService["Web Service<br/>(Spring Boot 3.5)"]
-        AIService["AI Service<br/>(FastAPI + LangChain)"]
+        AIService["AI Service<br/>(FastAPI + CLIP)"]
     end
 
     subgraph Infrastructure ["基础设施"]
@@ -142,8 +142,30 @@ pnpm install && pnpm dev
 
 ## 🛠️ 配置说明
 
-- 所有配置通过根目录 `docker-compose.yml` 管理
-- AI 模型首次下载后存储在 `data/model_cache`，支持离线运行
+所有配置通过根目录 `docker-compose.yml` 管理，主要环境变量：
+
+| 变量 | 默认值 | 说明 |
+|------|--------|------|
+| `THUMBNAIL_MAX_SIZE` | `1024` | 缩略图最大边长 (px) |
+| `THUMBNAIL_QUALITY` | `0.85` | 缩略图压缩质量 |
+| `THUMBNAIL_FORMAT` | `jpg` | 缩略图格式 |
+| `AI_CONCURRENCY` | `10` | AI 后处理并发数 |
+
+完整配置项请参考 [部署文档](docs/deployment.md)。AI 模型首次下载后存储在 `data/model_cache`，支持离线运行。
+
+---
+
+## 📚 文档
+
+| 文档 | 内容 |
+|------|------|
+| [系统架构](docs/architecture.md) | 整体架构、服务边界、数据流 |
+| [Web Service](docs/backend-web-service.md) | Spring Boot 模块、搜索、上传、AI 后处理 |
+| [AI Service](docs/ai-service.md) | FastAPI、CLIP、Tagger、模型懒加载 |
+| [前端](docs/frontend.md) | 页面结构、API 类型、搜索/详情交互 |
+| [部署指南](docs/deployment.md) | Docker Compose、环境变量、启动顺序 |
+| [运维手册](docs/operations.md) | 缩略图 backfill、AI 状态、手动重试、故障排查 |
+| [数据模型](docs/data-model.md) | 核心表、向量、索引、状态字段 |
 
 ---
 

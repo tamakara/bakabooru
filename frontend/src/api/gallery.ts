@@ -10,6 +10,9 @@ export interface ImageThumbnailDto {
   title: string
   /** 缩略图访问URL */
   thumbnailUrl: string
+  /** 原图访问URL，用于缩略图缺失时兜底 */
+  imageUrl: string
+  aiStatus: 'PENDING' | 'PROCESSING' | 'READY'
 }
 
 /**
@@ -32,6 +35,10 @@ export interface ImageDto {
   hash: string
   /** 查看次数 */
   viewCount: number
+  aiStatus: 'PENDING' | 'PROCESSING' | 'READY'
+  aiError?: string
+  aiAttemptedAt?: string
+  aiCompletedAt?: string
   createdAt: string
   updatedAt: string
   /** 原始图片访问URL */
@@ -66,18 +73,11 @@ export interface TagDto {
   type: string
 }
 
-/**
- * 分页响应对象
- */
-export interface Page<T> {
+export interface SearchResult<T> {
   content: T[]
-  totalPages: number
-  totalElements: number
+  page: number
   size: number
-  number: number
-  first: boolean
-  last: boolean
-  empty: boolean
+  hasNext: boolean
 }
 
 export const galleryApi = {
@@ -126,6 +126,16 @@ export const galleryApi = {
    */
   removeTag: async (id: number, tagId: number) => {
     const response = await apiClient.delete<ImageDto>(`/images/${id}/tags/${tagId}`)
+    return response.data
+  },
+
+  retryAiProcessing: async (id: number) => {
+    const response = await apiClient.post<ImageDto>(`/images/${id}/ai/retry`)
+    return response.data
+  },
+
+  enqueueAllAi: async () => {
+    const response = await apiClient.post<{ enqueued: number }>('/images/ai/enqueue-all')
     return response.data
   },
 

@@ -5,6 +5,7 @@ import com.tamakara.bakabooru.module.ai.dto.ImageEmbeddingRequestDto;
 import com.tamakara.bakabooru.module.ai.dto.ImageEmbeddingResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -37,5 +38,25 @@ public class EmbeddingService {
         } catch (Exception e) {
             throw new RuntimeException("Embedding生成失败: " + e.getMessage(), e);
         }
+    }
+
+    public double[] generateImageEmbedding(MultipartFile file) {
+        try {
+            ImageEmbeddingResponseDto response = aiServiceClient.imageEmbedding(file);
+            return toArray(response);
+        } catch (Exception e) {
+            throw new RuntimeException("Embedding生成失败: " + e.getMessage(), e);
+        }
+    }
+
+    private double[] toArray(ImageEmbeddingResponseDto response) {
+        if (response == null || !response.isSuccess()) {
+            throw new RuntimeException("生成embedding失败: " + (response == null ? "空响应" : response.getError()));
+        }
+        List<Double> embeddingList = response.getEmbedding();
+        if (embeddingList == null || embeddingList.isEmpty()) {
+            throw new RuntimeException("生成embedding失败: embedding为空");
+        }
+        return embeddingList.stream().mapToDouble(Double::doubleValue).toArray();
     }
 }

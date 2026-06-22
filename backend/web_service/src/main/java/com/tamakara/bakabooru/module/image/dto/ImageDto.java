@@ -17,6 +17,10 @@ public class ImageDto {
     private Integer height;
     private String hash;
     private Long viewCount;
+    private String aiStatus;
+    private String aiError;
+    private Instant aiAttemptedAt;
+    private Instant aiCompletedAt;
     private Instant createdAt;
     private Instant updatedAt;
     private List<ImageTagDto> tags;

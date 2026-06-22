@@ -11,7 +11,6 @@ import {
   NGrid,
   NInput,
   NScrollbar,
-  NSelect,
   useMessage
 } from 'naive-ui'
 
@@ -24,23 +23,10 @@ const {data: settings} = useQuery({
   queryFn: systemApi.getSettings
 })
 
-// 缩略图尺寸选项
-const thumbnailSizeOptions = [
-  {label: '500x500', value: '500'},
-  {label: '800x800', value: '800'},
-  {label: '1000x1000', value: '1000'},
-  {label: '1500x1500', value: '1500'},
-  {label: '2000x2000', value: '2000'}
-]
-
 // 根据数据库配置表定义表单字段
 const settingsForm = ref<Record<string, string>>({
   'upload.poll-interval': '1000',
-  'file.thumbnail.size': '800',
-  'tag.threshold': '0.61',
-  'llm.url': '',
-  'llm.api-key': '',
-  'llm.model': ''
+  'tag.threshold': '0.61'
 })
 
 watch(settings, (newVal) => {
@@ -111,29 +97,8 @@ function handleUpdatePassword() {
                 <template #suffix>ms</template>
               </n-input>
             </n-form-item-gi>
-            <n-form-item-gi label="缩略图尺寸">
-              <n-select
-                  v-model:value="settingsForm['file.thumbnail.size']"
-                  :options="thumbnailSizeOptions"
-                  placeholder="选择尺寸"
-              />
-            </n-form-item-gi>
             <n-form-item-gi label="标签阈值">
               <n-input v-model:value="settingsForm['tag.threshold']" placeholder="0.61"/>
-            </n-form-item-gi>
-            <n-form-item-gi label="LLM Model">
-              <n-input v-model:value="settingsForm['llm.model']" placeholder="gpt-4o"/>
-            </n-form-item-gi>
-            <n-form-item-gi :span="2" label="LLM URL">
-              <n-input v-model:value="settingsForm['llm.url']" placeholder="https://api.openai.com/v1"/>
-            </n-form-item-gi>
-            <n-form-item-gi :span="2" label="API Key">
-              <n-input
-                  v-model:value="settingsForm['llm.api-key']"
-                  type="password"
-                  show-password-on="click"
-                  placeholder="sk-..."
-              />
             </n-form-item-gi>
           </n-grid>
         </n-form>

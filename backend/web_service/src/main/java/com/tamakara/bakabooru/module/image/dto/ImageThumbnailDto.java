@@ -11,4 +11,6 @@ public class ImageThumbnailDto {
     private Long id;
     private String title;
     private String thumbnailUrl;
+    private String imageUrl;
+    private String aiStatus;
 }

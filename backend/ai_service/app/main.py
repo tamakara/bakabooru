@@ -1,4 +1,5 @@
 """BaKaBooru AI Service 主入口"""
+import threading
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -6,13 +7,12 @@ from fastapi import FastAPI
 from app.api import tag_image_router, semantic_search_router, init_tags_router, image_embedding_router
 from app.core.model_manager import model_manager
 
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """应用生命周期管理 - 启动时预加载模型"""
-    print("AI Service 启动中，预加载模型...")
-    model_manager.preload_all()
-    print("AI Service 启动完成")
+    """应用生命周期管理 - 后台线程预加载模型，不阻塞 HTTP 启动"""
+    print("AI Service 启动，后台线程开始预加载模型...")
+    thread = threading.Thread(target=model_manager.load_all, daemon=True)
+    thread.start()
     yield
     print("AI Service 关闭")
 
@@ -33,5 +33,7 @@ app.include_router(image_embedding_router)
 
 @app.get("/health")
 def health():
-    """健康检查接口"""
-    return {"status": "ok"}
+    """健康检查接口 - 模型未加载完成时返回 loading"""
+    if model_manager.ready:
+        return {"status": "ok"}
+    return {"status": "loading"}

@@ -1,10 +1,11 @@
 import apiClient from './client'
-import type { Page, ImageThumbnailDto } from './gallery'
+import type { SearchResult, ImageThumbnailDto } from './gallery'
 
 export interface SearchRequestDto {
   tags?: string
   keyword?: string
   semanticQuery?: string  // 语义描述搜索
+  aiStatus?: 'PENDING' | 'PROCESSING' | 'READY'
   randomSeed?: string
   widthMin?: number
   widthMax?: number
@@ -19,7 +20,7 @@ export interface SearchRequestDto {
 
 export const searchApi = {
   search: async (request: SearchRequestDto) => {
-    const response = await apiClient.post<Page<ImageThumbnailDto>>('/search', request)
+    const response = await apiClient.post<SearchResult<ImageThumbnailDto>>('/search', request)
     return response.data
   },
 
@@ -35,7 +36,7 @@ export const searchApi = {
   searchByImage: async (file: File, threshold: number, page: number, size: number) => {
     const formData = new FormData()
     formData.append('file', file)
-    const response = await apiClient.post<Page<ImageThumbnailDto>>('/search/image', formData, {
+    const response = await apiClient.post<SearchResult<ImageThumbnailDto>>('/search/image', formData, {
       params: { threshold, page, size },
       headers: {
         'Content-Type': 'multipart/form-data'

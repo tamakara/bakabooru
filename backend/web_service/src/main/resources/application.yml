@@ -63,3 +63,8 @@ app:
   # AI 服务配置
   ai-service:
     url: ${AI_SERVICE_URL}
+    concurrency: ${AI_CONCURRENCY:10}
+  thumbnail:
+    max-size: ${THUMBNAIL_MAX_SIZE:1024}
+    quality: ${THUMBNAIL_QUALITY:0.85}
+    format: ${THUMBNAIL_FORMAT:jpg}

@@ -1,8 +1,9 @@
 """图像打标 API"""
 import asyncio
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
+from app.core.dependencies import require_models_ready
 from app.schemas.tag_image import TagImageRequest, TagImageResponse
 from app.services.tag_image_service import tag_image_service
 
@@ -11,7 +12,7 @@ router = APIRouter(prefix="/tag", tags=["图像打标"])
 _semaphore = asyncio.Semaphore(1)  # 限制并发访问
 
 
-@router.post("/image", response_model=TagImageResponse)
+@router.post("/image", response_model=TagImageResponse, dependencies=[Depends(require_models_ready)])
 async def tag_image(body: TagImageRequest) -> TagImageResponse:
     """对图像进行自动打标"""
     try:

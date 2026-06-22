@@ -1,209 +1,207 @@
 package com.tamakara.bakabooru.module.image.service;
 
+import com.tamakara.bakabooru.module.gallery.dto.SearchResultDto;
+import com.tamakara.bakabooru.module.image.dto.ImageThumbnailDto;
 import com.tamakara.bakabooru.module.image.dto.SearchDto;
-import com.tamakara.bakabooru.module.image.entity.Image;
-import com.tamakara.bakabooru.module.image.repository.ImageRepository;
-import com.tamakara.bakabooru.module.tag.entity.ImageTagRelation;
-import com.tamakara.bakabooru.module.tag.entity.Tag;
-import jakarta.persistence.criteria.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ImageSearchService {
 
-    private final ImageRepository imageRepository;
+    private static final int MAX_PAGE_SIZE = 100;
+    private static final Set<String> AI_STATUSES = Set.of("PENDING", "PROCESSING", "READY");
+    private static final Map<String, String> SORT_COLUMNS = new HashMap<>();
+
+    static {
+        SORT_COLUMNS.put("title", "i.title");
+        SORT_COLUMNS.put("viewCount", "i.view_count");
+        SORT_COLUMNS.put("createdAt", "i.created_at");
+        SORT_COLUMNS.put("updatedAt", "i.updated_at");
+        SORT_COLUMNS.put("size", "i.size");
+        SORT_COLUMNS.put("width", "i.width");
+        SORT_COLUMNS.put("height", "i.height");
+    }
+
+    private final NamedParameterJdbcTemplate jdbcTemplate;
+    private final ImageUrlService imageUrlService;
 
     @Transactional(readOnly = true)
-    public Page<Image> searchImages(SearchDto searchDto) {
-        log.info("开始搜索图片 - 正向标签: {}, 负向标签: {}, 关键字: {}",
-                searchDto.getPositiveTags(), searchDto.getNegativeTags(), searchDto.getKeyword());
-
+    public SearchResultDto<ImageThumbnailDto> searchImages(SearchDto searchDto) {
         long startTime = System.currentTimeMillis();
 
-        Specification<Image> spec = (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
+        int page = Math.max(0, searchDto.getPage());
+        int size = Math.min(Math.max(1, searchDto.getSize()), MAX_PAGE_SIZE);
+        int offset = page * size;
 
-            // 1. 包含标签 (AND 逻辑: 必须同时拥有所有 positiveTags)
-            if (searchDto.getPositiveTags() != null && !searchDto.getPositiveTags().isEmpty()) {
-                for (String tag : searchDto.getPositiveTags()) {
-                    predicates.add(createTagExistsPredicate(cb, query, root, tag, true));
-                }
-            }
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("limit", size + 1)
+                .addValue("offset", offset);
 
-            // 2. 排除标签 (NOT 逻辑: 不能包含任何一个 negativeTags)
-            if (searchDto.getNegativeTags() != null && !searchDto.getNegativeTags().isEmpty()) {
-                // 多个排除标签可以用一个 NOT EXISTS + IN 解决，效率更高
-                predicates.add(createTagExistsPredicate(cb, query, root, searchDto.getNegativeTags(), false));
-            }
+        List<String> predicates = new ArrayList<>();
+        predicates.add("1 = 1");
 
-            // 3. 关键字模糊搜索 (带 null/empty 检查)
-            if (StringUtils.hasText(searchDto.getKeyword())) {
-                String pattern = "%" + searchDto.getKeyword().trim().toLowerCase() + "%";
-                predicates.add(cb.or(
-                        cb.like(cb.lower(root.get("title")), pattern),
-                        cb.like(cb.lower(root.get("fileName")), pattern)
-                ));
-            }
+        applyKeyword(searchDto, predicates, params);
+        applyAiStatus(searchDto, predicates, params);
+        applyRanges(searchDto, predicates, params);
+        if (!applyTags(searchDto.getPositiveTags(), searchDto.getNegativeTags(), predicates, params)) {
+            return new SearchResultDto<>(List.of(), page, size, false);
+        }
+        applyVector(searchDto, predicates, params);
 
-            // 4. 数值区间搜索重构 (提取方法减少重复代码)
-            addRangePredicate(predicates, cb, root.get("width"), searchDto.getWidthMin(), searchDto.getWidthMax());
-            addRangePredicate(predicates, cb, root.get("height"), searchDto.getHeightMin(), searchDto.getHeightMax());
-            addRangePredicate(predicates, cb, root.get("size"), searchDto.getSizeMin(), searchDto.getSizeMax());
+        String sql = """
+                SELECT i.id, i.title, i.hash, i.extension, i.ai_status
+                FROM images i
+                WHERE %s
+                %s
+                LIMIT :limit OFFSET :offset
+                """.formatted(String.join(" AND ", predicates), buildOrderBy(searchDto));
 
-            // 5. 向量相似度搜索
-            if (searchDto.getEmbedding() != null && !searchDto.getEmbedding().isEmpty()) {
-                String embeddingStr = searchDto.getEmbedding().toString();
+        List<ImageThumbnailDto> rows = jdbcTemplate.query(sql, params, thumbnailMapper());
+        boolean hasNext = rows.size() > size;
+        if (hasNext) {
+            rows = rows.subList(0, size);
+        }
 
-                Expression<Double> distance = cb.function("cosine_distance", Double.class,
-                        root.get("embedding"),
-                        cb.literal(embeddingStr)
-                );
+        log.info("搜索完成 - 耗时: {}ms, 页: {}, 数量: {}, hasNext: {}",
+                System.currentTimeMillis() - startTime, page, rows.size(), hasNext);
+        return new SearchResultDto<>(rows, page, size, hasNext);
+    }
 
-                // 如果设置了阈值，增加过滤条件
-                if (searchDto.getDistanceThreshold() != null) {
-                    predicates.add(cb.le(distance, searchDto.getDistanceThreshold()));
-                }
-
-                if (!isCountQuery(query)) {
-                    applyEmbeddingSort(query, cb, root, searchDto.getPageable(), distance);
-                }
-            }
-            // 6. 随机排序 (互斥逻辑：有向量搜索时不走随机，除非显式支持混合通过 Pageable)
-            else if (!isCountQuery(query) && StringUtils.hasText(searchDto.getRandomSeed())) {
-                int seedInt = searchDto.getRandomSeed().hashCode();
-                applyRandomOrder(root, query, cb, seedInt);
-            }
-
-            return cb.and(predicates.toArray(new Predicate[0]));
+    private RowMapper<ImageThumbnailDto> thumbnailMapper() {
+        return (rs, rowNum) -> {
+            ImageThumbnailDto dto = new ImageThumbnailDto();
+            dto.setId(rs.getLong("id"));
+            dto.setTitle(rs.getString("title"));
+            String hash = rs.getString("hash");
+            dto.setThumbnailUrl(imageUrlService.getThumbnailUrl(hash));
+            dto.setImageUrl(imageUrlService.getImageUrl(hash, dto.getId(), dto.getTitle(), rs.getString("extension")));
+            dto.setAiStatus(rs.getString("ai_status"));
+            return dto;
         };
+    }
 
-        // 如果处理了相似度排序，我们需要防止 Spring Data JPA 再次尝试排序 "similarity" 属性
-        // 因为 Image 实体没有 similarity 属性，会导致 PropertyReferenceException
-        Pageable effectivePageable = searchDto.getPageable();
-        // 检查是否存在 "similarity" 排序
-        boolean hasSimilaritySort = effectivePageable.getSort().stream()
-                .anyMatch(order -> "similarity".equalsIgnoreCase(order.getProperty()));
+    private void applyAiStatus(SearchDto searchDto, List<String> predicates, MapSqlParameterSource params) {
+        if (!StringUtils.hasText(searchDto.getAiStatus())) return;
+        String status = searchDto.getAiStatus().trim().toUpperCase();
+        if (!AI_STATUSES.contains(status)) return;
+        predicates.add("i.ai_status = :aiStatus");
+        params.addValue("aiStatus", status);
+    }
 
-        if (hasSimilaritySort) {
-            // 如果存在 similarity 排序，必须移除它
-            // 只有当有 embedding 时，我们在 Specification 中手动处理排序
-            // 如果没有 embedding 但请求了 similarity 排序（可能是生成失败），则退化为无序或默认排序
+    private void applyKeyword(SearchDto searchDto, List<String> predicates, MapSqlParameterSource params) {
+        if (!StringUtils.hasText(searchDto.getKeyword())) return;
+        predicates.add("(LOWER(i.title) LIKE :keyword OR LOWER(i.file_name) LIKE :keyword)");
+        params.addValue("keyword", "%" + searchDto.getKeyword().trim().toLowerCase() + "%");
+    }
 
-            List<Sort.Order> newOrders = new ArrayList<>();
-            effectivePageable.getSort().stream()
-                    .filter(order -> !"similarity".equalsIgnoreCase(order.getProperty()))
-                    .forEach(newOrders::add);
+    private void applyRanges(SearchDto searchDto, List<String> predicates, MapSqlParameterSource params) {
+        addRange("i.width", "widthMin", "widthMax", searchDto.getWidthMin(), searchDto.getWidthMax(), predicates, params);
+        addRange("i.height", "heightMin", "heightMax", searchDto.getHeightMin(), searchDto.getHeightMax(), predicates, params);
+        addRange("i.size", "sizeMin", "sizeMax", searchDto.getSizeMin(), searchDto.getSizeMax(), predicates, params);
+    }
 
-            Sort newSort = newOrders.isEmpty() ? Sort.unsorted() : Sort.by(newOrders);
-
-            effectivePageable = PageRequest.of(
-                    effectivePageable.getPageNumber(),
-                    effectivePageable.getPageSize(),
-                    newSort
-            );
-        } else if (searchDto.getEmbedding() != null && !searchDto.getEmbedding().isEmpty()) {
-             // 即使没有显式请求 similarity 排序，如果有 embedding，我们也可能想要强制重置排序?
-             // 原逻辑是这样的：
-             effectivePageable = PageRequest.of(
-                    searchDto.getPageable().getPageNumber(),
-                    searchDto.getPageable().getPageSize(),
-                    Sort.unsorted()
-            );
+    private void addRange(String column, String minName, String maxName, Number min, Number max,
+                          List<String> predicates, MapSqlParameterSource params) {
+        if (min != null) {
+            predicates.add(column + " >= :" + minName);
+            params.addValue(minName, min);
         }
-
-        Page<Image> result = imageRepository.findAll(spec, effectivePageable);
-
-        log.info("搜索完成 - 耗时: {}ms, 结果数: {}, 总数: {}",
-                System.currentTimeMillis() - startTime, result.getNumberOfElements(), result.getTotalElements());
-
-        return result;
-    }
-
-    private boolean isCountQuery(CriteriaQuery<?> query) {
-        return query != null && (query.getResultType() == Long.class || query.getResultType() == long.class);
-    }
-
-    /**
-     * 通用的子查询构建工具
-     * 使用 ImageTagRelation 表进行关联查询
-     *
-     * @param isPositive true 表示 EXISTS (包含), false 表示 NOT EXISTS (排除)
-     */
-    private Predicate createTagExistsPredicate(CriteriaBuilder cb, CommonAbstractCriteria query, Root<Image> root, Object tagValue, boolean isPositive) {
-        Subquery<Integer> subquery = query.subquery(Integer.class);
-        Root<ImageTagRelation> subRoot = subquery.from(ImageTagRelation.class);
-        Join<ImageTagRelation, Tag> tagJoin = subRoot.join("tag");
-
-        subquery.select(cb.literal(1)); // 只需 select 1 提高效率
-
-        Predicate tagPredicate;
-        if (tagValue instanceof Set) {
-            tagPredicate = tagJoin.get("name").in((Set<?>) tagValue);
-        } else {
-            tagPredicate = cb.equal(tagJoin.get("name"), tagValue);
-        }
-
-        subquery.where(
-                cb.equal(subRoot.get("image").get("id"), root.get("id")),
-                tagPredicate
-        );
-
-        return isPositive ? cb.exists(subquery) : cb.not(cb.exists(subquery));
-    }
-
-    private void addRangePredicate(List<Predicate> predicates, CriteriaBuilder cb, Path<Number> path, Number min, Number max) {
-        if (min != null) predicates.add(cb.ge(path, min));
-        if (max != null) predicates.add(cb.le(path, max));
-    }
-
-    private void applyEmbeddingSort(CriteriaQuery<?> query, CriteriaBuilder cb, Root<Image> root,
-                                    org.springframework.data.domain.Pageable pageable, Expression<Double> distance) {
-        if (query == null) return;
-
-        var sort = pageable.getSort();
-        if (sort.isSorted()) {
-            List<jakarta.persistence.criteria.Order> orders = new ArrayList<>();
-            sort.forEach(order -> {
-                if ("similarity".equalsIgnoreCase(order.getProperty()) || "distance".equalsIgnoreCase(order.getProperty())) {
-                    orders.add(order.isAscending() ? cb.asc(distance) : cb.desc(distance));
-                } else {
-                    orders.add(order.isAscending() ? cb.asc(root.get(order.getProperty())) : cb.desc(root.get(order.getProperty())));
-                }
-            });
-            query.orderBy(orders);
-        } else {
-            // 默认按距离升序（最相似在前）
-            query.orderBy(cb.asc(distance));
+        if (max != null) {
+            predicates.add(column + " <= :" + maxName);
+            params.addValue(maxName, max);
         }
     }
 
-    private void applyRandomOrder(Root<Image> root, CriteriaQuery<?> query, CriteriaBuilder cb, Integer seedInt) {
-        // 1. 保证 seed 不为 0 避免乘法失效
-        int effectiveSeed = (seedInt == 0) ? 1 : seedInt;
+    private boolean applyTags(Set<String> positiveTags, Set<String> negativeTags,
+                              List<String> predicates, MapSqlParameterSource params) {
+        List<Long> positiveIds = resolveTagIds(positiveTags);
+        if (positiveTags != null && positiveIds.size() != positiveTags.size()) {
+            return false;
+        }
+        if (!positiveIds.isEmpty()) {
+            predicates.add("""
+                    i.id IN (
+                        SELECT itr.image_id
+                        FROM image_tag_relation itr
+                        WHERE itr.tag_id IN (:positiveTagIds)
+                        GROUP BY itr.image_id
+                        HAVING COUNT(DISTINCT itr.tag_id) = :positiveTagCount
+                    )
+                    """);
+            params.addValue("positiveTagIds", positiveIds);
+            params.addValue("positiveTagCount", positiveIds.size());
+        }
 
-        // 2. 公式: ABS(MOD(id * seed, MAX_INT))
-        Expression<Integer> modExpression = cb.function("MOD", Integer.class,
-                cb.prod(root.get("id"), effectiveSeed),
-                cb.literal(Integer.MAX_VALUE)
-        ).as(Integer.class);
+        List<Long> negativeIds = resolveTagIds(negativeTags);
+        if (!negativeIds.isEmpty()) {
+            predicates.add("""
+                    NOT EXISTS (
+                        SELECT 1
+                        FROM image_tag_relation itr_neg
+                        WHERE itr_neg.image_id = i.id
+                          AND itr_neg.tag_id IN (:negativeTagIds)
+                    )
+                    """);
+            params.addValue("negativeTagIds", negativeIds);
+        }
+        return true;
+    }
 
-        Expression<Integer> hash = cb.abs(modExpression);
+    private List<Long> resolveTagIds(Set<String> tags) {
+        if (tags == null || tags.isEmpty()) return List.of();
+        List<String> names = tags.stream()
+                .filter(StringUtils::hasText)
+                .map(String::trim)
+                .collect(Collectors.toList());
+        if (names.isEmpty()) return List.of();
+        return jdbcTemplate.queryForList("SELECT id FROM tags WHERE name IN (:names)",
+                new MapSqlParameterSource("names", names), Long.class);
+    }
 
-        query.orderBy(cb.asc(hash));
+    private void applyVector(SearchDto searchDto, List<String> predicates, MapSqlParameterSource params) {
+        if (searchDto.getEmbedding() == null || searchDto.getEmbedding().isEmpty()) return;
+        predicates.add("i.embedding IS NOT NULL");
+        params.addValue("embedding", toVectorLiteral(searchDto.getEmbedding()));
+        if (searchDto.getDistanceThreshold() != null) {
+            predicates.add("(i.embedding <=> CAST(:embedding AS vector)) <= :distanceThreshold");
+            params.addValue("distanceThreshold", searchDto.getDistanceThreshold());
+        }
+    }
+
+    private String buildOrderBy(SearchDto searchDto) {
+        if (searchDto.getEmbedding() != null && !searchDto.getEmbedding().isEmpty()) {
+            return "ORDER BY i.embedding <=> CAST(:embedding AS vector), i.id ASC";
+        }
+        if ("random".equalsIgnoreCase(searchDto.getSortProperty()) && StringUtils.hasText(searchDto.getRandomSeed())) {
+            int seed = searchDto.getRandomSeed().hashCode();
+            if (seed == 0) seed = 1;
+            return "ORDER BY ABS(MOD((i.id * " + seed + ")::bigint, 2147483647::bigint)) ASC";
+        }
+        String property = StringUtils.hasText(searchDto.getSortProperty()) ? searchDto.getSortProperty() : "createdAt";
+        String column = SORT_COLUMNS.getOrDefault(property, "i.created_at");
+        String direction = "ASC".equalsIgnoreCase(searchDto.getSortDirection()) ? "ASC" : "DESC";
+        return "ORDER BY " + column + " " + direction + ", i.id DESC";
+    }
+
+    private String toVectorLiteral(List<Float> embedding) {
+        return embedding.stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining(",", "[", "]"));
     }
 }

@@ -52,6 +52,15 @@ public class Image {
     @Column(nullable = false)
     private Long viewCount = 0L;
 
+    @Column(nullable = false)
+    private String aiStatus = "PENDING";
+
+    private String aiError;
+
+    private Instant aiAttemptedAt;
+
+    private Instant aiCompletedAt;
+
     @Convert(converter = VectorConverter.class)
     @Column(columnDefinition = "vector(512)")
     @ColumnTransformer(write = "?::vector")

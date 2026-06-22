@@ -1,4 +1,6 @@
 """模型管理模块 - 负责加载和管理所有AI模型"""
+import threading
+import time
 from typing import Optional
 
 import numpy as np
@@ -38,10 +40,36 @@ class ModelManager:
         self._camie_tagger = None
         self._device = settings.DEVICE
         self._ort_providers = self._get_ort_providers()
+        self._ready = False
+        self._lock = threading.Lock()
 
     @property
     def device(self) -> str:
         return self._device
+
+    @property
+    def ready(self) -> bool:
+        return self._ready
+
+    def load_all(self):
+        """启动时预加载所有模型，加载完成后设置 ready 标志"""
+        with self._lock:
+            if self._ready:
+                return
+            start = time.time()
+            print("开始预加载所有模型...")
+            try:
+                self._load_embeddings()
+                self._load_camie_tagger()
+                self._load_clip()
+                self._ready = True
+                elapsed = time.time() - start
+                print(f"所有模型预加载完成，耗时 {elapsed:.1f}s")
+            except Exception as e:
+                elapsed = time.time() - start
+                print(f"模型预加载失败（耗时 {elapsed:.1f}s）: {e}")
+                import traceback
+                traceback.print_exc()
 
     def _get_ort_providers(self) -> list:
         """获取 ONNX Runtime 的执行提供器列表"""
@@ -58,37 +86,27 @@ class ModelManager:
 
     @property
     def clip_text_session(self) -> ort.InferenceSession:
-        """懒加载 CLIP 文本编码器 ONNX session"""
-        if self._clip_text_session is None:
-            self._load_clip()
+        """CLIP 文本编码器 ONNX session（需先调用 load_all）"""
         return self._clip_text_session
 
     @property
     def clip_vision_session(self) -> ort.InferenceSession:
-        """懒加载 CLIP 图像编码器 ONNX session"""
-        if self._clip_vision_session is None:
-            self._load_clip()
+        """CLIP 图像编码器 ONNX session（需先调用 load_all）"""
         return self._clip_vision_session
 
     @property
     def clip_processor(self) -> CLIPProcessor:
-        """懒加载 CLIP 处理器"""
-        if self._clip_processor is None:
-            self._load_clip()
+        """CLIP 处理器（需先调用 load_all）"""
         return self._clip_processor
 
     @property
     def embeddings(self):
-        """懒加载文本嵌入模型"""
-        if self._embeddings is None:
-            self._load_embeddings()
+        """文本嵌入模型（需先调用 load_all）"""
         return self._embeddings
 
     @property
     def camie_tagger(self):
-        """懒加载 CamieTagger"""
-        if self._camie_tagger is None:
-            self._load_camie_tagger()
+        """CamieTagger（需先调用 load_all）"""
         return self._camie_tagger
 
     def _load_clip(self):
@@ -123,12 +141,19 @@ class ModelManager:
             providers=self._ort_providers
         )
 
-        # 加载处理器（用于预处理）
-        self._clip_processor = CLIPProcessor.from_pretrained(
-            CLIP_MODEL_NAME,
-            cache_dir=cache_dir,
-            use_fast=True
-        )
+        # 从 ONNX repo 加载 tokenizer（避免额外请求 PyTorch repo）
+        try:
+            self._clip_processor = CLIPProcessor.from_pretrained(
+                CLIP_ONNX_REPO,
+                cache_dir=cache_dir,
+            )
+        except Exception:
+            # 回退到 PyTorch repo
+            print(f"从 {CLIP_ONNX_REPO} 加载 processor 失败，尝试 {CLIP_MODEL_NAME}...")
+            self._clip_processor = CLIPProcessor.from_pretrained(
+                CLIP_MODEL_NAME,
+                cache_dir=cache_dir,
+            )
 
         active_provider = self._clip_text_session.get_providers()[0]
         print(f"CLIP ONNX 模型加载完成，使用: {active_provider}")
@@ -181,15 +206,6 @@ class ModelManager:
         # 归一化
         image_embeds = image_embeds / np.linalg.norm(image_embeds, axis=-1, keepdims=True)
         return image_embeds
-
-    def preload_all(self):
-        """预加载所有模型（用于服务启动时）"""
-        print("预加载所有模型...")
-        _ = self.embeddings
-        _ = self.camie_tagger
-        _ = self.clip_text_session  # 这会同时加载 text 和 vision session
-        print("所有模型预加载完成")
-
 
 # 全局单例
 model_manager = ModelManager()

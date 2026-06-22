@@ -4,9 +4,7 @@ FROM nvidia/cuda:12.4.1-cudnn-runtime-ubuntu22.04
 # 2. 设置环境变量：防止生成 .pyc 文件，确保日志实时输出
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    DEBIAN_FRONTEND=noninteractive \
-    PIP_DEFAULT_TIMEOUT=300 \
-    PIP_RETRIES=10
+    DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /app
 

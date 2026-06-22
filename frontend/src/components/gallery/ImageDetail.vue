@@ -29,6 +29,7 @@ import {
   ImageOutline,
   PencilOutline,
   PricetagOutline,
+  RefreshOutline,
   ResizeOutline,
   TimeOutline,
   TrashOutline
@@ -60,6 +61,7 @@ const newTagName = ref('')
 const tagSearchOptions = ref<AutoCompleteOption[]>([])
 const isEditingTags = ref(false)
 const addingTag = ref(false)
+const retryingAi = ref(false)
 
 // 当image变化时更新编辑表单
 watch(() => props.image, (newImage) => {
@@ -246,6 +248,39 @@ const handleDownload = () => {
   document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)
+}
+
+const aiStatusText = computed(() => {
+  if (!props.image) return ''
+  if (props.image.aiStatus === 'READY') return '已完成'
+  if (props.image.aiStatus === 'PROCESSING') return '处理中'
+  return '待处理'
+})
+
+const aiStatusType = computed<'default' | 'success' | 'info' | 'warning'>(() => {
+  if (!props.image) return 'default'
+  if (props.image.aiStatus === 'READY') return 'success'
+  if (props.image.aiStatus === 'PROCESSING') return 'info'
+  return props.image.aiError ? 'warning' : 'default'
+})
+
+const canRetryAi = computed(() => {
+  return !!props.image && props.image.aiStatus === 'PENDING' && !!props.image.aiError
+})
+
+const handleRetryAi = async () => {
+  if (!props.image || retryingAi.value) return
+  retryingAi.value = true
+  try {
+    const updated = await galleryApi.retryAiProcessing(props.image.id)
+    emit('update:image', updated)
+    emit('refresh')
+    message.success('已开始 AI 处理')
+  } catch (e) {
+    message.error('重试 AI 处理失败')
+  } finally {
+    retryingAi.value = false
+  }
 }
 
 const groupedTags = computed(() => {
@@ -474,6 +509,34 @@ const getTagColor = (type: string) => {
                       useDateFormat(props.image.createdAt, 'YYYY-MM-DD').value
                     }}</span>
                 </div>
+                <!-- AI Status -->
+                <div class="flex flex-col gap-1">
+                      <span class="text-gray-500 text-xs flex items-center gap-1">
+                         <n-icon :component="HardwareChipOutline"/> AI 状态
+                      </span>
+                  <div class="flex items-center gap-2">
+                    <n-tag size="small" :type="aiStatusType" :bordered="false">
+                      {{ aiStatusText }}
+                    </n-tag>
+                    <n-button
+                        v-if="canRetryAi"
+                        size="tiny"
+                        secondary
+                        type="warning"
+                        :loading="retryingAi"
+                        @click="handleRetryAi"
+                    >
+                      <template #icon>
+                        <n-icon :component="RefreshOutline"/>
+                      </template>
+                      重试
+                    </n-button>
+                  </div>
+                </div>
+              </div>
+
+              <div v-if="props.image.aiError" class="text-xs text-amber-300 bg-amber-950/40 border border-amber-900/60 rounded p-2 break-words">
+                {{ props.image.aiError }}
               </div>
 
               <!-- Full Filename & Hash -->

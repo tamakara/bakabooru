@@ -14,5 +14,6 @@ public interface ImageMapper {
     ImageDto toDto(Image image);
 
     @Mapping(target = "thumbnailUrl", source = "image", qualifiedByName = "toThumbnailUrl")
+    @Mapping(target = "imageUrl", source = "image", qualifiedByName = "toImageUrl")
     ImageThumbnailDto toThumbnailDto(Image image);
 }

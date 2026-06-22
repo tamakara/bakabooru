@@ -1,5 +1,6 @@
 package com.tamakara.bakabooru.module.image.service;
 
+import com.tamakara.bakabooru.module.ai.service.AiProcessingService;
 import com.tamakara.bakabooru.module.image.dto.ImageDto;
 import com.tamakara.bakabooru.module.image.entity.Image;
 import com.tamakara.bakabooru.module.image.mapper.ImageMapper;
@@ -26,6 +27,7 @@ public class ImageService {
     private final ImageMapper imageMapper;
     private final StorageService storageService;
     private final TagService tagService;
+    private final AiProcessingService aiProcessingService;
 
     @Transactional
     public ImageDto getImage(Long id) {
@@ -40,8 +42,8 @@ public class ImageService {
     }
 
     @Transactional
-    public void addImage(Image image) {
-        imageRepository.save(image);
+    public Image addImage(Image image) {
+        return imageRepository.save(image);
     }
 
     public boolean existImageByHash(String hash) {
@@ -78,6 +80,11 @@ public class ImageService {
         image.setUpdatedAt(Instant.now());
 
         return imageMapper.toDto(imageRepository.save(image));
+    }
+
+    public ImageDto retryAiProcessing(Long id) {
+        Image image = aiProcessingService.requestProcessing(id);
+        return imageMapper.toDto(image);
     }
 
     @Transactional

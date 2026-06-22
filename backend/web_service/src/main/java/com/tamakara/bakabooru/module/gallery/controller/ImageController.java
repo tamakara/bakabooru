@@ -1,5 +1,6 @@
 package com.tamakara.bakabooru.module.gallery.controller;
 
+import com.tamakara.bakabooru.module.ai.service.AiProcessingService;
 import com.tamakara.bakabooru.module.image.dto.ImageDto;
 import com.tamakara.bakabooru.module.image.service.ImageService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -8,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
@@ -22,6 +24,7 @@ import java.io.IOException;
 public class ImageController {
 
     private final ImageService imageService;
+    private final AiProcessingService aiProcessingService;
 
     @GetMapping("/{id}")
     @Operation(summary = "获取详情", description = "获取图片详细信息并增加查看次数")
@@ -51,6 +54,19 @@ public class ImageController {
     @Operation(summary = "移除标签")
     public ImageDto removeTag(@PathVariable Long id, @PathVariable Long tagId) {
         return imageService.removeTag(id, tagId);
+    }
+
+    @PostMapping("/{id}/ai/retry")
+    @Operation(summary = "重试 AI 处理")
+    public ImageDto retryAiProcessing(@PathVariable Long id) {
+        return imageService.retryAiProcessing(id);
+    }
+
+    @PostMapping("/ai/enqueue-all")
+    @Operation(summary = "批量触发 AI 处理", description = "入队所有待处理且无错误的图片进行 AI 后处理")
+    public Map<String, Integer> enqueueAllAi() {
+        int count = aiProcessingService.enqueueAllPending();
+        return Map.of("enqueued", count);
     }
 
     @PostMapping("/batch/delete")
