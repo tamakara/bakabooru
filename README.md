@@ -2,173 +2,127 @@
 
 ![Java](https://img.shields.io/badge/Java-21-b07219?style=flat-square&logo=openjdk)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5-6db33f?style=flat-square&logo=springboot)
-![Python](https://img.shields.io/badge/Python-3.12-3776ab?style=flat-square&logo=python)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.109-009688?style=flat-square&logo=fastapi)
+![Python](https://img.shields.io/badge/Python-3.x-3776ab?style=flat-square&logo=python)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi)
 ![Vue.js](https://img.shields.io/badge/Vue.js-3.4-4FC08D?style=flat-square&logo=vuedotjs)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat-square&logo=postgresql)
-![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)
 
-一个支持 AI 辅助标注和基于 CLIP 向量语义搜索的本地图库管理系统。
+一个本地优先的 AI 图库管理系统：支持自动打标、CLIP 语义检索、以图搜图、标签与元数据组合过滤，并将图片和模型保留在本地环境中。
 
----
+## 核心能力
 
-## ✨ 核心功能
+- **多模态检索**：CLIP 文本/视觉向量配合 pgvector，实现自然语言搜图与以图搜图。
+- **自动化入库**：上传后自动计算 SHA-256、查重、解析尺寸、归档原图并生成缩略图。
+- **AI 自动标注**：Camie Tagger 识别标签，推理失败可追踪、可手动重试。
+- **组合筛选**：按标签、关键字、AI 状态、宽高、文件大小和排序条件检索。
+- **本地优先**：PostgreSQL、MinIO、Redis 和模型推理均由 Docker Compose 在本地编排。
 
-### 🔍 多模态语义搜索
-
-基于 CLIP 模型与 pgvector，打造本地优先的搜图体验：
-
-- **以图搜图**：基于 CLIP 视觉特征向量，实现高精度图像相似度匹配。
-- **语义搜索**：支持自然语言描述，通过 CLIP 文本向量直接检索图片向量，不依赖在线 LLM。
-- **混合检索**：融合向量相似度、标签精确匹配与元数据过滤，召回率与准确率兼备。
-- **高级过滤**：支持按分辨率、文件大小、宽高比等元数据进行多维度筛选。
-
-### 🤖 智能化流程
-
-全自动化的 AI 处理管线，无需人工干预：
-
-- **自动标注**：集成 Camie-Tagger v2，支持 70,000+ 标签识别，覆盖动漫与通用场景，准确率高。
-- **去重系统**：采用 SHA-256 算法，上传时自动检测并拦截重复图片。
-- **智能预处理**：自动提取 Exif/元数据，生成高质量缩略图，优化浏览体验。
-
-### ⚡ 高性能架构
-
-专为大规模图库设计，稳健可靠：
-
-- **技术栈**：Java 21 (Spring Boot 3.5) + Python 3.12 (FastAPI) + Vue 3。
-- **数据存储**：PostgreSQL (pgvector) 存向量，MinIO 存文件，Redis 做缓存。
-- **安全可靠**：JWT 无状态认证，Flyway 数据库版本控制。
-
-### 🎨 极致体验
-
-- **流畅浏览**：固定尺寸缩略图预生成，搜索接口只返回轻量列表数据。
-- **交互优化**：支持批量/拖拽上传，实时进度反馈，TanStack Query 智能缓存。
-- **深色模式**：精心调优的 UI，适应各种光照环境。
-
-### 🔒 离线与隐私
-
-- **本地优先**：Tagger 与 CLIP 模型完全本地运行，通过 `docker-compose.yml` 配置一键管理。
-- **离线语义检索**：语义搜索不调用在线 LLM，图片和检索向量都保留在本地服务内。
-
----
-
-## 🏗️ 系统架构
+## 架构概览
 
 ```mermaid
-graph TD
-    subgraph Client ["客户端"]
-        Browser["浏览器"]
-    end
+flowchart LR
+    User(("用户")) -->|"HTTP :80"| Front["Frontend<br/>Nginx + Vue 3"]
+    Front -->|"/api/*"| Web["Web Service<br/>Spring Boot / Java 21"]
+    Front -->|"/oss/*"| MinIO[("MinIO<br/>原图 + 缩略图")]
 
-    subgraph Frontend ["前端"]
-        Nginx["Nginx"]
-        VueApp["Vue 3 + Naive UI"]
-    end
-
-    subgraph Backend ["后端服务"]
-        WebService["Web Service<br/>(Spring Boot 3.5)"]
-        AIService["AI Service<br/>(FastAPI + CLIP)"]
-    end
-
-    subgraph Infrastructure ["基础设施"]
-        Postgres[("PostgreSQL<br/>(pgvector)")]
-        MinIO[("MinIO")]
-        Redis[("Redis")]
-        ModelCache["Model Cache<br/>(Hugging Face)"]
-    end
-
-    Browser -->|" :80 "| Nginx
-    Nginx -->|" 静态资源 "| VueApp
-    Nginx -->|" /api/* "| WebService
-    Nginx -->|" /oss/* "| MinIO
-    WebService <-->|" Internal API "| AIService
-    WebService <--> Postgres
-    WebService <--> MinIO
-    WebService <--> Redis
-    AIService <--> Postgres
-    AIService <--> MinIO
-    AIService --> ModelCache
+    Web -->|"业务数据 / pgvector"| PG[("PostgreSQL 16")]
+    Web -->|"上传队列 / 设置缓存"| Redis[("Redis")]
+    Web -->|"对象读写"| MinIO
+    Web -->|"内部推理 API"| AI["AI Service<br/>FastAPI + ONNX Runtime"]
+    AI -->|"读取原图"| MinIO
+    AI --> Cache[("模型缓存")]
+    AI -.->|"标签向量初始化"| PG
 ```
 
----
+Web Service 是业务入口；AI Service 只负责打标与向量推理。上传入库和 AI 后处理是两个异步阶段，因此模型加载或暂时不可用时，普通浏览、管理和非语义检索仍能工作。
 
-## 🚀 快速开始
+更完整的服务边界、上传时序与检索路径见[系统架构文档](docs/architecture.md)。
+
+## 快速开始
 
 ### 前置要求
 
-- **Docker & Docker Compose**
-- 使用 GPU 加速时需安装 **NVIDIA Driver** 与 **NVIDIA Container Toolkit**
+- Docker 与 Docker Compose
+- 默认 Compose 配置使用 GPU：需要 NVIDIA Driver 与 NVIDIA Container Toolkit
 
-### 配置
-
-默认环境变量已内置在根目录 `docker-compose.yml` 中，如需修改数据库/对象存储/Redis 账号密码与端口，请直接编辑该文件。
-
-### 启动服务
-
-#### 方式 A：一键部署（推荐）
+### 启动
 
 ```bash
-docker-compose up -d
+docker compose up -d --build
+docker compose ps
 ```
 
-- 首次启动会自动下载 AI 模型并计算标签向量（约需几分钟）
-- 访问 `http://localhost` 即可使用
+浏览器访问 `http://localhost`。首次运行需要下载 AI 模型，`backend-ai-service` 的 `/health` 会先返回 `loading`，模型全部加载后变为 `ok`。
 
-#### 方式 B：开发模式
+> 根目录 Compose 包含演示用默认密码，且将 MinIO bucket 配置为匿名可读。对外部署前请先阅读[部署指南](docs/deployment.md)并更换凭据。
 
-仅启动基础设施，业务代码本地运行：
+### 本地开发
+
+先启动基础设施：
 
 ```bash
-# 1. 启动基础设施
-docker-compose up -d db minio redis minio-createbuckets
+docker compose up -d db minio redis minio-createbuckets
+```
 
-# 2. Web Service (Java)
+分别运行三个应用：
+
+```bash
+# Web Service（需配置 application.yml 引用的环境变量）
 cd backend/web_service
-./mvnw spring-boot:run
+mvn spring-boot:run
+```
 
-# 3. AI Service (Python)
+```bash
+# AI Service（需配置 PostgreSQL、MinIO 与模型缓存环境变量）
 cd backend/ai_service
 pip install -r requirements.txt
 uvicorn app.main:app --reload
-
-# 4. Frontend
-cd frontend
-pnpm install && pnpm dev
 ```
 
-开发模式访问 `http://localhost:5173`
+```bash
+# Frontend
+cd frontend
+pnpm install
+pnpm dev
+```
 
----
+前端开发地址默认是 `http://localhost:5173`，Vite 会把 `/api` 和 `/oss` 分别代理到本地 Web Service 与 MinIO。
 
-## 🛠️ 配置说明
+## 目录结构
 
-所有配置通过根目录 `docker-compose.yml` 管理，主要环境变量：
+```text
+bakabooru/
+├── backend/
+│   ├── web_service/       # Spring Boot 业务 API、队列和持久化
+│   └── ai_service/        # FastAPI 模型推理
+├── frontend/              # Vue 3 + TypeScript
+├── docs/                  # 架构、模块、部署和运维文档
+├── data/                  # Compose 持久化数据（本地生成）
+└── docker-compose.yml     # 完整本地编排
+```
+
+## 常用配置
 
 | 变量 | 默认值 | 说明 |
-|------|--------|------|
-| `THUMBNAIL_MAX_SIZE` | `1024` | 缩略图最大边长 (px) |
-| `THUMBNAIL_QUALITY` | `0.85` | 缩略图压缩质量 |
+| --- | --- | --- |
+| `THUMBNAIL_MAX_SIZE` | `1024` | 缩略图最大边长，像素 |
+| `THUMBNAIL_QUALITY` | `0.85` | 缩略图输出质量 |
 | `THUMBNAIL_FORMAT` | `jpg` | 缩略图格式 |
-| `AI_CONCURRENCY` | `10` | AI 后处理并发数 |
+| `AI_CONCURRENCY` | `10` | Web Service AI 后处理线程数 |
+| `MODEL_CACHE_DIR` | `/model_cache` | AI 容器内模型缓存路径 |
+| `AI_SERVICE_URL` | `http://backend-ai-service:8000` | Web 到 AI 的内部地址 |
 
-完整配置项请参考 [部署文档](docs/deployment.md)。AI 模型首次下载后存储在 `data/model_cache`，支持离线运行。
+数据库、Redis、MinIO、GPU/CPU 和全部配置说明见[部署指南](docs/deployment.md)。
 
----
-
-## 📚 文档
+## 文档
 
 | 文档 | 内容 |
-|------|------|
-| [系统架构](docs/architecture.md) | 整体架构、服务边界、数据流 |
-| [Web Service](docs/backend-web-service.md) | Spring Boot 模块、搜索、上传、AI 后处理 |
-| [AI Service](docs/ai-service.md) | FastAPI、CLIP、Tagger、模型懒加载 |
-| [前端](docs/frontend.md) | 页面结构、API 类型、搜索/详情交互 |
-| [部署指南](docs/deployment.md) | Docker Compose、环境变量、启动顺序 |
-| [运维手册](docs/operations.md) | 缩略图 backfill、AI 状态、手动重试、故障排查 |
-| [数据模型](docs/data-model.md) | 核心表、向量、索引、状态字段 |
-
----
-
-## 📄 开源协议
-
-MIT License
+| --- | --- |
+| [文档导航](docs/README.md) | 推荐阅读路径与术语约定 |
+| [系统架构](docs/architecture.md) | 服务边界、上传/检索数据流与可用性 |
+| [Web Service](docs/backend-web-service.md) | Java 模块、API、上传队列、AI 状态机 |
+| [AI Service](docs/ai-service.md) | 模型、推理接口、加载生命周期和数据边界 |
+| [前端](docs/frontend.md) | 页面、路由、状态管理与交互流程 |
+| [数据模型](docs/data-model.md) | ER 图、向量字段、对象映射与索引 |
+| [部署指南](docs/deployment.md) | Compose 依赖、端口、卷和环境变量 |
+| [运维手册](docs/operations.md) | 健康检查、失败恢复、backfill 与备份 |

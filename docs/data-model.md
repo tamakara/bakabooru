@@ -1,53 +1,123 @@
-# Data Model
+# 数据模型
 
-## images
+PostgreSQL 16 与 pgvector 保存业务元数据、运行时设置和两类向量。结构由 Flyway migration 管理，Hibernate 仅校验映射。
 
-保存图片元数据和 CLIP 图像向量。
+## 实体关系
 
-关键字段：
+```mermaid
+erDiagram
+    IMAGES ||--o{ IMAGE_TAG_RELATION : "拥有"
+    TAGS ||--o{ IMAGE_TAG_RELATION : "被关联"
 
-- `id`: 图片 ID。
-- `file_name`: 原始文件名。
-- `hash`: SHA-256，作为对象存储主键。
-- `embedding`: `vector(512)`，图像 CLIP embedding。
-- `ai_status`: `PENDING`、`PROCESSING`、`READY`。
-- `ai_error`: 最近一次 AI 处理错误。
-- `ai_attempted_at`: 最近一次开始 AI 处理时间。
-- `ai_completed_at`: 最近一次完成 AI 处理时间。
+    IMAGES {
+        bigint id PK
+        text file_name
+        text extension
+        bigint size
+        integer width
+        integer height
+        text title
+        text hash UK
+        bigint view_count
+        timestamp created_at
+        timestamp updated_at
+        vector_512 embedding
+        text ai_status
+        text ai_error
+        timestamp ai_attempted_at
+        timestamp ai_completed_at
+    }
 
-对象路径：
+    TAGS {
+        bigint id PK
+        text name UK
+        text type
+        vector_384 embedding
+    }
 
-- 原图：`original/{hash}`
-- 缩略图：`thumbnail/{maxSize}/{hash}.{format}`
+    IMAGE_TAG_RELATION {
+        bigint id PK
+        bigint image_id FK
+        bigint tag_id FK
+        double score
+    }
 
-## tags
+    SYSTEM_SETTINGS {
+        text setting_key PK
+        text setting_value
+    }
+```
 
-保存标签字典。
+`system_settings` 与其他表没有外键关系；它保存少量可在 UI 修改的运行时设置。
 
-关键字段：
+## 表说明
 
-- `name`: 标签名。
-- `type`: 标签类型。
-- `embedding`: `vector(384)`，用于标签语义匹配或扩展能力。
+### `images`
 
-## image_tag_relation
+`hash` 是文件内容的 SHA-256，同时用于查重和构造对象存储路径。`embedding` 是归一化的 CLIP 图像向量，维度为 `512`；为空的图片不能参与语义或相似度检索。
 
-保存图片和标签的多对多关系。
+AI 字段含义：
 
-关键字段：
+| 字段 | 含义 |
+| --- | --- |
+| `ai_status` | `PENDING`、`PROCESSING` 或 `READY` |
+| `ai_error` | 最近一次后处理错误；成功或重新开始时清空 |
+| `ai_attempted_at` | 最近一次进入处理的时间 |
+| `ai_completed_at` | 最近一次成功完成的时间 |
 
-- `image_id`
-- `tag_id`
-- `score`: AI 置信度或手动标签分数。
+### `tags`
 
-## system_settings
+`name` 全局唯一，`type` 表示标签类别。`embedding` 是 `all-MiniLM-L6-v2` 生成的 `384` 维文本向量，用于标签语义匹配/扩展，不等同于图片的 CLIP 向量。
 
-保存少量运行时设置，例如上传轮询间隔和标签阈值。缩略图尺寸不放在这里，改由配置文件和环境变量控制。
+### `image_tag_relation`
+
+图片与标签的多对多关联，`(image_id, tag_id)` 唯一。`score` 对 AI 标签表示置信度；手工添加标签也通过同一关系表保存。
+
+### `system_settings`
+
+当前 migration 提供的主要键包括：
+
+| 键 | 默认值 | 用途 |
+| --- | --- | --- |
+| `system.auth-initialized` | `false` | 是否完成首次认证初始化 |
+| `system.auth-password` | 空 | Base64 编码的当前密码 |
+| `upload.poll-interval` | `1000` | 前端上传任务轮询间隔，毫秒 |
+| `tag.threshold` | `0.61` | AI 自动打标阈值 |
+
+这些值以数据库为事实来源，并缓存到 Redis `system:settings`。缩略图规格由环境变量配置，不存于此表。
+
+## 对象存储映射
+
+```mermaid
+flowchart LR
+    Row["images.hash"] --> Original["images/original/{hash}"]
+    Row --> Thumb["images/thumbnail/{maxSize}/{hash}.{format}"]
+    Config["THUMBNAIL_MAX_SIZE<br/>THUMBNAIL_FORMAT"] --> Thumb
+```
+
+`images` 是 Compose 创建的 bucket。数据库删除与对象清理由 Web Service 编排；数据库只保存 hash 和原始扩展名，不保存二进制内容。
 
 ## 索引
 
-- `idx_images_embedding`: pgvector HNSW 图像向量索引。
-- `idx_images_ai_status`: AI 状态过滤。
-- `idx_image_tag_relation_tag_image`: 标签过滤。
-- `idx_images_created_at`: 默认排序。
-- `idx_images_size`、`idx_images_dimensions`: 元数据过滤。
+| 索引 | 目的 |
+| --- | --- |
+| `idx_images_embedding` | HNSW + cosine，CLIP 相似度检索 |
+| `idx_tags_embedding` | HNSW + cosine，标签语义向量检索 |
+| `idx_tags_name_lower_btree` | 不区分大小写的标签前缀查询 |
+| `idx_image_tag_relation_tag_image` | 按标签筛图片 |
+| `idx_images_ai_status` | AI 状态筛选 |
+| `idx_images_created_at` | 默认时间排序 |
+| `idx_images_size` | 文件大小过滤 |
+| `idx_images_dimensions` | 宽高过滤 |
+
+## 迁移策略
+
+```mermaid
+flowchart LR
+    V1["V1 基础表 + pgvector"] --> V2["V2 初始设置"]
+    V2 --> V3["V3 标签字典"]
+    V3 --> V4["V4 搜索索引 + ai_status"]
+    V4 --> V5["V5 AI 错误与时间字段"]
+```
+
+新增字段、约束或索引时应追加新的版本化 SQL，不要修改已在环境中执行过的 migration。

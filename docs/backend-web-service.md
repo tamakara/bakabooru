@@ -1,50 +1,103 @@
-# Backend Web Service
+# Web Service
 
-Web Service 是业务核心，位于 `backend/web_service`，使用 Spring Boot 3、JPA、JdbcTemplate、Redis、MinIO 和 Flyway。
+Web Service 位于 `backend/web_service`，是系统的业务核心和对外 API 边界。它使用 Java 21、Spring Boot 3.5、JPA/JdbcTemplate、Flyway、Redis 与 MinIO，并通过内部 HTTP 调用 AI Service。
 
-## 模块职责
+## 模块结构
 
-- gallery: 上传任务、搜索入口、控制器。
-- image: 图片实体、DTO、URL、搜索、缩略图、详情。
-- tag: 标签字典、标签查询、图片标签关联。
-- ai: AI Service 客户端、CLIP embedding 调用、AI 后处理调度。
-- system: 系统设置与 Redis 缓存。
+```mermaid
+flowchart TB
+    Controller["gallery.controller<br/>HTTP API"] --> Gallery["gallery.service<br/>搜索与上传任务"]
+    Controller --> Image["image.service<br/>图片、URL、缩略图"]
+    Controller --> Tag["tag.service<br/>标签与关系"]
+    Controller --> System["system.service<br/>鉴权与设置"]
+    Gallery --> Image
+    Gallery --> AI["ai.service<br/>推理客户端与后处理"]
+    AI --> Tag
+    AI --> Image
 
-## 上传流程
+    Image --> PG[("PostgreSQL")]
+    Tag --> PG
+    System --> PG
+    Image --> MinIO[("MinIO")]
+    Gallery --> Redis[("Redis")]
+    System --> Redis
+    AI --> FastAPI["AI Service"]
+```
 
-上传任务只负责业务入库：
+| 包 | 主要职责 |
+| --- | --- |
+| `module.gallery` | API 控制器、搜索编排、上传任务与 Redis 队列 |
+| `module.image` | 图片实体/DTO、搜索 SQL、对象 URL、缩略图与文件存储 |
+| `module.tag` | 标签字典、标签查询、图片标签关系 |
+| `module.ai` | AI HTTP 客户端、图像 embedding、异步后处理 |
+| `module.system` | 首次初始化、JWT 校验、设置持久化与 Redis 缓存 |
+| `config` | Web 拦截器、线程池、Redis、MinIO 与属性绑定 |
 
-1. 保存临时文件。
-2. 计算 SHA-256 hash 并查重。
-3. 解析图片尺寸和格式。
-4. 上传 `original/{hash}`。
-5. 按 `app.thumbnail` 生成并上传 `thumbnail/{maxSize}/{hash}.{format}`。
-6. 图片以 `PENDING` 状态入库。
-7. 调用 `AiProcessingService` 异步开始 AI 后处理。
+## HTTP API
 
-## AI 后处理
+所有业务接口都以 `/api` 开头；除认证白名单外，请求由 `AuthInterceptor` 校验 `Authorization: Bearer <token>`。
 
-AI 后处理通过独立线程池 `aiExecutor` 执行，与上传线程分离。并发数由 `AI_CONCURRENCY` 环境变量控制，默认 `10`。
+| 资源 | 代表性接口 | 用途 |
+| --- | --- | --- |
+| 认证 | `GET /api/auth/status`、`POST /api/auth/setup`、`POST /api/auth/login` | 首次初始化、登录与令牌签发 |
+| 搜索 | `POST /api/search`、`POST /api/search/image` | 条件/语义检索、以图搜图 |
+| 图片 | `GET/PUT/DELETE /api/images/{id}` | 详情、编辑、删除 |
+| 图片标签 | `POST/DELETE /api/images/{id}/tags/{tagId}` | 手工维护标签 |
+| AI 管理 | `POST /api/images/{id}/ai/retry`、`POST /api/images/ai/enqueue-all` | 单图重试、批量入队 |
+| 批量操作 | `POST /api/images/batch/delete`、`POST /api/images/batch/download` | 批量删除、ZIP 下载 |
+| 上传 | `POST /api/upload`、`GET/POST/DELETE /api/upload/tasks` | 创建、查看、重试、清理上传任务 |
+| 标签/设置 | `GET /api/tags`、`GET/POST /api/system/settings` | 标签检索与运行时设置 |
 
-状态流转：
+开发环境可通过 Springdoc 页面查看由控制器注解生成的完整接口定义：`/swagger-ui/index.html`。
 
-- `PENDING`: 已入库但未完成 AI 计算，或上次计算失败。
-- `PROCESSING`: 正在打标和计算 CLIP。
-- `READY`: 标签和 embedding 已写入。
+## 上传任务
 
-失败策略：
+```mermaid
+flowchart TD
+    Upload["接收 multipart 文件"] --> Temp["写入系统临时文件"]
+    Temp --> Queue["Redis: upload:task:queue"]
+    Queue --> Worker["单线程消费者"]
+    Worker --> Hash["计算 SHA-256 并查重"]
+    Hash --> Meta["解析格式、宽高；拒绝动图"]
+    Meta --> Objects["写原图和缩略图"]
+    Objects --> Insert["图片元数据入库<br/>PENDING"]
+    Insert --> Async["触发 AI 后处理"]
+    Worker -->|"异常"| Failed["Redis: upload:task:failed"]
+    Failed -->|"手动重试"| Queue
+```
 
-- 失败后不自动重试。
-- 状态回到 `PENDING`。
-- 错误写入 `aiError`。
-- 详情页可手动触发重试。
+任务数据键为 `upload:task:data:{id}`，有效期为 3 天。待处理与失败任务存 Redis List；当前运行中的任务保存在 Web Service 进程内。文件成功入库后任务数据会删除，临时文件在处理结束时清理。
 
-## 搜索
+## AI 后处理状态机
 
-搜索由 native SQL/JdbcTemplate 执行：
+```mermaid
+stateDiagram-v2
+    [*] --> PENDING: 图片元数据入库
+    PENDING --> PROCESSING: requestProcessing
+    PROCESSING --> READY: 标签和 embedding 写入成功
+    PROCESSING --> PENDING: 推理或写入失败 / 记录 ai_error
+    PENDING --> PROCESSING: 详情页手动重试
+    PENDING --> PROCESSING: 启动扫描或批量入队 / 仅无错误项
+    PROCESSING --> PENDING: Web Service 重启恢复
+```
 
-- 使用 `LIMIT size + 1` 判断 `hasNext`。
-- 不返回精确总数。
-- 支持标签、关键字、尺寸、文件大小、AI 状态过滤。
-- 语义搜索使用 CLIP 文本 embedding 和 pgvector 距离排序。
-- 搜索结果只拼 URL，不访问 MinIO 检查文件，也不生成缩略图。
+- `aiExecutor` 与上传消费者分离，并发数由 `AI_CONCURRENCY` 控制，默认 `10`。
+- 打标阈值来自运行时设置 `tag.threshold`。
+- 完成阶段在事务中写入图像 `vector(512)`、新标签关系与时间戳。
+- 失败后不会无限自动重试：状态回到 `PENDING`，错误写入 `ai_error`；启动扫描和批量入队会跳过仍有错误的记录。
+
+## 搜索实现
+
+`SearchService` 负责选择检索路径，`ImageSearchService` 使用 JdbcTemplate/native SQL 完成过滤和排序。
+
+- 条件检索支持标签、关键字、AI 状态、宽高、文件大小、排序和随机种子。
+- `semanticQuery` 先调用 AI Service 生成 CLIP 文本向量，再用 pgvector 距离排序。
+- 以图搜图把 multipart 文件直接转发给 AI Service 生成视觉向量，不创建临时 MinIO 对象。
+- 查询使用 `LIMIT size + 1` 计算 `hasNext`，响应不包含精确总数。
+- 列表 DTO 只包含展示所需字段和可推导的 MinIO URL，降低对象存储访问次数。
+
+## 配置与持久化
+
+Flyway 在启动时执行 `src/main/resources/db/migration`。Hibernate 使用 `ddl-auto: validate`，因此表结构变更应新增 migration，而不是依赖实体自动改表。
+
+运行时设置保存在 `system_settings`，并缓存于 Redis Hash `system:settings`。缩略图规格和 AI 线程池大小属于部署配置，来自 `application.yml` 对应的环境变量，不属于运行时设置。
