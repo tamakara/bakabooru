@@ -96,12 +96,12 @@ docker compose up -d db minio redis minio-createbuckets
 再分别运行服务，并提供与 `application.yml`/`settings.py` 对应的环境变量：
 
 ```bash
-cd backend/web_service
+cd web-service
 mvn spring-boot:run
 ```
 
 ```bash
-cd backend/ai_service
+cd ai-service
 pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```

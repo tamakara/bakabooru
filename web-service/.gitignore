@@ -1,0 +1,13 @@
+# Maven output
+target/
+
+# Frontend assets copied into the application during local builds
+src/main/resources/static/
+
+# Java tooling
+.classpath
+.project
+.settings/
+
+# Logs
+*.log

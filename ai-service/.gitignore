@@ -1,0 +1,21 @@
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+
+# Build output
+build/
+dist/
+*.egg-info/
+
+# Models and local runtime data
+model_cache/
+
+# Logs
+*.log

@@ -80,7 +80,7 @@ services:
   # 4. AI计算：AI Service (Python FastAPI)
   # ===================================================
   backend-ai-service:
-    build: ./backend/ai_service
+    build: ./ai-service
     container_name: bakabooru_backend_ai_service
     restart: always
     gpus: all
@@ -121,7 +121,7 @@ services:
   # 5. 核心业务：Web Service (Java Spring Boot)
   # ===================================================
   backend-web-service:
-    build: ./backend/web_service
+    build: ./web-service
     container_name: bakabooru_backend_web_service
     restart: always
     environment:

@@ -1,0 +1,15 @@
+# Dependencies
+node_modules/
+node/
+
+# Build and tooling output
+dist/
+.vite/
+coverage/
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*

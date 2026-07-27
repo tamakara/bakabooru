@@ -29,10 +29,10 @@ jobs:
     - name: Build backend image
       uses: docker/build-push-action@v6
       with:
-        context: ./backend
+        context: ./web-service
         push: true
         tags: |
-          ${{ secrets.DOCKER_USERNAME }}/bakabooru-backend:latest
+          ${{ secrets.DOCKER_USERNAME }}/bakabooru-web:latest
 
     - name: Build ai image
       uses: docker/build-push-action@v6

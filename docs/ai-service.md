@@ -1,6 +1,6 @@
 # AI Service
 
-AI Service 位于 `backend/ai_service`，使用 FastAPI 与 ONNX Runtime。它提供模型推理能力，不维护图片的业务状态；Web Service 负责调用、事务和失败恢复。
+AI Service 位于根目录的 `ai-service`，使用 FastAPI 与 ONNX Runtime。它提供模型推理能力，不维护图片的业务状态；Web Service 负责调用、事务和失败恢复。
 
 ## 内部结构
 

@@ -1,6 +1,6 @@
 # Web Service
 
-Web Service 位于 `backend/web_service`，是系统的业务核心和对外 API 边界。它使用 Java 21、Spring Boot 3.5、JPA/JdbcTemplate、Flyway、Redis 与 MinIO，并通过内部 HTTP 调用 AI Service。
+Web Service 位于根目录的 `web-service`，是系统的业务核心和对外 API 边界。它使用 Java 21、Spring Boot 3.5、JPA/JdbcTemplate、Flyway、Redis 与 MinIO，并通过内部 HTTP 调用 AI Service。
 
 ## 模块结构
 

@@ -29,7 +29,7 @@ flowchart LR
 
 ## 文档约定
 
-- “Web Service”指 `backend/web_service` 中的 Spring Boot 服务。
-- “AI Service”指 `backend/ai_service` 中的 FastAPI 服务。
+- “Web Service”指根目录 `web-service` 中的 Spring Boot 服务。
+- “AI Service”指根目录 `ai-service` 中的 FastAPI 服务。
 - “上传任务”指 Redis 中负责文件入库的任务；“AI 后处理”指图片入库后的打标与 CLIP 向量计算，两者是独立阶段。
 - 配置默认值以根目录 `docker-compose.yml` 和各服务配置文件为准；文档用于解释含义和依赖关系。

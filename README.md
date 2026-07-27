@@ -68,13 +68,13 @@ docker compose up -d db minio redis minio-createbuckets
 
 ```bash
 # Web Service（需配置 application.yml 引用的环境变量）
-cd backend/web_service
+cd web-service
 mvn spring-boot:run
 ```
 
 ```bash
 # AI Service（需配置 PostgreSQL、MinIO 与模型缓存环境变量）
-cd backend/ai_service
+cd ai-service
 pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
@@ -92,9 +92,8 @@ pnpm dev
 
 ```text
 bakabooru/
-├── backend/
-│   ├── web_service/       # Spring Boot 业务 API、队列和持久化
-│   └── ai_service/        # FastAPI 模型推理
+├── web-service/           # Spring Boot 业务 API、队列和持久化
+├── ai-service/            # FastAPI 模型推理
 ├── frontend/              # Vue 3 + TypeScript
 ├── docs/                  # 架构、模块、部署和运维文档
 ├── data/                  # Compose 持久化数据（本地生成）
