@@ -12,6 +12,7 @@ dependencies = [
     "pillow",
     "pydantic",
     "pydantic-settings",
+    "prometheus-client>=0.26,<1",
     "python-multipart",
     "transformers",
     "uvicorn",

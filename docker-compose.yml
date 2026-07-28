@@ -60,8 +60,7 @@ services:
   # 3. AI计算：AI Service (Python FastAPI)
   # ===================================================
   ai-service:
-    image: tamakara/bakabooru-ai:latest
-    pull_policy: always
+    build: ./ai-service
     container_name: bakabooru-ai-service
     restart: always
     gpus: all
@@ -95,8 +94,7 @@ services:
   # 4. 核心业务：Web Service (Java Spring Boot)
   # ===================================================
   web-service:
-    image: tamakara/bakabooru-web:latest
-    pull_policy: always
+    build: ./web-service
     container_name: bakabooru-web-service
     restart: always
     environment:
@@ -143,8 +141,7 @@ services:
   # 5. 交互界面：Frontend (Nginx)
   # ===================================================
   frontend:
-    image: tamakara/bakabooru-frontend:latest
-    pull_policy: always
+    build: ./frontend
     container_name: bakabooru-frontend
     restart: always
     ports: ["80:80"]
@@ -160,9 +157,22 @@ services:
     image: prom/prometheus:latest
     container_name: bakabooru-prometheus
     volumes:
-      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     ports:
       - "9090:9090"
+    networks: [bakabooru-net]
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: bakabooru-grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    networks: [bakabooru-net]
+    depends_on:
+      - prometheus
     restart: unless-stopped
 
 networks:

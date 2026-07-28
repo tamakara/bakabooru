@@ -73,6 +73,16 @@ def test_versioned_embedding_routes_exist():
     assert "/v1/embeddings/image-file" in paths
 
 
+def test_metrics_endpoint_exposes_http_metrics():
+    client.get("/health")
+
+    response = client.get("/metrics")
+
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("text/plain")
+    assert "bakabooru_ai_http_requests_total" in response.text
+
+
 def test_service_has_no_database_or_minilm_state():
     assert not any(name.startswith("DB_") for name in type(settings).model_fields)
     assert not hasattr(model_manager, "_embeddings")
