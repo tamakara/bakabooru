@@ -10,6 +10,7 @@ import com.tamakara.bakabooru.module.image.entity.Image;
 import com.tamakara.bakabooru.module.image.repository.ImageRepository;
 import com.tamakara.bakabooru.module.system.service.SystemSettingService;
 import com.tamakara.bakabooru.module.tag.service.TagService;
+import com.tamakara.bakabooru.monitoring.BusinessMetrics;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,6 +46,7 @@ class AiJobWorkerTest {
     @Mock private TagService tagService;
     @Mock private SystemSettingService systemSettingService;
     @Mock private TransactionTemplate transactionTemplate;
+    @Mock private BusinessMetrics metrics;
 
     private AiJobProperties properties;
     private AiJobWorker worker;
@@ -57,7 +59,7 @@ class AiJobWorkerTest {
         properties.setRetryBaseDelay(Duration.ofSeconds(30));
         properties.setRetryMaxDelay(Duration.ofMinutes(30));
         worker = new AiJobWorker(aiJobRepository, imageRepository, aiServiceClient, tagService,
-                systemSettingService, properties, transactionTemplate);
+                systemSettingService, properties, transactionTemplate, metrics);
         when(transactionTemplate.execute(any())).thenAnswer(invocation ->
                 ((TransactionCallback<Object>) invocation.getArgument(0)).doInTransaction(null));
         doAnswer(invocation -> {
@@ -121,6 +123,7 @@ class AiJobWorkerTest {
         job.setStatus(AiJobStatus.RUNNING);
         job.setAttempts(attempts);
         job.setLockedBy(lockedBy);
+        job.setCreatedAt(Instant.now().minusSeconds(10));
         return job;
     }
 

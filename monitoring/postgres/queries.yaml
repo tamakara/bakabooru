@@ -1,0 +1,22 @@
+pg_total_relation_size:
+  query: |
+    SELECT current_database() AS datname,
+           schemaname,
+           relname,
+           pg_total_relation_size(relid) AS bytes
+    FROM pg_catalog.pg_statio_user_tables
+  master: true
+  metrics:
+    - datname: { usage: "LABEL", description: "Database name" }
+    - schemaname: { usage: "LABEL", description: "Schema name" }
+    - relname: { usage: "LABEL", description: "Relation name" }
+    - bytes: { usage: "GAUGE", description: "Total relation size including indexes and TOAST" }
+
+pg_vector_extension:
+  query: |
+    SELECT current_database() AS datname,
+           CASE WHEN EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'vector') THEN 1 ELSE 0 END AS installed
+  master: true
+  metrics:
+    - datname: { usage: "LABEL", description: "Database name" }
+    - installed: { usage: "GAUGE", description: "Whether pgvector is installed" }

@@ -12,6 +12,8 @@ import java.util.Optional;
 
 public interface AiJobRepository extends JpaRepository<AiJob, Long> {
 
+    long countByStatus(AiJobStatus status);
+
     Optional<AiJob> findByImageId(Long imageId);
 
     @Query(value = """

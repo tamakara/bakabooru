@@ -8,7 +8,7 @@ dependencies = [
     "huggingface-hub",
     "minio",
     "numpy",
-    "onnxruntime-gpu",
+    "onnxruntime-gpu>=1.22,<1.23",
     "pillow",
     "pydantic",
     "pydantic-settings",

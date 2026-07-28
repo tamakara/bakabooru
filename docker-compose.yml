@@ -20,6 +20,38 @@ services:
       timeout: 5s
       retries: 5
 
+  postgres-monitoring-init:
+    image: pgvector/pgvector:pg16
+    restart: "no"
+    environment:
+      PGHOST: db
+      PGPORT: 5432
+      PGDATABASE: bakabooru
+      PGUSER: db_user
+      PGPASSWORD: db_password
+      POSTGRES_EXPORTER_PASSWORD: ${POSTGRES_EXPORTER_PASSWORD:-prometheus_password}
+    volumes:
+      - ./monitoring/postgres/init-monitoring.sh:/usr/local/bin/init-monitoring.sh:ro
+    entrypoint: ["/bin/sh", "/usr/local/bin/init-monitoring.sh"]
+    networks: [bakabooru-net]
+    depends_on:
+      db:
+        condition: service_healthy
+
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:latest
+    container_name: bakabooru-postgres-exporter
+    restart: unless-stopped
+    environment:
+      DATA_SOURCE_NAME: postgresql://prometheus:${POSTGRES_EXPORTER_PASSWORD:-prometheus_password}@db:5432/bakabooru?sslmode=disable
+    command: ["--extend.query-path=/etc/postgres_exporter/queries.yaml"]
+    volumes:
+      - ./monitoring/postgres/queries.yaml:/etc/postgres_exporter/queries.yaml:ro
+    networks: [bakabooru-net]
+    depends_on:
+      postgres-monitoring-init:
+        condition: service_completed_successfully
+
   # ===================================================
   # 2. 基础设施：MinIO
   # ===================================================
@@ -31,6 +63,7 @@ services:
     environment:
       MINIO_ROOT_USER: minio_user
       MINIO_ROOT_PASSWORD: minio_password
+      MINIO_PROMETHEUS_AUTH_TYPE: public
     ports: ["9000:9000", "9001:9001"]
     volumes:
       - ./data/minio:/data
@@ -158,10 +191,22 @@ services:
     container_name: bakabooru-prometheus
     volumes:
       - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/prometheus/rules:/etc/prometheus/rules:ro
+      - prometheus-data:/prometheus
     ports:
       - "9090:9090"
     networks: [bakabooru-net]
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9090/-/ready"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      postgres-exporter:
+        condition: service_started
+      minio:
+        condition: service_healthy
 
   grafana:
     image: grafana/grafana:latest
@@ -170,11 +215,23 @@ services:
       - "3000:3000"
     volumes:
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
     networks: [bakabooru-net]
     depends_on:
-      - prometheus
+      prometheus:
+        condition: service_healthy
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider -q http://localhost:3000/api/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
 
 networks:
   bakabooru-net:
     driver: bridge
+
+volumes:
+  prometheus-data:
+  grafana-data:

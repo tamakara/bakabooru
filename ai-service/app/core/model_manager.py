@@ -4,6 +4,7 @@ import time
 from typing import Any, Optional
 
 import numpy as np
+from app.monitoring import record_model_load
 
 from app.core.settings import get_default_device, settings
 
@@ -62,9 +63,11 @@ class ModelManager:
                 self._load_clip()
                 self._ready = True
                 elapsed = time.time() - start
+                record_model_load("success", elapsed)
                 print(f"所有模型预加载完成，耗时 {elapsed:.1f}s")
             except Exception as e:
                 elapsed = time.time() - start
+                record_model_load("failed", elapsed)
                 print(f"模型预加载失败（耗时 {elapsed:.1f}s）: {e}")
                 import traceback
                 traceback.print_exc()

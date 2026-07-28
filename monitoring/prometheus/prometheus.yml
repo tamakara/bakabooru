@@ -2,20 +2,58 @@ global:
   scrape_interval: 15s
   evaluation_interval: 15s
 
+rule_files:
+  - /etc/prometheus/rules/*.yml
+
 scrape_configs:
   - job_name: prometheus
     static_configs:
       - targets:
           - localhost:9090
+        labels:
+          service: prometheus
+          component: monitoring
 
   - job_name: web-service
     metrics_path: /actuator/prometheus
     static_configs:
       - targets:
           - web-service:8080
+        labels:
+          service: web-service
+          component: application
 
   - job_name: ai-service
     metrics_path: /metrics
     static_configs:
       - targets:
           - ai-service:8000
+        labels:
+          service: ai-service
+          component: application
+
+  - job_name: postgres
+    static_configs:
+      - targets:
+          - postgres-exporter:9187
+        labels:
+          service: postgresql
+          component: database
+
+  - job_name: minio-cluster
+    metrics_path: /minio/v2/metrics/cluster
+    static_configs:
+      - targets:
+          - minio:9000
+        labels:
+          service: minio
+          component: object-storage
+
+  - job_name: minio-bucket
+    metrics_path: /minio/v2/metrics/bucket
+    static_configs:
+      - targets:
+          - minio:9000
+        labels:
+          service: minio
+          component: object-storage

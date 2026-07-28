@@ -8,6 +8,7 @@ import com.tamakara.bakabooru.module.gallery.dto.SearchResultDto;
 import com.tamakara.bakabooru.module.image.dto.ImageThumbnailDto;
 import com.tamakara.bakabooru.module.image.dto.SearchDto;
 import com.tamakara.bakabooru.module.image.service.ImageSearchService;
+import com.tamakara.bakabooru.monitoring.BusinessMetrics;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,9 +28,23 @@ public class SearchService {
     private final ImageSearchService imageSearchService;
     private final ParseQueryService parseQueryService;
     private final EmbeddingService embeddingService;
+    private final BusinessMetrics metrics;
 
     @Transactional(readOnly = true)
     public SearchResultDto<ImageThumbnailDto> search(SearchRequestDto request) {
+        long startedAt = System.nanoTime();
+        String type = StringUtils.hasText(request.getSemanticQuery()) ? "semantic" : "normal";
+        try {
+            SearchResultDto<ImageThumbnailDto> result = doSearch(request);
+            metrics.search(type, "success", System.nanoTime() - startedAt);
+            return result;
+        } catch (RuntimeException error) {
+            metrics.search(type, "failed", System.nanoTime() - startedAt);
+            throw error;
+        }
+    }
+
+    private SearchResultDto<ImageThumbnailDto> doSearch(SearchRequestDto request) {
         validateRequest(request);
 
         SearchDto searchDto = new SearchDto();
@@ -65,6 +80,18 @@ public class SearchService {
     }
 
     public SearchResultDto<ImageThumbnailDto> searchByImage(MultipartFile file, Double threshold, Integer page, Integer size) {
+        long startedAt = System.nanoTime();
+        try {
+            SearchResultDto<ImageThumbnailDto> result = doSearchByImage(file, threshold, page, size);
+            metrics.search("image", "success", System.nanoTime() - startedAt);
+            return result;
+        } catch (RuntimeException error) {
+            metrics.search("image", "failed", System.nanoTime() - startedAt);
+            throw error;
+        }
+    }
+
+    private SearchResultDto<ImageThumbnailDto> doSearchByImage(MultipartFile file, Double threshold, Integer page, Integer size) {
         double[] embedding = embeddingService.generateImageEmbedding(file);
 
         SearchDto searchDto = new SearchDto();

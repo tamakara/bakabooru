@@ -12,6 +12,7 @@ import com.tamakara.bakabooru.module.image.repository.ImageRepository;
 import com.tamakara.bakabooru.module.system.service.SystemSettingService;
 import com.tamakara.bakabooru.module.tag.entity.Tag;
 import com.tamakara.bakabooru.module.tag.service.TagService;
+import com.tamakara.bakabooru.monitoring.BusinessMetrics;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -37,6 +38,7 @@ public class AiJobWorker {
     private final SystemSettingService systemSettingService;
     private final AiJobProperties properties;
     private final TransactionTemplate transactionTemplate;
+    private final BusinessMetrics metrics;
 
     private final String workerId = UUID.randomUUID().toString();
 
@@ -137,6 +139,7 @@ public class AiJobWorker {
         job.setCompletedAt(now);
         imageRepository.save(image);
         aiJobRepository.save(job);
+        metrics.aiProcessed("success", job.getAttempts(), Duration.between(job.getCreatedAt(), now));
     }
 
     void markFailure(Long jobId, Exception error) {
@@ -159,12 +162,14 @@ public class AiJobWorker {
                 image.setAiStatus(AiJobService.IMAGE_FAILED);
                 image.setAiError(message);
                 image.setAiCompletedAt(now);
+                metrics.aiProcessed("failed", job.getAttempts(), Duration.between(job.getCreatedAt(), now));
             } else {
                 job.setStatus(AiJobStatus.PENDING);
                 job.setNextRetryAt(now.plus(retryDelay(job.getAttempts())));
                 image.setAiStatus(AiJobService.IMAGE_PENDING);
                 image.setAiError(null);
                 image.setAiCompletedAt(null);
+                metrics.aiProcessed("retry", job.getAttempts(), Duration.between(job.getCreatedAt(), now));
             }
             imageRepository.save(image);
             aiJobRepository.save(job);
