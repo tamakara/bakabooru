@@ -60,8 +60,7 @@ services:
   # 3. AI计算：AI Service (Python FastAPI)
   # ===================================================
   backend-ai-service:
-    image: tamakara/bakabooru-ai:latest
-    pull_policy: always
+    build: ./ai-service
     container_name: bakabooru_ai_service
     restart: always
     gpus: all
@@ -95,8 +94,7 @@ services:
   # 4. 核心业务：Web Service (Java Spring Boot)
   # ===================================================
   backend-web-service:
-    image: tamakara/bakabooru-web:latest
-    pull_policy: always
+    build: ./web-service
     container_name: bakabooru_web_service
     restart: always
     environment:
@@ -143,8 +141,7 @@ services:
   # 5. 交互界面：Frontend (Nginx)
   # ===================================================
   frontend:
-    image: tamakara/bakabooru-frontend:latest
-    pull_policy: always
+    build: ./frontend
     container_name: bakabooru_frontend
     restart: always
     ports: ["80:80"]
