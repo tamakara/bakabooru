@@ -15,7 +15,7 @@
 - **自动化入库**：上传后自动计算 SHA-256、查重、解析尺寸、归档原图并生成缩略图。
 - **AI 自动标注**：Camie Tagger 识别标签，推理失败可追踪、可手动重试。
 - **组合筛选**：按标签、关键字、AI 状态、宽高、文件大小和排序条件检索。
-- **本地优先**：PostgreSQL、MinIO、Redis 和模型推理均由 Docker Compose 在本地编排。
+- **本地优先**：PostgreSQL、MinIO 和模型推理均由 Docker Compose 在本地编排。
 
 ## 架构概览
 
@@ -25,8 +25,7 @@ flowchart LR
     Front -->|"/api/*"| Web["Web Service<br/>Spring Boot / Java 21"]
     Front -->|"/oss/*"| MinIO[("MinIO<br/>原图 + 缩略图")]
 
-    Web -->|"业务数据 / pgvector"| PG[("PostgreSQL 16")]
-    Web -->|"上传队列 / 设置缓存"| Redis[("Redis")]
+    Web -->|"业务数据 / 上传任务 / pgvector"| PG[("PostgreSQL 16")]
     Web -->|"对象读写"| MinIO
     Web -->|"内部推理 API"| AI["AI Service<br/>FastAPI + ONNX Runtime"]
     AI -->|"读取原图"| MinIO
@@ -61,7 +60,7 @@ docker compose ps
 先启动基础设施：
 
 ```bash
-docker compose up -d db minio redis minio-createbuckets
+docker compose up -d db minio minio-createbuckets
 ```
 
 分别运行三个应用：
@@ -92,7 +91,7 @@ pnpm dev
 
 ```text
 bakabooru/
-├── web-service/           # Spring Boot 业务 API、队列和持久化
+├── web-service/           # Spring Boot 业务 API、任务调度和持久化
 ├── ai-service/            # FastAPI 模型推理
 ├── frontend/              # Vue 3 + TypeScript
 ├── docs/                  # 架构、模块、部署和运维文档
@@ -108,10 +107,11 @@ bakabooru/
 | `THUMBNAIL_QUALITY` | `0.85` | 缩略图输出质量 |
 | `THUMBNAIL_FORMAT` | `jpg` | 缩略图格式 |
 | `AI_CONCURRENCY` | `10` | Web Service AI 后处理线程数 |
+| `UPLOAD_LOCK_DURATION` | `PT2M` | 上传 Worker 锁租约；心跳会持续续期 |
 | `MODEL_CACHE_DIR` | `/model_cache` | AI 容器内模型缓存路径 |
 | `AI_SERVICE_URL` | `http://backend-ai-service:8000` | Web 到 AI 的内部地址 |
 
-数据库、Redis、MinIO、GPU/CPU 和全部配置说明见[部署指南](docs/deployment.md)。
+数据库、MinIO、GPU/CPU 和全部配置说明见[部署指南](docs/deployment.md)。
 
 ## 文档
 

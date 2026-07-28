@@ -2,90 +2,33 @@ package com.tamakara.bakabooru.module.system.service;
 
 import com.tamakara.bakabooru.module.system.entity.SystemSetting;
 import com.tamakara.bakabooru.module.system.repository.SystemSettingRepository;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SystemSettingService {
 
     private final SystemSettingRepository systemSettingRepository;
-    private final StringRedisTemplate stringRedisTemplate;
-
-    private static final String REDIS_KEY = "system:settings";
 
     /**
-     * 系统启动时，将数据库所有配置加载到 Redis (Cache Warm-up)
+     * 获取所有配置。
      */
-    @PostConstruct
-    public void initCache() {
-        log.info("正在初始化系统设置缓存...");
-        refreshCache();
-    }
-
-    /**
-     * 强制刷新缓存：DB -> Redis
-     */
-    public void refreshCache() {
-        List<SystemSetting> all = systemSettingRepository.findAll();
-
-        // 转换 List 为 Map<String, String>
-        Map<String, String> map = all.stream()
-                .collect(Collectors.toMap(SystemSetting::getKey, SystemSetting::getValue));
-
-        // 删除旧缓存并重新写入
-        stringRedisTemplate.delete(REDIS_KEY);
-        if (!map.isEmpty()) {
-            stringRedisTemplate.opsForHash().putAll(REDIS_KEY, map);
-        }
-    }
-
-    /**
-     * 获取所有配置
-     * 优化：将 Redis 的 Map<Object, Object> 转换为 Map<String, String>
-     */
+    @Transactional(readOnly = true)
     public Map<String, String> getAllSettings() {
-        // 1. 从 Redis 获取所有键值对
-        Map<Object, Object> rawMap = stringRedisTemplate.opsForHash().entries(REDIS_KEY);
-
-        // 2. 如果 Redis 为空（可能是被清理了），尝试回源数据库加载
-        if (rawMap.isEmpty()) {
-            refreshCache();
-            rawMap = stringRedisTemplate.opsForHash().entries(REDIS_KEY);
-        }
-
-        // 3. 类型安全转换 (Object -> String)
-        Map<String, String> resultMap = new HashMap<>();
-        for (Map.Entry<Object, Object> entry : rawMap.entrySet()) {
-            resultMap.put((String) entry.getKey(), (String) entry.getValue());
-        }
-
-        return resultMap;
+        return systemSettingRepository.findAll().stream()
+                .collect(Collectors.toMap(SystemSetting::getKey, SystemSetting::getValue));
     }
 
+    @Transactional(readOnly = true)
     public String getSetting(String key) {
-        // opsForHash().get() 返回的是 Object，需要强转
-        Object val = stringRedisTemplate.opsForHash().get(REDIS_KEY, key);
-
-        if (val == null) {
-            // 缓存击穿保护：查库
-            return systemSettingRepository.findById(key)
-                    .map(setting -> {
-                        // 查到后补回缓存
-                        stringRedisTemplate.opsForHash().put(REDIS_KEY, key, setting.getValue());
-                        return setting.getValue();
-                    })
-                    .orElseThrow(() -> new RuntimeException("Setting with key: " + key + " not found"));
-        }
-        return (String) val;
+        return systemSettingRepository.findById(key)
+                .map(SystemSetting::getValue)
+                .orElseThrow(() -> new RuntimeException("Setting with key: " + key + " not found"));
     }
 
     // --- 类型转换辅助方法 ---
@@ -123,7 +66,7 @@ public class SystemSettingService {
             return;
         }
 
-        Set<String> keys = newSettings.keySet();
+        Set<String> keys = new HashSet<>(newSettings.keySet());
 
         // 1. 批量查询 DB (1次 SQL: SELECT * FROM table WHERE id IN (...))
         List<SystemSetting> existingSettings = systemSettingRepository.findAllById(keys);
@@ -147,7 +90,5 @@ public class SystemSettingService {
         // 4. 批量保存到 DB (1次 SQL 交互，取决于 JPA 实现，通常是 batch update)
         systemSettingRepository.saveAll(existingSettings);
 
-        // 5. 批量更新 Redis (1次 Redis 网络交互: HMSET)
-        stringRedisTemplate.opsForHash().putAll(REDIS_KEY, newSettings);
     }
 }

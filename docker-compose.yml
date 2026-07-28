@@ -57,27 +57,7 @@ services:
       "
 
   # ===================================================
-  # 3. 基础设施：Redis
-  # ===================================================
-  redis:
-    image: redis:alpine
-    container_name: bakabooru_redis
-    restart: always
-    # 启动 Redis 并启用密码验证
-    command: redis-server --requirepass redis_password
-    ports: ["6379:6379"]
-    volumes:
-      - ./data/redis:/data
-    networks: [bakabooru-net]
-    healthcheck:
-      # 使用 redis-cli ping 检查健康状态 (需要带上密码)
-      test: ["CMD", "redis-cli", "-a", "redis_password", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-
-  # ===================================================
-  # 4. AI计算：AI Service (Python FastAPI)
+  # 3. AI计算：AI Service (Python FastAPI)
   # ===================================================
   backend-ai-service:
     build: ./ai-service
@@ -118,7 +98,7 @@ services:
         condition: service_healthy
 
   # ===================================================
-  # 5. 核心业务：Web Service (Java Spring Boot)
+  # 4. 核心业务：Web Service (Java Spring Boot)
   # ===================================================
   backend-web-service:
     build: ./web-service
@@ -131,10 +111,6 @@ services:
       DB_USER: db_user
       DB_PASS: db_password
       DB_NAME: bakabooru
-      # Redis 配置
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      REDIS_PASSWORD: redis_password
       # MinIO 配置
       MINIO_HOST: minio
       MINIO_PORT: 9000
@@ -169,11 +145,9 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
-      redis:
-        condition: service_healthy
 
   # ===================================================
-  # 6. 交互界面：Frontend (Nginx)
+  # 5. 交互界面：Frontend (Nginx)
   # ===================================================
   frontend:
     build: ./frontend

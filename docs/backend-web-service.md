@@ -1,12 +1,13 @@
 # Web Service
 
-Web Service 位于根目录的 `web-service`，是系统的业务核心和对外 API 边界。它使用 Java 21、Spring Boot 3.5、JPA/JdbcTemplate、Flyway、Redis 与 MinIO，并通过内部 HTTP 调用 AI Service。
+Web Service 位于根目录的 `web-service`，是系统的业务核心和对外 API 边界。它使用 Java 21、Spring Boot 3.5、JPA/JdbcTemplate、Flyway 与 MinIO，并通过内部 HTTP 调用 AI Service。
 
 ## 模块结构
 
 ```mermaid
 flowchart TB
-    Controller["gallery.controller<br/>HTTP API"] --> Gallery["gallery.service<br/>搜索与上传任务"]
+    Controller["HTTP Controllers"] --> Gallery["gallery.service<br/>搜索编排"]
+    Controller --> Upload["upload.service<br/>持久化上传任务"]
     Controller --> Image["image.service<br/>图片、URL、缩略图"]
     Controller --> Tag["tag.service<br/>标签与关系"]
     Controller --> System["system.service<br/>鉴权与设置"]
@@ -19,19 +20,20 @@ flowchart TB
     Tag --> PG
     System --> PG
     Image --> MinIO[("MinIO")]
-    Gallery --> Redis[("Redis")]
-    System --> Redis
+    Upload --> PG
+    Upload --> MinIO
     AI --> FastAPI["AI Service"]
 ```
 
 | 包 | 主要职责 |
 | --- | --- |
-| `module.gallery` | API 控制器、搜索编排、上传任务与 Redis 队列 |
+| `module.gallery` | 图库 API 与搜索编排 |
+| `module.upload` | PostgreSQL 上传任务、MinIO staging 与 Worker |
 | `module.image` | 图片实体/DTO、搜索 SQL、对象 URL、缩略图与文件存储 |
 | `module.tag` | 标签字典、标签查询、图片标签关系 |
 | `module.ai` | AI HTTP 客户端、图像 embedding、异步后处理 |
-| `module.system` | 首次初始化、JWT 校验、设置持久化与 Redis 缓存 |
-| `config` | Web 拦截器、线程池、Redis、MinIO 与属性绑定 |
+| `module.system` | 首次初始化、JWT 校验与设置持久化 |
+| `config` | Web 拦截器、调度、线程池、MinIO 与属性绑定 |
 
 ## HTTP API
 
@@ -54,19 +56,19 @@ flowchart TB
 
 ```mermaid
 flowchart TD
-    Upload["接收 multipart 文件"] --> Temp["写入系统临时文件"]
-    Temp --> Queue["Redis: upload:task:queue"]
-    Queue --> Worker["单线程消费者"]
+    Upload["接收 multipart 文件"] --> Staging["MinIO: staging/{jobId}"]
+    Staging --> Queue["PostgreSQL: upload_jobs/PENDING"]
+    Queue --> Worker["SKIP LOCKED 领取任务"]
     Worker --> Hash["计算 SHA-256 并查重"]
     Hash --> Meta["解析格式、宽高；拒绝动图"]
     Meta --> Objects["写原图和缩略图"]
     Objects --> Insert["图片元数据入库<br/>PENDING"]
     Insert --> Async["触发 AI 后处理"]
-    Worker -->|"异常"| Failed["Redis: upload:task:failed"]
+    Worker -->|"异常"| Failed["upload_jobs/FAILED<br/>保留 staging"]
     Failed -->|"手动重试"| Queue
 ```
 
-任务数据键为 `upload:task:data:{id}`，有效期为 3 天。待处理与失败任务存 Redis List；当前运行中的任务保存在 Web Service 进程内。文件成功入库后任务数据会删除，临时文件在处理结束时清理。
+任务状态保存在 `upload_jobs`。Worker 原子领取任务后写入 `locked_by` 与 `locked_until`，并通过心跳续租；崩溃后租约过期的任务可重新领取。失败任务保留 staging 对象以支持重试；成功任务删除 staging，对应任务记录默认保留 7 天用于追踪。
 
 ## AI 后处理状态机
 
@@ -100,4 +102,4 @@ stateDiagram-v2
 
 Flyway 在启动时执行 `src/main/resources/db/migration`。Hibernate 使用 `ddl-auto: validate`，因此表结构变更应新增 migration，而不是依赖实体自动改表。
 
-运行时设置保存在 `system_settings`，并缓存于 Redis Hash `system:settings`。缩略图规格和 AI 线程池大小属于部署配置，来自 `application.yml` 对应的环境变量，不属于运行时设置。
+运行时设置保存在 `system_settings` 并由 Web Service 直接读取。缩略图规格、上传 Worker 和 AI 线程池参数属于部署配置，来自 `application.yml` 对应的环境变量，不属于运行时设置。

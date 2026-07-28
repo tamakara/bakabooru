@@ -2,13 +2,6 @@ spring:
   application:
     name: bakabooru
 
-  # Redis 配置
-  data:
-    redis:
-      host: ${REDIS_HOST}
-      port: ${REDIS_PORT}
-      password: ${REDIS_PASSWORD}
-
   # 数据库配置
   datasource:
     url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
@@ -35,6 +28,11 @@ spring:
       max-file-size: 500MB
       max-request-size: 500MB
 
+  task:
+    scheduling:
+      pool:
+        size: 2
+
 server:
   address: 0.0.0.0
   port: 8080
@@ -60,6 +58,12 @@ minio:
 
 # 应用自定义配置
 app:
+  upload:
+    poll-interval-ms: ${UPLOAD_POLL_INTERVAL_MS:1000}
+    initial-delay-ms: ${UPLOAD_INITIAL_DELAY_MS:2000}
+    heartbeat-interval-ms: ${UPLOAD_HEARTBEAT_INTERVAL_MS:30000}
+    lock-duration: ${UPLOAD_LOCK_DURATION:PT2M}
+    completed-retention: ${UPLOAD_COMPLETED_RETENTION:P7D}
   # AI 服务配置
   ai-service:
     url: ${AI_SERVICE_URL}

@@ -1,6 +1,6 @@
 # 部署指南
 
-根目录 `docker-compose.yml` 编排 7 个服务，其中 `minio-createbuckets` 是一次性初始化任务。默认部署面向带 NVIDIA GPU 的本机环境，业务数据与模型缓存都挂载到 `./data`。
+根目录 `docker-compose.yml` 编排 6 个服务，其中 `minio-createbuckets` 是一次性初始化任务。默认部署面向带 NVIDIA GPU 的本机环境，业务数据与模型缓存都挂载到 `./data`。
 
 ## 服务拓扑与启动依赖
 
@@ -8,7 +8,6 @@
 flowchart TD
     DB["db<br/>PostgreSQL + pgvector"]
     MinIO["minio<br/>对象存储"]
-    Redis["redis<br/>队列与缓存"]
     Init["minio-createbuckets<br/>创建 images bucket"]
     AI["backend-ai-service<br/>FastAPI :8000"]
     Web["backend-web-service<br/>Spring Boot :8080"]
@@ -19,12 +18,13 @@ flowchart TD
     MinIO -->|"healthy"| AI
     DB -->|"healthy"| Web
     MinIO -->|"healthy"| Web
-    Redis -->|"healthy"| Web
     Web -->|"healthy"| Front
     AI -.->|"运行时调用，不阻塞 Web 启动"| Web
 ```
 
 AI Service 不在 Web Service 的 Compose `depends_on` 中。模型下载或加载期间，前端与 Web Service 可以启动，普通图库操作仍可使用。
+
+> 从 Redis 上传队列版本升级时，旧队列中的待处理/失败任务不会迁移：这些任务引用旧 Web 进程的本地临时文件，无法可靠恢复，请在升级后重新上传。已完成入库的图片不受影响。确认升级正常后，可自行归档或删除不再使用的 `data/redis`。
 
 ## 快速启动
 
@@ -41,7 +41,6 @@ docker compose ps
 | `http://localhost:9001` | MinIO 管理控制台 |
 | `http://localhost:9000` | MinIO S3 API（默认对宿主机暴露） |
 | `localhost:5432` | PostgreSQL（默认对宿主机暴露） |
-| `localhost:6379` | Redis（默认对宿主机暴露） |
 
 Web 与 AI 服务没有映射到宿主机端口，通过 Compose 网络互访。首次启动时 Flyway 会执行数据库迁移（包括标签字典），AI Service 会下载模型；耗时取决于网络、磁盘和 GPU 环境。`tags.embedding` 的生成由 AI Service `/tags/init` 单独触发，不包含在 Compose 启动流程中。
 
@@ -51,7 +50,6 @@ Web 与 AI 服务没有映射到宿主机端口，通过 Compose 网络互访。
 flowchart LR
     Data["项目 ./data"] --> PG["postgres<br/>数据库文件"]
     Data --> M["minio<br/>原图与缩略图"]
-    Data --> R["redis<br/>队列持久化数据"]
     Data --> C["model_cache<br/>模型权重与处理器"]
 ```
 
@@ -64,7 +62,6 @@ flowchart LR
 | 变量 | Compose 默认值 | 说明 |
 | --- | --- | --- |
 | `DB_HOST/PORT/USER/PASS/NAME` | `db/5432/db_user/db_password/bakabooru` | PostgreSQL 连接 |
-| `REDIS_HOST/PORT/PASSWORD` | `redis/6379/redis_password` | Redis 连接 |
 | `MINIO_HOST/PORT` | `minio/9000` | MinIO 内部地址 |
 | `MINIO_ACCESS_KEY/SECRET_KEY` | `minio_user/minio_password` | MinIO 凭据 |
 | `MINIO_BUCKET_NAME` | `images` | 图片 bucket |
@@ -73,6 +70,9 @@ flowchart LR
 | `THUMBNAIL_QUALITY` | `0.85` | 缩略图输出质量 |
 | `THUMBNAIL_FORMAT` | `jpg` | 缩略图格式 |
 | `AI_CONCURRENCY` | `10` | AI 后处理线程池并发数 |
+| `UPLOAD_POLL_INTERVAL_MS` | `1000` | PostgreSQL 上传任务空闲轮询间隔 |
+| `UPLOAD_LOCK_DURATION` | `PT2M` | 上传任务锁租约；Worker 心跳续期 |
+| `UPLOAD_COMPLETED_RETENTION` | `P7D` | 已完成上传任务记录保留时间 |
 
 ### AI Service
 
@@ -83,14 +83,14 @@ AI Service 复用 PostgreSQL 与 MinIO 变量，另使用：
 | `MODEL_CACHE_DIR` | `/model_cache` | 容器内模型缓存路径 |
 | `DEVICE` | 未设置，代码默认 `auto` | 自动选择 CUDA 或 CPU |
 
-生产部署前必须替换 Compose 中的数据库、Redis 和 MinIO 默认密码。当前 MinIO bucket 被初始化为匿名可读，以支持 `/oss/*` 图片展示；若要改为私有 bucket，需要同时改造 URL 签名/代理策略。
+生产部署前必须替换 Compose 中的数据库和 MinIO 默认密码。当前 MinIO bucket 被初始化为匿名可读，以支持 `/oss/*` 图片展示；若要改为私有 bucket，需要同时改造 URL 签名/代理策略。
 
 ## 本地开发
 
 先启动基础设施：
 
 ```bash
-docker compose up -d db minio redis minio-createbuckets
+docker compose up -d db minio minio-createbuckets
 ```
 
 再分别运行服务，并提供与 `application.yml`/`settings.py` 对应的环境变量：

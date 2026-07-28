@@ -24,6 +24,21 @@ public class StorageService {
     private final MinioClient minioClient;
     private final MinioConfig minioConfig;
 
+    public void uploadStream(String objectName, InputStream inputStream, long size, String contentType) {
+        try {
+            minioClient.putObject(
+                    PutObjectArgs.builder()
+                            .bucket(minioConfig.getBucketName())
+                            .object(objectName)
+                            .stream(inputStream, size, -1)
+                            .contentType(contentType == null ? "application/octet-stream" : contentType)
+                            .build()
+            );
+        } catch (Exception e) {
+            throw new RuntimeException("文件上传失败: " + e.getMessage(), e);
+        }
+    }
+
     public void uploadFile(String objectName, File file) {
         try {
             String contentType = Files.probeContentType(file.toPath());
@@ -128,15 +143,15 @@ public class StorageService {
     public File getFile(String objectName) {
         try {
             String bucket = minioConfig.getBucketName();
-            InputStream inputStream = minioClient.getObject(
+            File tempFile = File.createTempFile("minio-", ".tmp");
+            try (InputStream inputStream = minioClient.getObject(
                     GetObjectArgs.builder()
                             .bucket(bucket)
                             .object(objectName)
                             .build()
-            );
-
-            File tempFile = File.createTempFile("minio-", ".tmp");
-            Files.copy(inputStream, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            )) {
+                Files.copy(inputStream, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            }
             return tempFile;
         } catch (Exception e) {
             throw new RuntimeException("获取文件失败 [ " + objectName + "]: " + e.getMessage());

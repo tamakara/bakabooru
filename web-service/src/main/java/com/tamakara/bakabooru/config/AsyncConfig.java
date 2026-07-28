@@ -15,17 +15,6 @@ public class AsyncConfig {
 
     private final AiServiceProperties aiServiceProperties;
 
-    @Bean("uploadExecutor")
-    public Executor uploadExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(4);
-        executor.setMaxPoolSize(10);
-        executor.setQueueCapacity(100);
-        executor.setThreadNamePrefix("upload-");
-        executor.initialize();
-        return executor;
-    }
-
     @Bean("aiExecutor")
     public Executor aiExecutor() {
         int concurrency = aiServiceProperties.getConcurrency();

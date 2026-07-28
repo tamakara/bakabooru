@@ -46,6 +46,20 @@ erDiagram
         text setting_key PK
         text setting_value
     }
+
+    UPLOAD_JOBS {
+        uuid id PK
+        text staging_object_name UK
+        text filename
+        bigint size
+        text status
+        integer attempts
+        text locked_by
+        timestamptz locked_until
+        bigint image_id FK
+    }
+
+    IMAGES o|--o{ UPLOAD_JOBS : "入库结果"
 ```
 
 `system_settings` 与其他表没有外键关系；它保存少量可在 UI 修改的运行时设置。
@@ -84,7 +98,11 @@ AI 字段含义：
 | `upload.poll-interval` | `1000` | 前端上传任务轮询间隔，毫秒 |
 | `tag.threshold` | `0.61` | AI 自动打标阈值 |
 
-这些值以数据库为事实来源，并缓存到 Redis `system:settings`。缩略图规格由环境变量配置，不存于此表。
+这些值直接以数据库为事实来源。缩略图规格由环境变量配置，不存于此表。
+
+### `upload_jobs`
+
+上传任务状态为 `PENDING`、`PROCESSING`、`COMPLETED` 或 `FAILED`。待处理文件位于 MinIO `staging/{jobId}`；Worker 使用 `FOR UPDATE SKIP LOCKED` 领取任务，通过 `locked_by` 与 `locked_until` 实现租约和崩溃恢复。成功后 `image_id` 指向入库图片，失败任务保留 staging 对象以支持重试。
 
 ## 对象存储映射
 
@@ -92,6 +110,7 @@ AI 字段含义：
 flowchart LR
     Row["images.hash"] --> Original["images/original/{hash}"]
     Row --> Thumb["images/thumbnail/{maxSize}/{hash}.{format}"]
+    Job["upload_jobs.id"] --> Staging["images/staging/{jobId}"]
     Config["THUMBNAIL_MAX_SIZE<br/>THUMBNAIL_FORMAT"] --> Thumb
 ```
 
@@ -109,6 +128,8 @@ flowchart LR
 | `idx_images_created_at` | 默认时间排序 |
 | `idx_images_size` | 文件大小过滤 |
 | `idx_images_dimensions` | 宽高过滤 |
+| `idx_upload_jobs_claimable` | 快速领取待处理或租约过期的上传任务 |
+| `idx_upload_jobs_status_updated` | 上传状态统计与失败任务列表 |
 
 ## 迁移策略
 
@@ -118,6 +139,7 @@ flowchart LR
     V2 --> V3["V3 标签字典"]
     V3 --> V4["V4 搜索索引 + ai_status"]
     V4 --> V5["V5 AI 错误与时间字段"]
+    V5 --> V6["V6 持久化上传任务"]
 ```
 
 新增字段、约束或索引时应追加新的版本化 SQL，不要修改已在环境中执行过的 migration。

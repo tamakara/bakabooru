@@ -1,20 +1,21 @@
 # 运维手册
 
-本页按“先判断阶段，再处理失败”的方式组织。上传入库与 AI 后处理是两个独立阶段，排障时不要把 Redis 上传失败队列和图片 `ai_status` 混为一谈。
+本页按“先判断阶段，再处理失败”的方式组织。上传入库与 AI 后处理是两个独立阶段，排障时不要把 `upload_jobs` 和图片 `ai_status` 混为一谈。
 
 ## 运行状态总览
 
 ```mermaid
 flowchart LR
-    Upload["浏览器上传"] --> Redis["Redis 上传任务"]
-    Redis --> Archive["原图/缩略图归档"]
+    Upload["浏览器上传"] --> Staging["MinIO staging"]
+    Staging --> Jobs["PostgreSQL upload_jobs"]
+    Jobs --> Archive["原图/缩略图归档"]
     Archive --> Pending["图片 PENDING"]
     Pending --> Processing["图片 PROCESSING"]
     Processing --> Ready["图片 READY"]
 
-    Redis -->|"入库失败"| UploadFailed["上传失败队列"]
+    Jobs -->|"入库失败"| UploadFailed["FAILED + staging"]
     Processing -->|"推理失败"| AiFailed["PENDING + ai_error"]
-    UploadFailed -->|"上传页重试"| Redis
+    UploadFailed -->|"上传页重试"| Jobs
     AiFailed -->|"详情页重试"| Processing
 ```
 
@@ -30,11 +31,10 @@ docker compose logs --tail 200 backend-ai-service
 
 | 组件 | 健康/异常信号 |
 | --- | --- |
-| Web Service | `/actuator/health`、数据库迁移、Redis/MinIO 连接、AI 处理日志 |
+| Web Service | `/actuator/health`、数据库迁移、上传 Worker、MinIO 连接、AI 处理日志 |
 | AI Service | `/health` 的 `loading/ok`、模型下载、CUDA Provider、推理异常 |
 | PostgreSQL | `pg_isready`、Flyway migration、磁盘空间 |
 | MinIO | bucket 是否存在、`original/` 与 `thumbnail/` 对象、磁盘空间 |
-| Redis | 上传队列堆积、失败任务、设置缓存 |
 
 Compose 的 AI 健康检查只要求 `/health` 可访问。判断模型是否真正就绪时，应查看响应体是否为 `{"status":"ok"}` 或检查 AI Service 日志中的“所有模型预加载完成”。
 
@@ -59,12 +59,13 @@ stateDiagram-v2
 
 ## 上传任务恢复
 
-上传页展示三个指标：Redis 待处理数、当前 Web 进程正在处理的任务、失败任务列表。
+上传页展示 PostgreSQL 待处理数、当前正在处理的任务和失败任务列表。
 
-- 单个失败任务可重新推回待处理队列。
-- 清空失败任务会删除对应 Redis 数据，并尝试删除遗留临时文件。
-- 任务数据默认 3 天过期；如果数据已过期但 ID 仍在队列中，消费者会跳过该任务。
-- Web Service 当前使用单线程做文件入库，大文件缩略图生成可能让队列短时堆积，这是预期行为。
+- 单个失败任务会保留 MinIO staging 对象，可重新设为 `PENDING`。
+- 清空失败任务会同时删除 staging 对象与 PostgreSQL 任务记录。
+- Worker 使用两分钟锁租约并定期续期；实例崩溃后，租约过期的任务会被重新领取。
+- 已完成任务默认保留 7 天，之后由定时清理任务删除。
+- Web Service 当前按顺序做文件入库，大文件缩略图生成可能让任务短时堆积，这是预期行为。
 
 ## 缩略图 Backfill
 
@@ -117,7 +118,6 @@ flowchart LR
     PG[("PostgreSQL 备份")] --> Set["同一恢复点"]
     MinIO[("MinIO data 备份")] --> Set
     Cache["模型缓存，可选"] -.-> Set
-    Redis["Redis，可选<br/>队列可重建性有限"] -.-> Set
 ```
 
-图片元数据与对象文件必须尽量采用同一恢复点。模型缓存可重新下载；Redis 包含未完成上传任务和缓存，不应替代 PostgreSQL 备份。
+图片元数据、上传任务与对象文件必须尽量采用同一恢复点。模型缓存可以重新下载。

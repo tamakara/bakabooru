@@ -1,13 +1,12 @@
 import apiClient from './client'
 
 /**
- * 上传任务 (简化版，用于后端队列)
+ * 持久化上传任务
  */
 export interface UploadTask {
   id: string
   filename: string
   size: number
-  tempFilePath?: string
   errorMessage?: string
 }
 

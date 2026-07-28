@@ -17,7 +17,6 @@ flowchart LR
     subgraph Data["数据层"]
         PG[("PostgreSQL 16<br/>pgvector")]
         MinIO[("MinIO<br/>original + thumbnail")]
-        Redis[("Redis<br/>上传队列 + 设置缓存")]
         Cache[("模型缓存<br/>data/model_cache")]
     end
 
@@ -25,7 +24,6 @@ flowchart LR
     Nginx -->|"/oss/*"| MinIO
     Web -->|"JPA / SQL / Flyway"| PG
     Web -->|"S3 API"| MinIO
-    Web -->|"队列 / Hash 缓存"| Redis
     Web -->|"内部 HTTP"| AI
     AI -->|"读取原图"| MinIO
     AI -.->|"仅初始化标签向量"| PG
@@ -37,11 +35,10 @@ flowchart LR
 | 组件 | 负责 | 不负责 |
 | --- | --- | --- |
 | Frontend | 页面、交互、查询缓存、上传进度、令牌携带 | 直接访问数据库或推理服务 |
-| Web Service | 鉴权、业务 API、事务、元数据、对象路径、上传队列、AI 调度 | 执行模型推理 |
+| Web Service | 鉴权、业务 API、事务、元数据、对象路径、上传任务调度、AI 调度 | 执行模型推理 |
 | AI Service | Camie Tagger、CLIP 文本/图像向量、标签向量初始化 | 图片业务状态、上传任务、鉴权 |
-| PostgreSQL | 图片、标签、关系、设置、向量与索引 | 图片二进制文件 |
-| MinIO | 原图与固定规格缩略图 | 图片元数据与状态 |
-| Redis | 上传任务队列/任务数据、失败队列、系统设置缓存 | 最终业务事实来源 |
+| PostgreSQL | 图片、标签、关系、设置、上传任务、向量与索引 | 图片二进制文件 |
+| MinIO | staging 暂存文件、原图与固定规格缩略图 | 图片元数据与状态 |
 
 ## 上传与 AI 后处理
 
@@ -53,22 +50,23 @@ sequenceDiagram
     actor U as 用户
     participant F as Frontend
     participant W as Web Service
-    participant R as Redis
     participant M as MinIO
     participant P as PostgreSQL
     participant A as AI Service
 
     U->>F: 选择图片
     F->>W: POST /api/upload
-    W->>W: 保存临时文件
-    W->>R: 写任务数据并入队
+    W->>M: 写 staging/{jobId}
+    W->>P: 插入 upload_jobs=PENDING
     W-->>F: 上传请求完成
 
-    W->>R: 阻塞弹出任务
+    W->>P: FOR UPDATE SKIP LOCKED 领取任务
+    M-->>W: 读取 staging/{jobId}
     W->>W: SHA-256、查重、解析尺寸
     W->>M: 写 original/{hash}
     W->>M: 写 thumbnail/{size}/{hash}.{format}
-    W->>P: 插入图片，ai_status=PENDING
+    W->>P: 同一事务插入图片并完成 upload_job
+    W->>M: 删除 staging/{jobId}
     W->>W: aiExecutor 异步调度
     W->>P: ai_status=PROCESSING
     W->>A: 标签识别 + 图像 CLIP 向量
@@ -77,7 +75,7 @@ sequenceDiagram
     W->>P: 写标签关系、embedding、READY
 ```
 
-失败点分属两个队列语义：文件入库失败会进入 Redis 失败队列，可从上传页重试；AI 推理失败会让图片回到 `PENDING` 并记录 `ai_error`，可从详情页重试。
+文件入库失败会保留 PostgreSQL 任务记录和 MinIO staging 对象，可从上传页重试。Worker 使用锁租约和心跳；进程退出后，租约过期的 `PROCESSING` 任务会被其他 Worker 重新领取。AI 推理失败会让图片回到 `PENDING` 并记录 `ai_error`，可从详情页重试。
 
 ## 检索路径
 
@@ -103,6 +101,6 @@ flowchart TD
 ## 一致性与可用性
 
 - PostgreSQL 是图片元数据、标签关系和运行时设置的事实来源。
-- Redis 中的设置缓存在 Web Service 启动时由数据库预热；缓存缺失时会回源。
+- 上传任务和运行时设置都以 PostgreSQL 为唯一事实来源。
 - AI Service 的 `/health` 表示进程可访问，并通过 `status=loading|ok` 暴露模型状态；推理接口在模型未就绪时返回 `503`。
 - Web Service 不依赖 AI Service 健康检查启动，因此 AI 模型加载期间仍可登录、浏览和进行非语义检索。

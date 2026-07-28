@@ -76,7 +76,7 @@ sequenceDiagram
     V->>W: POST 或 DELETE /api/upload/tasks
 ```
 
-浏览器端上传完成只表示后端已接收临时文件并创建任务，不表示对象归档或 AI 处理已经完成。页面通过任务轮询展示后端入库阶段的进度。
+浏览器端上传完成只表示后端已将文件写入 MinIO staging 并创建 PostgreSQL 任务，不表示原图归档或 AI 处理已经完成。页面通过任务轮询展示后端入库阶段的进度。
 
 ## AI 状态展示
 
