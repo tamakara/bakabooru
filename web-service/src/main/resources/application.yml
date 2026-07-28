@@ -41,20 +41,25 @@ server:
   error:
     include-message: always
 
-# 监控端点配置
-management:
-  endpoints:
-    web:
-      base-path: /actuator
-      exposure:
-        include: "*"
-
 # MinIO 配置
 minio:
   endpoint: http://${MINIO_HOST}:${MINIO_PORT}
   access-key: ${MINIO_ACCESS_KEY}
   secret-key: ${MINIO_SECRET_KEY}
   bucket-name: ${MINIO_BUCKET_NAME}
+
+# 监控端点配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+
+  endpoint:
+    health:
+      show-details: always
+    prometheus:
+      enabled: true
 
 # 应用自定义配置
 app:

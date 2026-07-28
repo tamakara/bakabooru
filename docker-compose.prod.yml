@@ -4,7 +4,7 @@ services:
   # ===================================================
   db:
     image: pgvector/pgvector:pg16
-    container_name: bakabooru_db
+    container_name: bakabooru-db
     restart: always
     environment:
       POSTGRES_USER: db_user
@@ -25,7 +25,7 @@ services:
   # ===================================================
   minio:
     image: minio/minio
-    container_name: bakabooru_minio
+    container_name: bakabooru-minio
     restart: always
     command: server /data --console-address ":9001"
     environment:
@@ -59,10 +59,10 @@ services:
   # ===================================================
   # 3. AI计算：AI Service (Python FastAPI)
   # ===================================================
-  backend-ai-service:
+  ai-service:
     image: tamakara/bakabooru-ai:latest
     pull_policy: always
-    container_name: bakabooru_ai_service
+    container_name: bakabooru-ai-service
     restart: always
     gpus: all
     environment:
@@ -94,10 +94,10 @@ services:
   # ===================================================
   # 4. 核心业务：Web Service (Java Spring Boot)
   # ===================================================
-  backend-web-service:
+  web-service:
     image: tamakara/bakabooru-web:latest
     pull_policy: always
-    container_name: bakabooru_web_service
+    container_name: bakabooru-web-service
     restart: always
     environment:
       # DB 配置
@@ -113,7 +113,7 @@ services:
       MINIO_SECRET_KEY: minio_password
       MINIO_BUCKET_NAME: images
       # AI 服务地址
-      AI_SERVICE_URL: http://backend-ai-service:8000
+      AI_SERVICE_URL: http://ai-service:8000
       # 缩略图配置
       THUMBNAIL_MAX_SIZE: 1024
       THUMBNAIL_QUALITY: 0.85
@@ -145,13 +145,25 @@ services:
   frontend:
     image: tamakara/bakabooru-frontend:latest
     pull_policy: always
-    container_name: bakabooru_frontend
+    container_name: bakabooru-frontend
     restart: always
     ports: ["80:80"]
     networks: [bakabooru-net]
     depends_on:
-      backend-web-service:
+      web-service:
         condition: service_healthy
+
+  # ===================================================
+  # 6. 监控：Prometheus
+  # ===================================================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: bakabooru-prometheus
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    restart: unless-stopped
 
 networks:
   bakabooru-net:
