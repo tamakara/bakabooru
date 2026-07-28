@@ -254,18 +254,20 @@ const aiStatusText = computed(() => {
   if (!props.image) return ''
   if (props.image.aiStatus === 'READY') return '已完成'
   if (props.image.aiStatus === 'PROCESSING') return '处理中'
+  if (props.image.aiStatus === 'FAILED') return '处理失败'
   return '待处理'
 })
 
-const aiStatusType = computed<'default' | 'success' | 'info' | 'warning'>(() => {
+const aiStatusType = computed<'default' | 'success' | 'info' | 'warning' | 'error'>(() => {
   if (!props.image) return 'default'
   if (props.image.aiStatus === 'READY') return 'success'
   if (props.image.aiStatus === 'PROCESSING') return 'info'
-  return props.image.aiError ? 'warning' : 'default'
+  if (props.image.aiStatus === 'FAILED') return 'error'
+  return 'default'
 })
 
 const canRetryAi = computed(() => {
-  return !!props.image && props.image.aiStatus === 'PENDING' && !!props.image.aiError
+  return !!props.image && props.image.aiStatus === 'FAILED'
 })
 
 const handleRetryAi = async () => {

@@ -1,0 +1,128 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "BaKaBooru AI Service",
+    "description": "Stateless image analysis and embedding service",
+    "version": "3.0.0"
+  },
+  "paths": {
+    "/v1/images/analyze": {
+      "post": {
+        "tags": ["images"],
+        "summary": "Analyze Image",
+        "operationId": "analyze_image_v1_images_analyze_post",
+        "requestBody": {
+          "content": {"application/json": {"schema": {"$ref": "#/components/schemas/AnalyzeImageRequest"}}},
+          "required": true
+        },
+        "responses": {
+          "200": {"description": "Successful Response", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/AnalyzeImageResponse"}}}},
+          "422": {"description": "Validation Error", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/HTTPValidationError"}}}}
+        }
+      }
+    },
+    "/v1/embeddings/text": {
+      "post": {
+        "tags": ["embeddings"],
+        "summary": "Text Embedding",
+        "operationId": "text_embedding_v1_embeddings_text_post",
+        "requestBody": {
+          "content": {"application/json": {"schema": {"$ref": "#/components/schemas/TextEmbeddingRequest"}}},
+          "required": true
+        },
+        "responses": {
+          "200": {"description": "Successful Response", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/TextEmbeddingResponse"}}}},
+          "422": {"description": "Validation Error", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/HTTPValidationError"}}}}
+        }
+      }
+    },
+    "/v1/embeddings/image-file": {
+      "post": {
+        "tags": ["embeddings"],
+        "summary": "Image Embedding",
+        "operationId": "image_embedding_v1_embeddings_image_file_post",
+        "requestBody": {
+          "content": {"multipart/form-data": {"schema": {"$ref": "#/components/schemas/Body_image_embedding_v1_embeddings_image_file_post"}}},
+          "required": true
+        },
+        "responses": {
+          "200": {"description": "Successful Response", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ImageEmbeddingResponse"}}}},
+          "422": {"description": "Validation Error", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/HTTPValidationError"}}}}
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Health",
+        "operationId": "health_health_get",
+        "responses": {"200": {"description": "Successful Response", "content": {"application/json": {"schema": {}}}}}
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AnalyzeImageRequest": {
+        "properties": {
+          "object_name": {"type": "string", "minLength": 1, "title": "Object Name"},
+          "threshold": {"type": "number", "maximum": 1.0, "minimum": 0.0, "title": "Threshold", "default": 0.61}
+        },
+        "type": "object",
+        "required": ["object_name"],
+        "title": "AnalyzeImageRequest"
+      },
+      "AnalyzeImageResponse": {
+        "properties": {
+          "tags": {"additionalProperties": {"type": "number"}, "type": "object", "title": "Tags"},
+          "embedding": {"items": {"type": "number"}, "type": "array", "maxItems": 512, "minItems": 512, "title": "Embedding"}
+        },
+        "type": "object",
+        "required": ["tags", "embedding"],
+        "title": "AnalyzeImageResponse"
+      },
+      "Body_image_embedding_v1_embeddings_image_file_post": {
+        "properties": {"file": {"type": "string", "contentMediaType": "application/octet-stream", "title": "File"}},
+        "type": "object",
+        "required": ["file"],
+        "title": "Body_image_embedding_v1_embeddings_image_file_post"
+      },
+      "HTTPValidationError": {
+        "properties": {"detail": {"items": {"$ref": "#/components/schemas/ValidationError"}, "type": "array", "title": "Detail"}},
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "ImageEmbeddingResponse": {
+        "properties": {"embedding": {"items": {"type": "number"}, "type": "array", "maxItems": 512, "minItems": 512, "title": "Embedding"}},
+        "type": "object",
+        "required": ["embedding"],
+        "title": "ImageEmbeddingResponse"
+      },
+      "TextEmbeddingRequest": {
+        "properties": {"query": {"type": "string", "minLength": 1, "title": "Query"}},
+        "type": "object",
+        "required": ["query"],
+        "title": "TextEmbeddingRequest"
+      },
+      "TextEmbeddingResponse": {
+        "properties": {
+          "text": {"type": "string", "title": "Text"},
+          "embedding": {"items": {"type": "number"}, "type": "array", "maxItems": 512, "minItems": 512, "title": "Embedding"}
+        },
+        "type": "object",
+        "required": ["text", "embedding"],
+        "title": "TextEmbeddingResponse"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {"items": {"anyOf": [{"type": "string"}, {"type": "integer"}]}, "type": "array", "title": "Location"},
+          "msg": {"type": "string", "title": "Message"},
+          "type": {"type": "string", "title": "Error Type"},
+          "input": {"title": "Input"},
+          "ctx": {"type": "object", "title": "Context"}
+        },
+        "type": "object",
+        "required": ["loc", "msg", "type"],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

@@ -1,15 +1,11 @@
 """模型管理模块 - 负责加载和管理所有AI模型"""
 import threading
 import time
-from typing import Optional
+from typing import Any, Optional
 
 import numpy as np
-import onnxruntime as ort
-from fastembed import TextEmbedding
-from huggingface_hub import hf_hub_download
-from transformers import CLIPProcessor
 
-from app.core.settings import settings
+from app.core.settings import get_default_device, settings
 
 # HuggingFace CLIP 模型名称
 CLIP_MODEL_NAME = "openai/clip-vit-base-patch32"
@@ -36,10 +32,9 @@ class ModelManager:
         self._clip_text_session = None
         self._clip_vision_session = None
         self._clip_processor = None
-        self._embeddings = None
         self._camie_tagger = None
         self._device = settings.DEVICE
-        self._ort_providers = self._get_ort_providers()
+        self._ort_providers = []
         self._ready = False
         self._lock = threading.Lock()
 
@@ -59,7 +54,10 @@ class ModelManager:
             start = time.time()
             print("开始预加载所有模型...")
             try:
-                self._load_embeddings()
+                settings.MODEL_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+                if self._device == "auto":
+                    self._device = get_default_device()
+                self._ort_providers = self._get_ort_providers()
                 self._load_camie_tagger()
                 self._load_clip()
                 self._ready = True
@@ -73,6 +71,8 @@ class ModelManager:
 
     def _get_ort_providers(self) -> list:
         """获取 ONNX Runtime 的执行提供器列表"""
+        import onnxruntime as ort
+
         providers = []
         if self._device == "cuda":
             # 检查 CUDA provider 是否可用
@@ -85,24 +85,19 @@ class ModelManager:
         return providers
 
     @property
-    def clip_text_session(self) -> ort.InferenceSession:
+    def clip_text_session(self) -> Any:
         """CLIP 文本编码器 ONNX session（需先调用 load_all）"""
         return self._clip_text_session
 
     @property
-    def clip_vision_session(self) -> ort.InferenceSession:
+    def clip_vision_session(self) -> Any:
         """CLIP 图像编码器 ONNX session（需先调用 load_all）"""
         return self._clip_vision_session
 
     @property
-    def clip_processor(self) -> CLIPProcessor:
+    def clip_processor(self) -> Any:
         """CLIP 处理器（需先调用 load_all）"""
         return self._clip_processor
-
-    @property
-    def embeddings(self):
-        """文本嵌入模型（需先调用 load_all）"""
-        return self._embeddings
 
     @property
     def camie_tagger(self):
@@ -111,6 +106,10 @@ class ModelManager:
 
     def _load_clip(self):
         """加载 CLIP 模型（使用 ONNX Runtime 加速）"""
+        import onnxruntime as ort
+        from huggingface_hub import hf_hub_download
+        from transformers import CLIPProcessor
+
         print(f"正在加载 CLIP ONNX 模型: {CLIP_ONNX_REPO}...")
         cache_dir = str(settings.MODEL_CACHE_DIR)
 
@@ -158,15 +157,6 @@ class ModelManager:
         active_provider = self._clip_text_session.get_providers()[0]
         print(f"CLIP ONNX 模型加载完成，使用: {active_provider}")
 
-    def _load_embeddings(self):
-        """加载文本嵌入模型"""
-        print("正在加载文本嵌入模型...")
-        self._embeddings = _FastEmbedAdapter(
-            model_name="sentence-transformers/all-MiniLM-L6-v2",
-            cache_dir=str(settings.MODEL_CACHE_DIR),
-        )
-        print("文本嵌入模型加载完成")
-
     def _load_camie_tagger(self):
         """加载 CamieTagger"""
         from app.models.camie_tagger import CamieTagger
@@ -209,22 +199,3 @@ class ModelManager:
 
 # 全局单例
 model_manager = ModelManager()
-
-
-class _FastEmbedAdapter:
-    """统一 fastembed 接口，兼容项目里现有 embed_query 调用。"""
-
-    def __init__(self, model_name: str, cache_dir: str):
-        try:
-            self._model = TextEmbedding(model_name=model_name, cache_dir=cache_dir)
-        except TypeError:
-            # 某些 fastembed 版本不支持 cache_dir 参数
-            self._model = TextEmbedding(model_name=model_name)
-
-    def embed_query(self, text: str) -> list[float]:
-        vector = next(self._model.embed([text]))
-        return vector.astype(np.float32).tolist()
-
-    def embed_documents(self, texts: list[str]) -> list[list[float]]:
-        vectors = self._model.embed(texts)
-        return [v.astype(np.float32).tolist() for v in vectors]

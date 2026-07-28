@@ -1,15 +1,13 @@
 package com.tamakara.bakabooru.module.ai.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
-public class TagImageRequestDto {
+@AllArgsConstructor
+public class AnalyzeImageRequestDto {
     @JsonProperty("object_name")
     private String objectName;
-
-    @JsonProperty("threshold")
-    private Double threshold;
+    private double threshold;
 }

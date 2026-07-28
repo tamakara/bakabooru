@@ -12,7 +12,7 @@ export interface ImageThumbnailDto {
   thumbnailUrl: string
   /** 原图访问URL，用于缩略图缺失时兜底 */
   imageUrl: string
-  aiStatus: 'PENDING' | 'PROCESSING' | 'READY'
+  aiStatus: 'PENDING' | 'PROCESSING' | 'READY' | 'FAILED'
 }
 
 /**
@@ -35,7 +35,7 @@ export interface ImageDto {
   hash: string
   /** 查看次数 */
   viewCount: number
-  aiStatus: 'PENDING' | 'PROCESSING' | 'READY'
+  aiStatus: 'PENDING' | 'PROCESSING' | 'READY' | 'FAILED'
   aiError?: string
   aiAttemptedAt?: string
   aiCompletedAt?: string
@@ -131,11 +131,6 @@ export const galleryApi = {
 
   retryAiProcessing: async (id: number) => {
     const response = await apiClient.post<ImageDto>(`/images/${id}/ai/retry`)
-    return response.data
-  },
-
-  enqueueAllAi: async () => {
-    const response = await apiClient.post<{ enqueued: number }>('/images/ai/enqueue-all')
     return response.data
   },
 

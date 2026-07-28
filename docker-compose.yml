@@ -65,11 +65,6 @@ services:
     restart: always
     gpus: all
     environment:
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_USER: db_user
-      DB_PASS: db_password
-      DB_NAME: bakabooru
       MINIO_HOST: minio
       MINIO_PORT: 9000
       MINIO_ACCESS_KEY: minio_user
@@ -92,8 +87,6 @@ services:
       retries: 3
       start_period: 30s
     depends_on:
-      db:
-        condition: service_healthy
       minio:
         condition: service_healthy
 
@@ -123,8 +116,6 @@ services:
       THUMBNAIL_MAX_SIZE: 1024
       THUMBNAIL_QUALITY: 0.85
       THUMBNAIL_FORMAT: jpg
-      # AI 后处理并发数
-      AI_CONCURRENCY: 10
     networks: [bakabooru-net]
     healthcheck:
       test:

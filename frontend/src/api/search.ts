@@ -5,7 +5,7 @@ export interface SearchRequestDto {
   tags?: string
   keyword?: string
   semanticQuery?: string  // 语义描述搜索
-  aiStatus?: 'PENDING' | 'PROCESSING' | 'READY'
+  aiStatus?: 'PENDING' | 'PROCESSING' | 'READY' | 'FAILED'
   randomSeed?: string
   widthMin?: number
   widthMax?: number

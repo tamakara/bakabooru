@@ -11,12 +11,6 @@ python-multipart
 # === ONNX Runtime ===
 onnxruntime-gpu
 
-fastembed-gpu
-
-# === 数据库 ===
-psycopg2-binary
-pgvector
-
 # === Transformers===
 transformers
 

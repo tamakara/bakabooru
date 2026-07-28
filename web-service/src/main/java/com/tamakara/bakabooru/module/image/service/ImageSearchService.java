@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 public class ImageSearchService {
 
     private static final int MAX_PAGE_SIZE = 100;
-    private static final Set<String> AI_STATUSES = Set.of("PENDING", "PROCESSING", "READY");
+    private static final Set<String> AI_STATUSES = Set.of("PENDING", "PROCESSING", "READY", "FAILED");
     private static final Map<String, String> SORT_COLUMNS = new HashMap<>();
 
     static {

@@ -1,11 +1,10 @@
 package com.tamakara.bakabooru.module.ai.client;
 
 import com.tamakara.bakabooru.module.ai.dto.EmbeddingResponseDto;
-import com.tamakara.bakabooru.module.ai.dto.ImageEmbeddingRequestDto;
+import com.tamakara.bakabooru.module.ai.dto.AnalyzeImageRequestDto;
+import com.tamakara.bakabooru.module.ai.dto.AnalyzeImageResponseDto;
 import com.tamakara.bakabooru.module.ai.dto.ImageEmbeddingResponseDto;
 import com.tamakara.bakabooru.module.ai.dto.SemanticSearchRequestDto;
-import com.tamakara.bakabooru.module.ai.dto.TagImageRequestDto;
-import com.tamakara.bakabooru.module.ai.dto.TagImageResponseDto;
 import com.tamakara.bakabooru.config.AiServiceProperties;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -29,32 +28,21 @@ public class AiServiceClient {
         this.webClient = webClientBuilder.baseUrl(aiServiceProperties.getUrl()).build();
     }
 
-    public TagImageResponseDto tagImage(TagImageRequestDto requestBody) {
+    public AnalyzeImageResponseDto analyzeImage(AnalyzeImageRequestDto requestBody) {
         return webClient
                 .post()
-                .uri("/tag/image")
+                .uri("/v1/images/analyze")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(requestBody)
                 .retrieve()
-                .bodyToMono(TagImageResponseDto.class)
-                .block(AI_TIMEOUT);
-    }
-
-    public ImageEmbeddingResponseDto imageEmbedding(ImageEmbeddingRequestDto requestBody) {
-        return webClient
-                .post()
-                .uri("/embedding/image")
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(requestBody)
-                .retrieve()
-                .bodyToMono(ImageEmbeddingResponseDto.class)
+                .bodyToMono(AnalyzeImageResponseDto.class)
                 .block(AI_TIMEOUT);
     }
 
     public ImageEmbeddingResponseDto imageEmbedding(MultipartFile file) {
         return webClient
                 .post()
-                .uri("/embedding/image-file")
+                .uri("/v1/embeddings/image-file")
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .body(BodyInserters.fromMultipartData("file", file.getResource()))
                 .retrieve()
@@ -65,7 +53,7 @@ public class AiServiceClient {
     public EmbeddingResponseDto generateEmbedding(SemanticSearchRequestDto requestBody) {
         return webClient
                 .post()
-                .uri("/search/embedding")
+                .uri("/v1/embeddings/text")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(requestBody)
                 .retrieve()

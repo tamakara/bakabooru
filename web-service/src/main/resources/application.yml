@@ -31,7 +31,7 @@ spring:
   task:
     scheduling:
       pool:
-        size: 2
+        size: 4
 
 server:
   address: 0.0.0.0
@@ -67,7 +67,14 @@ app:
   # AI 服务配置
   ai-service:
     url: ${AI_SERVICE_URL}
-    concurrency: ${AI_CONCURRENCY:10}
+  ai-job:
+    poll-interval-ms: ${AI_JOB_POLL_INTERVAL_MS:1000}
+    initial-delay-ms: ${AI_JOB_INITIAL_DELAY_MS:2000}
+    heartbeat-interval-ms: ${AI_JOB_HEARTBEAT_INTERVAL_MS:30000}
+    lock-duration: ${AI_JOB_LOCK_DURATION:PT5M}
+    retry-base-delay: ${AI_JOB_RETRY_BASE_DELAY:PT30S}
+    retry-max-delay: ${AI_JOB_RETRY_MAX_DELAY:PT30M}
+    max-attempts: ${AI_JOB_MAX_ATTEMPTS:5}
   thumbnail:
     max-size: ${THUMBNAIL_MAX_SIZE:1024}
     quality: ${THUMBNAIL_QUALITY:0.85}

@@ -54,7 +54,7 @@ const formState = reactive({
   keyword: '',
   tags: '',
   semanticQuery: '',  // 语义描述搜索
-  aiStatus: null as 'PENDING' | 'PROCESSING' | 'READY' | null,
+  aiStatus: null as 'PENDING' | 'PROCESSING' | 'READY' | 'FAILED' | null,
   sortBy: 'createdAt',
   sortDirection: 'DESC',
   widthMin: null as number | null,
@@ -112,35 +112,22 @@ const aiStatusOptions: any[] = [
   {label: '全部', value: null},
   {label: '待处理', value: 'PENDING'},
   {label: '处理中', value: 'PROCESSING'},
-  {label: '已完成', value: 'READY'}
+  {label: '已完成', value: 'READY'},
+  {label: '处理失败', value: 'FAILED'}
 ]
 
 function aiStatusLabel(status?: string) {
   if (status === 'READY') return '已完成'
   if (status === 'PROCESSING') return '处理中'
+  if (status === 'FAILED') return '处理失败'
   return '待处理'
 }
 
 function aiStatusClass(status?: string) {
   if (status === 'READY') return 'bg-emerald-500/90 text-white'
   if (status === 'PROCESSING') return 'bg-sky-500/90 text-white'
+  if (status === 'FAILED') return 'bg-red-600/90 text-white'
   return 'bg-amber-500/90 text-black'
-}
-
-// 批量 AI 处理
-const enqueuingAll = ref(false)
-async function handleEnqueueAllAi() {
-  if (enqueuingAll.value) return
-  enqueuingAll.value = true
-  try {
-    const result = await galleryApi.enqueueAllAi()
-    message.success(`已入队 ${result.enqueued} 张图片进行 AI 处理`)
-    handleSearch()
-  } catch (e) {
-    message.error('批量触发 AI 处理失败')
-  } finally {
-    enqueuingAll.value = false
-  }
 }
 
 // 搜索操作
@@ -639,16 +626,6 @@ async function handleBatchDownload() {
                         size="small"
                     />
                   </n-form-item>
-
-                  <n-button
-                      block
-                      size="small"
-                      :loading="enqueuingAll"
-                      :disabled="enqueuingAll"
-                      @click="handleEnqueueAllAi"
-                  >
-                    处理所有待处理图片
-                  </n-button>
 
                   <n-form-item label="关键字">
                     <n-input

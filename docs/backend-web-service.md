@@ -31,9 +31,9 @@ flowchart TB
 | `module.upload` | PostgreSQL 上传任务、MinIO staging 与 Worker |
 | `module.image` | 图片实体/DTO、搜索 SQL、对象 URL、缩略图与文件存储 |
 | `module.tag` | 标签字典、标签查询、图片标签关系 |
-| `module.ai` | AI HTTP 客户端、图像 embedding、异步后处理 |
+| `module.ai` | AI HTTP 客户端、持久化 Job、租约 Worker 与结果事务 |
 | `module.system` | 首次初始化、JWT 校验与设置持久化 |
-| `config` | Web 拦截器、调度、线程池、MinIO 与属性绑定 |
+| `config` | Web 拦截器、调度、MinIO 与任务属性绑定 |
 
 ## HTTP API
 
@@ -45,7 +45,7 @@ flowchart TB
 | 搜索 | `POST /api/search`、`POST /api/search/image` | 条件/语义检索、以图搜图 |
 | 图片 | `GET/PUT/DELETE /api/images/{id}` | 详情、编辑、删除 |
 | 图片标签 | `POST/DELETE /api/images/{id}/tags/{tagId}` | 手工维护标签 |
-| AI 管理 | `POST /api/images/{id}/ai/retry`、`POST /api/images/ai/enqueue-all` | 单图重试、批量入队 |
+| AI 管理 | `POST /api/images/{id}/ai/retry` | 重试已经终止失败的单图任务 |
 | 批量操作 | `POST /api/images/batch/delete`、`POST /api/images/batch/download` | 批量删除、ZIP 下载 |
 | 上传 | `POST /api/upload`、`GET/POST/DELETE /api/upload/tasks` | 创建、查看、重试、清理上传任务 |
 | 标签/设置 | `GET /api/tags`、`GET/POST /api/system/settings` | 标签检索与运行时设置 |
@@ -63,7 +63,7 @@ flowchart TD
     Hash --> Meta["解析格式、宽高；拒绝动图"]
     Meta --> Objects["写原图和缩略图"]
     Objects --> Insert["图片元数据入库<br/>PENDING"]
-    Insert --> Async["触发 AI 后处理"]
+    Insert --> Async["同一事务创建 ai_jobs/PENDING"]
     Worker -->|"异常"| Failed["upload_jobs/FAILED<br/>保留 staging"]
     Failed -->|"手动重试"| Queue
 ```
@@ -74,19 +74,21 @@ flowchart TD
 
 ```mermaid
 stateDiagram-v2
-    [*] --> PENDING: 图片元数据入库
-    PENDING --> PROCESSING: requestProcessing
-    PROCESSING --> READY: 标签和 embedding 写入成功
-    PROCESSING --> PENDING: 推理或写入失败 / 记录 ai_error
-    PENDING --> PROCESSING: 详情页手动重试
-    PENDING --> PROCESSING: 启动扫描或批量入队 / 仅无错误项
-    PROCESSING --> PENDING: Web Service 重启恢复
+    [*] --> PENDING: 图片与 ai_job 原子创建
+    PENDING --> PROCESSING: SKIP LOCKED 领取
+    PROCESSING --> READY: 推理结果与 Job 原子完成
+    PROCESSING --> PENDING: 可重试失败 / 指数退避
+    PROCESSING --> FAILED: 第 5 次失败
+    FAILED --> PENDING: 详情页手动重试
+    PROCESSING --> PROCESSING: 租约心跳
 ```
 
-- `aiExecutor` 与上传消费者分离，并发数由 `AI_CONCURRENCY` 控制，默认 `10`。
+- `ai_jobs` 是执行状态事实来源，`images.ai_status` 是面向查询和前端的事务性投影。
+- Worker 使用 `FOR UPDATE SKIP LOCKED`、五分钟租约和心跳；崩溃后由其他实例领取过期任务。
+- 默认最多尝试五次，按 30 秒起始的指数退避重试；终止失败后只能由详情页手动重置。
 - 打标阈值来自运行时设置 `tag.threshold`。
 - 完成阶段在事务中写入图像 `vector(512)`、新标签关系与时间戳。
-- 失败后不会无限自动重试：状态回到 `PENDING`，错误写入 `ai_error`；启动扫描和批量入队会跳过仍有错误的记录。
+- 完成和失败提交都会校验 `locked_by`，失去租约的旧 Worker 不能覆盖新结果。
 
 ## 搜索实现
 
@@ -102,4 +104,4 @@ stateDiagram-v2
 
 Flyway 在启动时执行 `src/main/resources/db/migration`。Hibernate 使用 `ddl-auto: validate`，因此表结构变更应新增 migration，而不是依赖实体自动改表。
 
-运行时设置保存在 `system_settings` 并由 Web Service 直接读取。缩略图规格、上传 Worker 和 AI 线程池参数属于部署配置，来自 `application.yml` 对应的环境变量，不属于运行时设置。
+运行时设置保存在 `system_settings` 并由 Web Service 直接读取。缩略图规格、上传 Worker 和 AI Job Worker 参数属于部署配置，来自 `application.yml` 对应的环境变量，不属于运行时设置。

@@ -1,7 +1,7 @@
 package com.tamakara.bakabooru.module.upload.service;
 
 import com.tamakara.bakabooru.config.UploadProperties;
-import com.tamakara.bakabooru.module.ai.service.AiProcessingService;
+import com.tamakara.bakabooru.module.ai.service.AiJobService;
 import com.tamakara.bakabooru.module.gallery.model.ImageInfo;
 import com.tamakara.bakabooru.module.image.entity.Image;
 import com.tamakara.bakabooru.module.image.service.ImageService;
@@ -34,7 +34,7 @@ public class UploadJobWorker {
     private final StorageService storageService;
     private final ImageService imageService;
     private final ThumbnailService thumbnailService;
-    private final AiProcessingService aiProcessingService;
+    private final AiJobService aiJobService;
     private final UploadProperties uploadProperties;
     private final TransactionTemplate transactionTemplate;
 
@@ -100,7 +100,6 @@ public class UploadJobWorker {
         if (job == null) return;
 
         File stagingFile = null;
-        Long imageId;
         try {
             stagingFile = storageService.getFile(job.getStagingObjectName());
             String hash = calculateHash(stagingFile);
@@ -116,7 +115,7 @@ public class UploadJobWorker {
             storageService.copyFile(job.getStagingObjectName(), "original/" + hash);
             thumbnailService.generateAndUploadThumbnail(stagingFile, hash);
 
-            imageId = transactionTemplate.execute(status -> completeJob(jobId, job, imageInfo, hash));
+            transactionTemplate.execute(status -> completeJob(jobId, job, imageInfo, hash));
         } catch (Exception e) {
             markFailed(jobId, e);
             return;
@@ -132,14 +131,9 @@ public class UploadJobWorker {
             log.warn("图片已入库，但 staging 对象清理失败 jobId={}: {}", jobId, e.getMessage());
         }
 
-        try {
-            aiProcessingService.requestProcessing(imageId);
-        } catch (Exception e) {
-            log.warn("图片已入库，但 AI 任务提交失败 imageId={}: {}", imageId, e.getMessage());
-        }
     }
 
-    private Long completeJob(UUID jobId, UploadJob snapshot, ImageInfo info, String hash) {
+    private Void completeJob(UUID jobId, UploadJob snapshot, ImageInfo info, String hash) {
         Image image = new Image();
         image.setTitle(FilenameUtils.getBaseName(snapshot.getFilename()));
         image.setFileName(snapshot.getFilename());
@@ -148,8 +142,9 @@ public class UploadJobWorker {
         image.setWidth(info.getWidth());
         image.setHeight(info.getHeight());
         image.setHash(hash);
-        image.setAiStatus(AiProcessingService.STATUS_PENDING);
+        image.setAiStatus(AiJobService.IMAGE_PENDING);
         Image savedImage = imageService.addImage(image);
+        aiJobService.enqueue(savedImage);
 
         UploadJob current = uploadJobRepository.findById(jobId)
                 .orElseThrow(() -> new RuntimeException("上传任务不存在"));
@@ -162,7 +157,7 @@ public class UploadJobWorker {
         current.setUpdatedAt(now);
         current.setCompletedAt(now);
         uploadJobRepository.save(current);
-        return savedImage.getId();
+        return null;
     }
 
     private void markFailed(UUID jobId, Exception error) {

@@ -1,6 +1,6 @@
 # 系统架构
 
-BaKaBooru 采用本地优先、业务与推理解耦的服务架构。浏览器只访问 Nginx；Nginx 提供前端资源并代理 `/api/*` 与 `/oss/*`。Web Service 是业务数据的唯一写入入口，AI Service 负责模型推理，仅标签向量初始化会直接更新 PostgreSQL。
+BaKaBooru 采用本地优先、业务与推理解耦的服务架构。浏览器只访问 Nginx；Nginx 提供前端资源并代理 `/api/*` 与 `/oss/*`。Web Service 是业务数据与任务的唯一写入入口，AI Service 是无数据库状态的推理服务。
 
 ## 容器与依赖
 
@@ -26,7 +26,6 @@ flowchart LR
     Web -->|"S3 API"| MinIO
     Web -->|"内部 HTTP"| AI
     AI -->|"读取原图"| MinIO
-    AI -.->|"仅初始化标签向量"| PG
     AI -->|"加载模型"| Cache
 ```
 
@@ -36,13 +35,13 @@ flowchart LR
 | --- | --- | --- |
 | Frontend | 页面、交互、查询缓存、上传进度、令牌携带 | 直接访问数据库或推理服务 |
 | Web Service | 鉴权、业务 API、事务、元数据、对象路径、上传任务调度、AI 调度 | 执行模型推理 |
-| AI Service | Camie Tagger、CLIP 文本/图像向量、标签向量初始化 | 图片业务状态、上传任务、鉴权 |
-| PostgreSQL | 图片、标签、关系、设置、上传任务、向量与索引 | 图片二进制文件 |
+| AI Service | Camie Tagger、CLIP 文本/图像向量、MinIO 原图只读 | 数据库、图片业务状态、任务、鉴权 |
+| PostgreSQL | 图片、标签、关系、设置、上传/AI 任务、图片向量与索引 | 图片二进制文件 |
 | MinIO | staging 暂存文件、原图与固定规格缩略图 | 图片元数据与状态 |
 
 ## 上传与 AI 后处理
 
-上传入库由单线程任务消费者处理；入库成功后，AI 后处理进入独立的 `aiExecutor` 线程池。两阶段分离，因此图片可以先出现在图库中，再异步转为 `READY`。
+上传与 AI 后处理都由 PostgreSQL 持久化任务驱动。两阶段分离，因此图片可以先出现在图库中，再异步转为 `READY`，进程退出也不会丢失工作。
 
 ```mermaid
 sequenceDiagram
@@ -65,17 +64,16 @@ sequenceDiagram
     W->>W: SHA-256、查重、解析尺寸
     W->>M: 写 original/{hash}
     W->>M: 写 thumbnail/{size}/{hash}.{format}
-    W->>P: 同一事务插入图片并完成 upload_job
+    W->>P: 同一事务插入图片、ai_job 并完成 upload_job
     W->>M: 删除 staging/{jobId}
-    W->>W: aiExecutor 异步调度
-    W->>P: ai_status=PROCESSING
-    W->>A: 标签识别 + 图像 CLIP 向量
-    A->>M: 读取 original/{hash}
+    W->>P: SKIP LOCKED 领取 ai_job + 租约
+    W->>A: POST /v1/images/analyze
+    A->>M: 只读取一次 original/{hash}
     A-->>W: 标签分数 + vector(512)
-    W->>P: 写标签关系、embedding、READY
+    W->>P: 同一事务写结果、READY、COMPLETED
 ```
 
-文件入库失败会保留 PostgreSQL 任务记录和 MinIO staging 对象，可从上传页重试。Worker 使用锁租约和心跳；进程退出后，租约过期的 `PROCESSING` 任务会被其他 Worker 重新领取。AI 推理失败会让图片回到 `PENDING` 并记录 `ai_error`，可从详情页重试。
+文件入库失败会保留 PostgreSQL 任务记录和 MinIO staging 对象，可从上传页重试。两个 Worker 都使用锁租约和心跳。AI 推理失败会指数退避自动重试，五次失败后转为 `FAILED` 并可从详情页手动重试。
 
 ## 检索路径
 
@@ -100,7 +98,6 @@ flowchart TD
 
 ## 一致性与可用性
 
-- PostgreSQL 是图片元数据、标签关系和运行时设置的事实来源。
-- 上传任务和运行时设置都以 PostgreSQL 为唯一事实来源。
+- PostgreSQL 是图片元数据、标签关系、运行时设置和两类 Job 的事实来源。
 - AI Service 的 `/health` 表示进程可访问，并通过 `status=loading|ok` 暴露模型状态；推理接口在模型未就绪时返回 `503`。
 - Web Service 不依赖 AI Service 健康检查启动，因此 AI 模型加载期间仍可登录、浏览和进行非语义检索。

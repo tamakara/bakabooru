@@ -11,5 +11,4 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "app.ai-service")
 public class AiServiceProperties {
     private String url;
-    private int concurrency = 10;
 }

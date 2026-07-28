@@ -14,7 +14,7 @@ flowchart LR
     Processing --> Ready["图片 READY"]
 
     Jobs -->|"入库失败"| UploadFailed["FAILED + staging"]
-    Processing -->|"推理失败"| AiFailed["PENDING + ai_error"]
+    Processing -->|"重试耗尽"| AiFailed["FAILED + ai_error"]
     UploadFailed -->|"上传页重试"| Jobs
     AiFailed -->|"详情页重试"| Processing
 ```
@@ -42,20 +42,21 @@ Compose 的 AI 健康检查只要求 `/health` 可访问。判断模型是否真
 
 ```mermaid
 stateDiagram-v2
-    PENDING --> PROCESSING: 自动入队 / 手动重试
+    PENDING --> PROCESSING: Worker 领取
     PROCESSING --> READY: 成功
-    PROCESSING --> PENDING: 失败并写 ai_error
-    PROCESSING --> PENDING: Web Service 重启恢复
+    PROCESSING --> PENDING: 可重试失败 / 指数退避
+    PROCESSING --> FAILED: 第 5 次失败
+    FAILED --> PENDING: 手动重试
 ```
 
 | 状态 | 解释 | 建议操作 |
 | --- | --- | --- |
-| `PENDING` 且无错误 | 等待调度 | 等待启动扫描，或使用“处理所有待处理图片” |
-| `PENDING` 且有错误 | 上次 AI 处理失败 | 修复根因后在详情页单图重试 |
-| `PROCESSING` | 已提交到进程内线程池 | 观察 Web/AI 日志；重启后会恢复为待处理 |
+| `PENDING` | 等待首次处理或自动退避 | 查看 `ai_jobs.next_retry_at`，通常无需人工操作 |
+| `PROCESSING` | Worker 已持有租约并调用 AI | 观察 Web/AI 日志；实例退出后租约过期可恢复 |
 | `READY` | 标签和图像向量已写入 | 可参与完整的向量检索 |
+| `FAILED` | 五次尝试均失败 | 修复根因后在详情页单图重试 |
 
-自动恢复策略：Web Service 启动时先把遗留 `PROCESSING` 改回 `PENDING`，再调度所有没有 `ai_error` 的待处理图片。保留错误的记录不会被无限自动重试。
+自动恢复依赖数据库租约而不是启动扫描。Worker 通过 `FOR UPDATE SKIP LOCKED` 领取到期任务，失败按 30 秒起始的指数退避自动重试；第五次失败才写入图片 `ai_error` 并停止。
 
 ## 上传任务恢复
 
@@ -98,7 +99,7 @@ flowchart TD
 1. 打开图片详情查看 `aiError`。
 2. 检查 AI `/health` 是否已从 `loading` 变为 `ok`。
 3. 检查模型缓存下载、CUDA/CPU Provider 和 MinIO 原图读取。
-4. 修复后单图重试；无错误的批量积压可使用批量入队。
+4. `FAILED` 时修复根因后单图重试；`PENDING` 会自动继续处理。
 
 ### 语义搜索或以图搜图结果少
 

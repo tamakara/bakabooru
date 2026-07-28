@@ -11,8 +11,6 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 public class EmbeddingResponseDto {
-    private boolean success;
     private String text;
     private List<Double> embedding;
-    private String error;
 }

@@ -14,7 +14,6 @@ flowchart TD
     Front["frontend<br/>Nginx :80"]
 
     MinIO -->|"healthy"| Init
-    DB -->|"healthy"| AI
     MinIO -->|"healthy"| AI
     DB -->|"healthy"| Web
     MinIO -->|"healthy"| Web
@@ -42,7 +41,7 @@ docker compose ps
 | `http://localhost:9000` | MinIO S3 API（默认对宿主机暴露） |
 | `localhost:5432` | PostgreSQL（默认对宿主机暴露） |
 
-Web 与 AI 服务没有映射到宿主机端口，通过 Compose 网络互访。首次启动时 Flyway 会执行数据库迁移（包括标签字典），AI Service 会下载模型；耗时取决于网络、磁盘和 GPU 环境。`tags.embedding` 的生成由 AI Service `/tags/init` 单独触发，不包含在 Compose 启动流程中。
+Web 与 AI 服务没有映射到宿主机端口，通过 Compose 网络互访。首次启动时 Flyway 会执行数据库迁移（包括标签字典与持久化任务表），AI Service 会下载模型；耗时取决于网络、磁盘和 GPU 环境。AI Service 不需要数据库账号。
 
 ## 数据卷
 
@@ -69,14 +68,16 @@ flowchart LR
 | `THUMBNAIL_MAX_SIZE` | `1024` | 缩略图最大边长 |
 | `THUMBNAIL_QUALITY` | `0.85` | 缩略图输出质量 |
 | `THUMBNAIL_FORMAT` | `jpg` | 缩略图格式 |
-| `AI_CONCURRENCY` | `10` | AI 后处理线程池并发数 |
+| `AI_JOB_LOCK_DURATION` | `PT5M` | AI Job 锁租约；心跳会持续续期 |
+| `AI_JOB_MAX_ATTEMPTS` | `5` | AI Job 自动尝试上限 |
+| `AI_JOB_RETRY_BASE_DELAY` | `PT30S` | 指数退避初始延迟 |
 | `UPLOAD_POLL_INTERVAL_MS` | `1000` | PostgreSQL 上传任务空闲轮询间隔 |
 | `UPLOAD_LOCK_DURATION` | `PT2M` | 上传任务锁租约；Worker 心跳续期 |
 | `UPLOAD_COMPLETED_RETENTION` | `P7D` | 已完成上传任务记录保留时间 |
 
 ### AI Service
 
-AI Service 复用 PostgreSQL 与 MinIO 变量，另使用：
+AI Service 只使用 MinIO 与模型配置：
 
 | 变量 | Compose 默认值 | 说明 |
 | --- | --- | --- |
@@ -119,4 +120,4 @@ pnpm dev
 - 修改缩略图尺寸或格式后，新对象使用新路径；启动后的 backfill 会补齐当前规格，不自动删除旧规格。
 - 修改密码/主机名时必须同步所有依赖该服务的容器环境变量。
 - 更改模型缓存目录时应保留卷挂载，否则每次重建都可能重新下载模型。
-- CPU-only 环境需移除或调整 `gpus: all`，并确认所安装的 ONNX/FastEmbed runtime 与目标环境兼容。
+- CPU-only 环境需移除或调整 `gpus: all`，并确认所安装的 ONNX Runtime 与目标环境兼容。

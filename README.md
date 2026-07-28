@@ -30,7 +30,6 @@ flowchart LR
     Web -->|"内部推理 API"| AI["AI Service<br/>FastAPI + ONNX Runtime"]
     AI -->|"读取原图"| MinIO
     AI --> Cache[("模型缓存")]
-    AI -.->|"标签向量初始化"| PG
 ```
 
 Web Service 是业务入口；AI Service 只负责打标与向量推理。上传入库和 AI 后处理是两个异步阶段，因此模型加载或暂时不可用时，普通浏览、管理和非语义检索仍能工作。
@@ -72,7 +71,7 @@ mvn spring-boot:run
 ```
 
 ```bash
-# AI Service（需配置 PostgreSQL、MinIO 与模型缓存环境变量）
+# AI Service（需配置 MinIO 与模型缓存环境变量）
 cd ai-service
 pip install -r requirements.txt
 uvicorn app.main:app --reload
@@ -106,7 +105,8 @@ bakabooru/
 | `THUMBNAIL_MAX_SIZE` | `1024` | 缩略图最大边长，像素 |
 | `THUMBNAIL_QUALITY` | `0.85` | 缩略图输出质量 |
 | `THUMBNAIL_FORMAT` | `jpg` | 缩略图格式 |
-| `AI_CONCURRENCY` | `10` | Web Service AI 后处理线程数 |
+| `AI_JOB_LOCK_DURATION` | `PT5M` | AI Job 锁租约；心跳会持续续期 |
+| `AI_JOB_MAX_ATTEMPTS` | `5` | AI Job 自动尝试上限 |
 | `UPLOAD_LOCK_DURATION` | `PT2M` | 上传 Worker 锁租约；心跳会持续续期 |
 | `MODEL_CACHE_DIR` | `/model_cache` | AI 容器内模型缓存路径 |
 | `AI_SERVICE_URL` | `http://backend-ai-service:8000` | Web 到 AI 的内部地址 |

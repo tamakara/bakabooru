@@ -80,11 +80,12 @@ sequenceDiagram
 
 ## AI 状态展示
 
-- `PENDING`：等待处理；若详情中存在 `aiError`，可手动重试。
-- `PROCESSING`：Web Service 已调度推理。
+- `PENDING`：等待首次处理或自动退避重试。
+- `PROCESSING`：Web Service Worker 已领取持久化 AI Job。
 - `READY`：标签与图像向量已经持久化。
+- `FAILED`：自动尝试已耗尽；详情显示 `aiError` 并允许手动重试。
 
-图库侧栏可以按状态过滤，并可触发“处理所有待处理图片”；该操作只会入队没有遗留错误的 `PENDING` 图片。
+图库侧栏可以按四种状态过滤。`PENDING` 任务由后台 Worker 自动处理，不需要前端批量入队。
 
 ## 开发命令
 

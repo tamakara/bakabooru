@@ -1,6 +1,6 @@
 package com.tamakara.bakabooru.module.image.service;
 
-import com.tamakara.bakabooru.module.ai.service.AiProcessingService;
+import com.tamakara.bakabooru.module.ai.service.AiJobService;
 import com.tamakara.bakabooru.module.image.dto.ImageDto;
 import com.tamakara.bakabooru.module.image.entity.Image;
 import com.tamakara.bakabooru.module.image.mapper.ImageMapper;
@@ -27,7 +27,7 @@ public class ImageService {
     private final ImageMapper imageMapper;
     private final StorageService storageService;
     private final TagService tagService;
-    private final AiProcessingService aiProcessingService;
+    private final AiJobService aiJobService;
 
     @Transactional
     public ImageDto getImage(Long id) {
@@ -83,7 +83,7 @@ public class ImageService {
     }
 
     public ImageDto retryAiProcessing(Long id) {
-        Image image = aiProcessingService.requestProcessing(id);
+        Image image = aiJobService.retry(id);
         return imageMapper.toDto(image);
     }
 

@@ -36,11 +36,15 @@ class MinioService:
                 bucket_name=settings.MINIO_BUCKET_NAME,
                 object_name=object_name
             )
-            image_data = response.read()
-            response.close()
-            response.release_conn()
+            try:
+                image_data = response.read()
+            finally:
+                response.close()
+                response.release_conn()
 
-            return Image.open(BytesIO(image_data))
+            image = Image.open(BytesIO(image_data))
+            image.load()
+            return image
         except Exception as e:
             raise ValueError(f"无法从 MinIO 获取图像 {object_name}: {e}")
 
