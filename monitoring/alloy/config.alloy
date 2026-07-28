@@ -1,0 +1,60 @@
+discovery.docker "local" {
+  host             = "unix:///var/run/docker.sock"
+  refresh_interval = "5s"
+}
+
+discovery.relabel "docker_logs" {
+  targets = []
+
+  // Do not ingest Alloy's own delivery errors and create a feedback loop.
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
+    regex         = "alloy"
+    action        = "drop"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex         = "/(.*)"
+    target_label  = "container"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_compose_project"]
+    target_label  = "compose_project"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
+    target_label  = "compose_service"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_container_log_stream"]
+    target_label  = "stream"
+  }
+}
+
+loki.source.docker "local" {
+  host             = "unix:///var/run/docker.sock"
+  targets          = discovery.docker.local.targets
+  relabel_rules    = discovery.relabel.docker_logs.rules
+  refresh_interval = "5s"
+  forward_to       = [loki.process.docker.receiver]
+}
+
+loki.process "docker" {
+  stage.static_labels {
+    values = {
+      job = "docker",
+    }
+  }
+
+  forward_to = [loki.write.local.receiver]
+}
+
+loki.write "local" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "annotations": {"list": []},
+  "editable": false,
+  "graphTooltip": 1,
+  "panels": [
+    {
+      "datasource": {"type": "loki", "uid": "loki"},
+      "type": "stat",
+      "title": "当前日志速率",
+      "gridPos": {"x": 0, "y": 0, "w": 6, "h": 5},
+      "targets": [{"expr": "sum(rate({job=\"docker\", compose_project=~\"$project\", compose_service=~\"$service\"}[$__auto]))", "legendFormat": "日志"}],
+      "fieldConfig": {"defaults": {"unit": "lines/sec", "noValue": "0"}}
+    },
+    {
+      "datasource": {"type": "loki", "uid": "loki"},
+      "type": "stat",
+      "title": "错误日志速率",
+      "gridPos": {"x": 6, "y": 0, "w": 6, "h": 5},
+      "targets": [{"expr": "sum(rate({job=\"docker\", compose_project=~\"$project\", compose_service=~\"$service\"} |~ \"(?i)(error|exception|failed|fatal|panic|错误|失败)\" [$__auto]))", "legendFormat": "错误"}],
+      "fieldConfig": {"defaults": {"unit": "lines/sec", "noValue": "0", "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "red", "value": 0.01}]}}}
+    },
+    {
+      "datasource": {"type": "loki", "uid": "loki"},
+      "type": "stat",
+      "title": "活跃服务",
+      "gridPos": {"x": 12, "y": 0, "w": 6, "h": 5},
+      "targets": [{"expr": "count(sum by (compose_service) (count_over_time({job=\"docker\", compose_project=~\"$project\", compose_service=~\"$service\"}[$__auto])))", "legendFormat": "服务"}],
+      "fieldConfig": {"defaults": {"noValue": "0"}}
+    },
+    {
+      "datasource": {"type": "loki", "uid": "loki"},
+      "type": "stat",
+      "title": "选定时段日志量",
+      "gridPos": {"x": 18, "y": 0, "w": 6, "h": 5},
+      "targets": [{"expr": "sum(count_over_time({job=\"docker\", compose_project=~\"$project\", compose_service=~\"$service\"}[$__range]))", "legendFormat": "日志"}],
+      "fieldConfig": {"defaults": {"unit": "short", "noValue": "0"}}
+    },
+    {
+      "datasource": {"type": "loki", "uid": "loki"},
+      "type": "timeseries",
+      "title": "各服务日志吞吐",
+      "gridPos": {"x": 0, "y": 5, "w": 12, "h": 8},
+      "targets": [{"expr": "sum by (compose_service) (rate({job=\"docker\", compose_project=~\"$project\", compose_service=~\"$service\"}[$__auto]))", "legendFormat": "{{compose_service}}"}],
+      "fieldConfig": {"defaults": {"unit": "lines/sec"}}
+    },
+    {
+      "datasource": {"type": "loki", "uid": "loki"},
+      "type": "timeseries",
+      "title": "各服务错误趋势",
+      "gridPos": {"x": 12, "y": 5, "w": 12, "h": 8},
+      "targets": [{"expr": "sum by (compose_service) (rate({job=\"docker\", compose_project=~\"$project\", compose_service=~\"$service\"} |~ \"(?i)(error|exception|failed|fatal|panic|错误|失败)\" [$__auto]))", "legendFormat": "{{compose_service}}"}],
+      "fieldConfig": {"defaults": {"unit": "lines/sec", "color": {"mode": "palette-classic"}}}
+    },
+    {
+      "datasource": {"type": "loki", "uid": "loki"},
+      "type": "bargauge",
+      "title": "错误日志服务排行",
+      "gridPos": {"x": 0, "y": 13, "w": 24, "h": 6},
+      "targets": [{"expr": "sum by (compose_service) (count_over_time({job=\"docker\", compose_project=~\"$project\", compose_service=~\"$service\"} |~ \"(?i)(error|exception|failed|fatal|panic|错误|失败)\" [$__range]))", "legendFormat": "{{compose_service}}"}],
+      "options": {"orientation": "horizontal", "displayMode": "gradient", "showUnfilled": true},
+      "fieldConfig": {"defaults": {"noValue": "0", "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 1}, {"color": "red", "value": 10}]}}}
+    },
+    {
+      "datasource": {"type": "loki", "uid": "loki"},
+      "type": "logs",
+      "title": "Docker 日志明细",
+      "gridPos": {"x": 0, "y": 19, "w": 24, "h": 14},
+      "targets": [{"expr": "{job=\"docker\", compose_project=~\"$project\", compose_service=~\"$service\"} |~ \"(?i)$search\"", "queryType": "range", "refId": "A"}],
+      "options": {"showTime": true, "showLabels": true, "showCommonLabels": false, "wrapLogMessage": true, "prettifyLogMessage": false, "enableLogDetails": true, "sortOrder": "Descending", "dedupStrategy": "none"}
+    }
+  ],
+  "refresh": "15s",
+  "schemaVersion": 41,
+  "tags": ["bakabooru", "loki", "logs"],
+  "templating": {
+    "list": [
+      {"name": "project", "label": "Compose 项目", "type": "query", "datasource": {"type": "loki", "uid": "loki"}, "query": "label_values(compose_project)", "definition": "label_values(compose_project)", "includeAll": true, "allValue": ".*", "refresh": 1, "current": {"text": "All", "value": "$__all"}},
+      {"name": "service", "label": "服务", "type": "query", "datasource": {"type": "loki", "uid": "loki"}, "query": "label_values({compose_project=~\"$project\"}, compose_service)", "definition": "label_values({compose_project=~\"$project\"}, compose_service)", "includeAll": true, "allValue": ".*", "refresh": 1, "current": {"text": "All", "value": "$__all"}},
+      {"name": "search", "label": "日志关键字（支持正则）", "type": "textbox", "query": ".*", "current": {"text": ".*", "value": ".*"}}
+    ]
+  },
+  "time": {"from": "now-1h", "to": "now"},
+  "timezone": "browser",
+  "title": "BaKaBooru Docker 日志",
+  "uid": "bakabooru-docker-logs",
+  "version": 1
+}

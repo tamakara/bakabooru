@@ -32,6 +32,22 @@ scrape_configs:
           service: ai-service
           component: application
 
+  - job_name: loki
+    static_configs:
+      - targets:
+          - loki:3100
+        labels:
+          service: loki
+          component: logging
+
+  - job_name: alloy
+    static_configs:
+      - targets:
+          - alloy:12345
+        labels:
+          service: alloy
+          component: logging
+
   - job_name: postgres
     static_configs:
       - targets:

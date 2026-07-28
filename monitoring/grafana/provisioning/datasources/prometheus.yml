@@ -11,3 +11,14 @@ datasources:
     version: 1
     jsonData:
       timeInterval: 15s
+
+  - name: Loki
+    uid: loki
+    type: loki
+    access: proxy
+    url: http://loki:3100
+    editable: false
+    version: 1
+    jsonData:
+      maxLines: 2000
+      timeout: 60
