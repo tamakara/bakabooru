@@ -51,4 +51,4 @@ ONNX、Transformers 和模型目录初始化都延迟到 `load_all()`，因此�
 | `MINIO_ACCESS_KEY/SECRET_KEY` | MinIO 凭据；服务代码只执行读取 |
 | `MINIO_BUCKET_NAME` | 图片 bucket，Compose 默认 `images` |
 
-生产依赖位于 `requirements.txt`，API/契约测试依赖位于 `requirements-test.txt`。
+AI Service 使用 uv 管理镜像内的 Python 3.12 与依赖。`uv.lock` 只面向 Linux x86_64 解析，容器构建使用 `uv sync --frozen --no-dev` 安装锁定的生产依赖；不提供宿主机 Python 运行配置。

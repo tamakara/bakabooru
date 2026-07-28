@@ -1,8 +1,0 @@
-fastapi
-httpx
-minio
-numpy
-pillow
-pydantic-settings
-python-multipart
-pytest

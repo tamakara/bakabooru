@@ -1,6 +1,6 @@
 # BaKaBooru 文档
 
-BaKaBooru 是一个本地优先的 AI 图库管理系统。业务入口由 Spring Boot Web Service 统一提供，FastAPI AI Service 专注模型推理；PostgreSQL/pgvector 承载结构化数据和持久化任务，MinIO 承载图片对象。
+BaKaBooru 是一个使用 Docker Compose 自托管的 AI 图库管理系统。业务入口由 Spring Boot Web Service 统一提供，FastAPI AI Service 专注模型推理；PostgreSQL/pgvector 承载结构化数据和持久化任务，MinIO 承载图片对象。
 
 ## 阅读路径
 

@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     MODEL_CACHE_DIR: Path = Path("/model_cache")
 
     # MinIO 配置
-    MINIO_HOST: str = "localhost"
+    MINIO_HOST: str = "minio"
     MINIO_PORT: str = "9000"
     MINIO_ACCESS_KEY: str = "minio_user"
     MINIO_SECRET_KEY: str = "minio_pass"

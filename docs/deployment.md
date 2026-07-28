@@ -86,35 +86,6 @@ AI Service 只使用 MinIO 与模型配置：
 
 生产部署前必须替换 Compose 中的数据库和 MinIO 默认密码。当前 MinIO bucket 被初始化为匿名可读，以支持 `/oss/*` 图片展示；若要改为私有 bucket，需要同时改造 URL 签名/代理策略。
 
-## 本地开发
-
-先启动基础设施：
-
-```bash
-docker compose up -d db minio minio-createbuckets
-```
-
-再分别运行服务，并提供与 `application.yml`/`settings.py` 对应的环境变量：
-
-```bash
-cd web-service
-mvn spring-boot:run
-```
-
-```bash
-cd ai-service
-pip install -r requirements.txt
-uvicorn app.main:app --reload
-```
-
-```bash
-cd frontend
-pnpm install
-pnpm dev
-```
-
-本地 Vite 默认地址为 `http://localhost:5173`。确认 `vite.config.ts` 中的代理目标与本地 Web Service 地址一致。
-
 ## 配置变更影响
 
 - 修改缩略图尺寸或格式后，新对象使用新路径；启动后的 backfill 会补齐当前规格，不自动删除旧规格。

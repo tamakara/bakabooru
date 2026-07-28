@@ -1,2 +1,9 @@
 .venv
+.uv-cache
 model_cache
+.pytest_cache
+.mypy_cache
+.ruff_cache
+__pycache__
+*.py[cod]
+tests

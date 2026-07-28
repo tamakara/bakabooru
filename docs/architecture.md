@@ -1,6 +1,6 @@
 # 系统架构
 
-BaKaBooru 采用本地优先、业务与推理解耦的服务架构。浏览器只访问 Nginx；Nginx 提供前端资源并代理 `/api/*` 与 `/oss/*`。Web Service 是业务数据与任务的唯一写入入口，AI Service 是无数据库状态的推理服务。
+BaKaBooru 采用 Docker Compose 自托管、业务与推理解耦的服务架构。浏览器只访问 Nginx；Nginx 提供前端资源并代理 `/api/*` 与 `/oss/*`。Web Service 是业务数据与任务的唯一写入入口，AI Service 是无数据库状态的推理服务。
 
 ## 容器与依赖
 

@@ -87,12 +87,6 @@ sequenceDiagram
 
 图库侧栏可以按四种状态过滤。`PENDING` 任务由后台 Worker 自动处理，不需要前端批量入队。
 
-## 开发命令
+## 容器构建
 
-```bash
-cd frontend
-pnpm install
-pnpm dev
-```
-
-常用校验：`pnpm build` 会先运行 `vue-tsc -b`，再执行 Vite 生产构建。
+Frontend Dockerfile 在 Node 构建阶段执行 `pnpm install --frozen-lockfile` 和 `pnpm build`，再将静态产物复制到 Nginx 运行镜像。浏览器的 `/api/*` 与 `/oss/*` 请求统一由容器内 Nginx 转发，不提供 Vite 宿主机代理配置。

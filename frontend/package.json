@@ -5,9 +5,7 @@
   "packageManager": "pnpm@9.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vue-tsc -b && vite build",
-    "preview": "vite preview"
+    "build": "vue-tsc -b && vite build"
   },
   "dependencies": {
     "@tanstack/vue-query": "^5.17.19",
