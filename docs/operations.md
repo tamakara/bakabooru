@@ -24,7 +24,7 @@ flowchart LR
 ```bash
 docker compose ps
 docker compose logs --tail 200 backend-web-service
-docker compose logs --tail 200 backend-ai-service
+docker compose logs --tail 200 ai-service
 ```
 
 重点观察：
@@ -83,7 +83,7 @@ flowchart TD
     Upload --> Next
 ```
 
-修改 `THUMBNAIL_MAX_SIZE` 或 `THUMBNAIL_FORMAT` 后会形成新的对象前缀。旧规格不会自动清理；确认新规格全部补齐并完成备份后，再制定单独的对象清理方案。
+缩略图规格是应用启动配置。修改尺寸或格式后会形成新的对象前缀，旧规格不会自动清理；确认新规格全部补齐并完成备份后，再制定单独的对象清理方案。
 
 ## 常见故障
 
@@ -110,7 +110,7 @@ flowchart TD
 
 ### 普通搜索可用，但语义搜索失败
 
-这通常说明 Web Service 与数据库正常，而 AI Service 尚未就绪或内部 URL 不通。检查 `AI_SERVICE_URL`、Compose 网络、模型状态和 AI 日志；无需先重启 PostgreSQL 或 MinIO。
+这通常说明 Web Service 与数据库正常，而 AI Service 尚未就绪或内部 URL 不通。检查应用中的 AI 服务地址覆盖、Compose 网络、模型状态和 AI 日志；无需先重启 PostgreSQL 或 MinIO。
 
 ## 备份建议
 

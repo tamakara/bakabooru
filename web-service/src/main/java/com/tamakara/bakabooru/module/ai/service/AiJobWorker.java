@@ -156,7 +156,7 @@ public class AiJobWorker {
             job.setLockedUntil(null);
             job.setUpdatedAt(now);
 
-            if (job.getAttempts() >= properties.getMaxAttempts()) {
+            if (job.getAttempts() >= systemSettingService.getAiMaxAttempts()) {
                 job.setStatus(AiJobStatus.FAILED);
                 job.setCompletedAt(now);
                 image.setAiStatus(AiJobService.IMAGE_FAILED);
@@ -184,8 +184,10 @@ public class AiJobWorker {
 
     Duration retryDelay(int attempts) {
         long multiplier = 1L << Math.min(Math.max(attempts - 1, 0), 20);
-        Duration delay = properties.getRetryBaseDelay().multipliedBy(multiplier);
-        return delay.compareTo(properties.getRetryMaxDelay()) > 0 ? properties.getRetryMaxDelay() : delay;
+        Duration baseDelay = Duration.ofSeconds(systemSettingService.getAiRetryBaseDelaySeconds());
+        Duration maxDelay = Duration.ofSeconds(systemSettingService.getAiRetryMaxDelaySeconds());
+        Duration delay = baseDelay.multipliedBy(multiplier);
+        return delay.compareTo(maxDelay) > 0 ? maxDelay : delay;
     }
 
     private void validateResponse(AnalyzeImageResponseDto response) {

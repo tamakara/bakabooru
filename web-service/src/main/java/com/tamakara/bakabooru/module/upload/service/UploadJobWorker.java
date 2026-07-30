@@ -7,6 +7,7 @@ import com.tamakara.bakabooru.module.image.entity.Image;
 import com.tamakara.bakabooru.module.image.service.ImageService;
 import com.tamakara.bakabooru.module.image.service.StorageService;
 import com.tamakara.bakabooru.module.image.service.ThumbnailService;
+import com.tamakara.bakabooru.module.system.service.SystemSettingService;
 import com.tamakara.bakabooru.module.upload.entity.UploadJob;
 import com.tamakara.bakabooru.module.upload.entity.UploadJobStatus;
 import com.tamakara.bakabooru.module.upload.repository.UploadJobRepository;
@@ -22,8 +23,8 @@ import org.springframework.transaction.support.TransactionTemplate;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.time.Instant;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -38,6 +39,7 @@ public class UploadJobWorker {
     private final ThumbnailService thumbnailService;
     private final AiJobService aiJobService;
     private final UploadProperties uploadProperties;
+    private final SystemSettingService systemSettingService;
     private final TransactionTemplate transactionTemplate;
     private final BusinessMetrics metrics;
 
@@ -67,7 +69,8 @@ public class UploadJobWorker {
 
     @Scheduled(cron = "${app.upload.cleanup-cron:0 0 3 * * *}")
     public void cleanupCompletedJobs() {
-        Instant cutoff = Instant.now().minus(uploadProperties.getCompletedRetention());
+        Instant cutoff = Instant.now().minus(
+                Duration.ofDays(systemSettingService.getUploadCompletedRetentionDays()));
         List<UploadJob> jobs = uploadJobRepository
                 .findByStatusAndCompletedAtBefore(UploadJobStatus.COMPLETED, cutoff);
         for (UploadJob job : jobs) {

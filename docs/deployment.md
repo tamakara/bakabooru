@@ -9,7 +9,7 @@ flowchart TD
     DB["db<br/>PostgreSQL + pgvector"]
     MinIO["minio<br/>对象存储"]
     Init["minio-createbuckets<br/>创建 images bucket"]
-    AI["backend-ai-service<br/>FastAPI :8000"]
+    AI["ai-service<br/>FastAPI :8000"]
     Web["backend-web-service<br/>Spring Boot :8080"]
     Front["frontend<br/>Nginx :80"]
 
@@ -28,6 +28,8 @@ AI Service 不在 Web Service 的 Compose `depends_on` 中。模型下载或加�
 ## 快速启动
 
 ```bash
+cp .env.example .env
+# 编辑 .env 并设置本地凭据
 docker compose up -d --build
 docker compose ps
 ```
@@ -54,41 +56,46 @@ flowchart LR
 
 升级或重建容器不会自动删除这些目录。备份时至少应成对保留 PostgreSQL 与 MinIO 数据，避免元数据和对象内容失配。
 
-## 环境变量
+## 配置分层
 
-### Web Service
+### 本地 `.env`
 
-| 变量 | Compose 默认值 | 说明 |
+Compose 启动前必须存在 `.env`。可复制 `.env.example` 后填写；`.env` 已被 Git 忽略。
+
+| 变量 | 说明 |
+| --- | --- |
+| `POSTGRES_USER` | PostgreSQL 管理及应用账号 |
+| `POSTGRES_PASSWORD` | PostgreSQL 密码 |
+| `POSTGRES_DB` | 应用数据库名 |
+| `MINIO_ROOT_USER` | MinIO root 账号；当前同时供应用使用 |
+| `MINIO_ROOT_PASSWORD` | MinIO root 密码 |
+| `POSTGRES_EXPORTER_PASSWORD` | PostgreSQL Exporter 专用账号密码 |
+
+Compose 使用必填变量表达式，缺少任何上述配置时会在创建容器前失败。不要提交包含真实凭据的 `.env`。
+
+### 应用默认配置
+
+Compose 内部默认使用 `db:5432/bakabooru`、`minio:9000/images` 和 `http://ai-service:8000`。模型缓存目录固定为 `/model_cache`，缩略图规格固定为 `1024 / 0.85 / jpg`。Worker 轮询、心跳、锁租期和清理 cron 属于启动配置，不在系统设置页动态修改。
+
+AI Service 的 `DEVICE` 未设置时默认为 `auto`，自动选择 CUDA 或 CPU。需要接入 Compose 外部服务时，可按 `application.yml` 中对应的变量名覆盖非敏感地址。
+
+### 运行时设置
+
+以下配置保存在 PostgreSQL，可在系统设置页修改，并作用于保存后的新任务或下一次清理：
+
+| 设置 | 默认值 | 范围 |
 | --- | --- | --- |
-| `DB_HOST/PORT/USER/PASS/NAME` | `db/5432/db_user/db_password/bakabooru` | PostgreSQL 连接 |
-| `MINIO_HOST/PORT` | `minio/9000` | MinIO 内部地址 |
-| `MINIO_ACCESS_KEY/SECRET_KEY` | `minio_user/minio_password` | MinIO 凭据 |
-| `MINIO_BUCKET_NAME` | `images` | 图片 bucket |
-| `AI_SERVICE_URL` | `http://backend-ai-service:8000` | AI Service 内部地址 |
-| `THUMBNAIL_MAX_SIZE` | `1024` | 缩略图最大边长 |
-| `THUMBNAIL_QUALITY` | `0.85` | 缩略图输出质量 |
-| `THUMBNAIL_FORMAT` | `jpg` | 缩略图格式 |
-| `AI_JOB_LOCK_DURATION` | `PT5M` | AI Job 锁租约；心跳会持续续期 |
-| `AI_JOB_MAX_ATTEMPTS` | `5` | AI Job 自动尝试上限 |
-| `AI_JOB_RETRY_BASE_DELAY` | `PT30S` | 指数退避初始延迟 |
-| `UPLOAD_POLL_INTERVAL_MS` | `1000` | PostgreSQL 上传任务空闲轮询间隔 |
-| `UPLOAD_LOCK_DURATION` | `PT2M` | 上传任务锁租约；Worker 心跳续期 |
-| `UPLOAD_COMPLETED_RETENTION` | `P7D` | 已完成上传任务记录保留时间 |
+| 标签阈值 | `0.61` | `0.0-1.0` |
+| AI 最大尝试次数 | `5` | `1-20` |
+| AI 重试初始延迟 | `30` 秒 | `1-3600` 秒 |
+| AI 重试最大延迟 | `1800` 秒 | `1-86400` 秒，且不小于初始延迟 |
+| 已完成上传任务保留期 | `7` 天 | `1-365` 天 |
 
-### AI Service
-
-AI Service 只使用 MinIO 与模型配置：
-
-| 变量 | Compose 默认值 | 说明 |
-| --- | --- | --- |
-| `MODEL_CACHE_DIR` | `/model_cache` | 容器内模型缓存路径 |
-| `DEVICE` | 未设置，代码默认 `auto` | 自动选择 CUDA 或 CPU |
-
-生产部署前必须替换 Compose 中的数据库和 MinIO 默认密码。当前 MinIO bucket 被初始化为匿名可读，以支持 `/oss/*` 图片展示；若要改为私有 bucket，需要同时改造 URL 签名/代理策略。
+认证密码、初始化标记和基础设施凭据不通过通用设置 API 返回或修改。当前 MinIO bucket 被初始化为匿名可读，以支持 `/oss/*` 图片展示；若要改为私有 bucket，需要同时改造 URL 签名/代理策略。
 
 ## 配置变更影响
 
-- 修改缩略图尺寸或格式后，新对象使用新路径；启动后的 backfill 会补齐当前规格，不自动删除旧规格。
-- 修改密码/主机名时必须同步所有依赖该服务的容器环境变量。
+- 修改 `.env` 中的凭据后，需要同步依赖服务并重启容器；已有 PostgreSQL 或 MinIO 数据目录不会自动接受新的初始化凭据。
+- 修改运行时 AI 重试参数不会重写已完成或已失败任务，只影响后续失败判断和重试时间计算。
 - 更改模型缓存目录时应保留卷挂载，否则每次重建都可能重新下载模型。
 - CPU-only 环境需移除或调整 `gpus: all`，并确认所安装的 ONNX Runtime 与目标环境兼容。

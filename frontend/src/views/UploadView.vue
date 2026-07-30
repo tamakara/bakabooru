@@ -2,7 +2,6 @@
 import {computed, h, ref} from 'vue'
 import {useMutation, useQuery, useQueryClient} from '@tanstack/vue-query'
 import {uploadApi, type UploadTask} from '../api/upload'
-import {systemApi} from '../api/system'
 import {useQueueStore} from '../stores/queue'
 import {
   type DataTableColumns,
@@ -69,17 +68,10 @@ const handleDragOrSelectUpload = ({file}: UploadCustomRequestOptions) => {
 const openFolderDialog = () => folderInputRef.value?.click()
 
 // ===== 任务队列 =====
-const {data: settings} = useQuery({
-  queryKey: ['settings'],
-  queryFn: systemApi.getSettings
-})
-
-const pollInterval = computed(() => parseInt(settings.value?.['upload.poll-interval'] ?? '1000'))
-
 const {data: tasksInfo} = useQuery({
   queryKey: ['uploadTasksInfo'],
   queryFn: uploadApi.getTasksInfo,
-  refetchInterval: pollInterval
+  refetchInterval: 1000
 })
 
 // 统计

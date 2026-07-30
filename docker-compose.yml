@@ -7,15 +7,15 @@ services:
     container_name: bakabooru-db
     restart: always
     environment:
-      POSTGRES_USER: db_user
-      POSTGRES_PASSWORD: db_password
-      POSTGRES_DB: bakabooru
+      POSTGRES_USER: ${POSTGRES_USER:?Set POSTGRES_USER in .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:?Set POSTGRES_DB in .env}
     ports: ["5432:5432"]
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
     networks: [bakabooru-net]
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U db_user -d bakabooru"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -26,10 +26,10 @@ services:
     environment:
       PGHOST: db
       PGPORT: 5432
-      PGDATABASE: bakabooru
-      PGUSER: db_user
-      PGPASSWORD: db_password
-      POSTGRES_EXPORTER_PASSWORD: ${POSTGRES_EXPORTER_PASSWORD:-prometheus_password}
+      PGDATABASE: ${POSTGRES_DB:?Set POSTGRES_DB in .env}
+      PGUSER: ${POSTGRES_USER:?Set POSTGRES_USER in .env}
+      PGPASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_EXPORTER_PASSWORD: ${POSTGRES_EXPORTER_PASSWORD:?Set POSTGRES_EXPORTER_PASSWORD in .env}
     volumes:
       - ./monitoring/postgres/init-monitoring.sh:/usr/local/bin/init-monitoring.sh:ro
     entrypoint: ["/bin/sh", "/usr/local/bin/init-monitoring.sh"]
@@ -43,7 +43,7 @@ services:
     container_name: bakabooru-postgres-exporter
     restart: unless-stopped
     environment:
-      DATA_SOURCE_NAME: postgresql://prometheus:${POSTGRES_EXPORTER_PASSWORD:-prometheus_password}@db:5432/bakabooru?sslmode=disable
+      DATA_SOURCE_NAME: postgresql://prometheus:${POSTGRES_EXPORTER_PASSWORD:?Set POSTGRES_EXPORTER_PASSWORD in .env}@db:5432/${POSTGRES_DB:?Set POSTGRES_DB in .env}?sslmode=disable
     command: ["--extend.query-path=/etc/postgres_exporter/queries.yaml"]
     volumes:
       - ./monitoring/postgres/queries.yaml:/etc/postgres_exporter/queries.yaml:ro
@@ -61,8 +61,8 @@ services:
     restart: always
     command: server /data --console-address ":9001"
     environment:
-      MINIO_ROOT_USER: minio_user
-      MINIO_ROOT_PASSWORD: minio_password
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?Set MINIO_ROOT_USER in .env}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?Set MINIO_ROOT_PASSWORD in .env}
       MINIO_PROMETHEUS_AUTH_TYPE: public
     ports: ["9000:9000", "9001:9001"]
     volumes:
@@ -77,13 +77,16 @@ services:
 
   minio-createbuckets:
     image: minio/mc
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?Set MINIO_ROOT_USER in .env}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?Set MINIO_ROOT_PASSWORD in .env}
     depends_on:
       minio:
         condition: service_healthy
     networks: [bakabooru-net]
     entrypoint: >
       /bin/sh -c "
-      /usr/bin/mc alias set myminio http://minio:9000 minio_user minio_password;
+      /usr/bin/mc alias set myminio http://minio:9000 $${MINIO_ROOT_USER} $${MINIO_ROOT_PASSWORD};
       /usr/bin/mc mb --ignore-existing myminio/images;
       /usr/bin/mc anonymous set public myminio/images;
       exit 0;
@@ -98,12 +101,8 @@ services:
     restart: always
     gpus: all
     environment:
-      MINIO_HOST: minio
-      MINIO_PORT: 9000
-      MINIO_ACCESS_KEY: minio_user
-      MINIO_SECRET_KEY: minio_password
-      MINIO_BUCKET_NAME: images
-      MODEL_CACHE_DIR: /model_cache
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:?Set MINIO_ROOT_USER in .env}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:?Set MINIO_ROOT_PASSWORD in .env}
     volumes:
       - ./data/model_cache:/model_cache
     networks: [bakabooru-net]
@@ -132,23 +131,12 @@ services:
     restart: always
     environment:
       # DB 配置
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_USER: db_user
-      DB_PASS: db_password
-      DB_NAME: bakabooru
+      DB_USER: ${POSTGRES_USER:?Set POSTGRES_USER in .env}
+      DB_PASS: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      DB_NAME: ${POSTGRES_DB:?Set POSTGRES_DB in .env}
       # MinIO 配置
-      MINIO_HOST: minio
-      MINIO_PORT: 9000
-      MINIO_ACCESS_KEY: minio_user
-      MINIO_SECRET_KEY: minio_password
-      MINIO_BUCKET_NAME: images
-      # AI 服务地址
-      AI_SERVICE_URL: http://ai-service:8000
-      # 缩略图配置
-      THUMBNAIL_MAX_SIZE: 1024
-      THUMBNAIL_QUALITY: 0.85
-      THUMBNAIL_FORMAT: jpg
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:?Set MINIO_ROOT_USER in .env}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:?Set MINIO_ROOT_PASSWORD in .env}
     networks: [bakabooru-net]
     healthcheck:
       test:

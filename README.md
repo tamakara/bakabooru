@@ -46,13 +46,15 @@ Web Service 是业务入口；AI Service 只负责打标与向量推理。上传
 ### 启动
 
 ```bash
+cp .env.example .env
+# 编辑 .env 并设置本地凭据
 docker compose up -d --build
 docker compose ps
 ```
 
-浏览器访问 `http://localhost`。首次运行需要下载 AI 模型，`backend-ai-service` 的 `/health` 会先返回 `loading`，模型全部加载后变为 `ok`。
+浏览器访问 `http://localhost`。首次运行需要下载 AI 模型，`ai-service` 的 `/health` 会先返回 `loading`，模型全部加载后变为 `ok`。
 
-> 根目录 Compose 包含演示用默认密码，且将 MinIO bucket 配置为匿名可读。对外部署前请先阅读[部署指南](docs/deployment.md)并更换凭据。
+> 本地凭据保存在不会提交到 Git 的 `.env` 中。当前 MinIO bucket 会初始化为匿名可读；对外部署前请先阅读[部署指南](docs/deployment.md)。
 
 ## 目录结构
 
@@ -66,20 +68,13 @@ bakabooru/
 └── docker-compose.yml     # 完整容器编排
 ```
 
-## 常用配置
+## 配置方式
 
-| 变量 | 默认值 | 说明 |
-| --- | --- | --- |
-| `THUMBNAIL_MAX_SIZE` | `1024` | 缩略图最大边长，像素 |
-| `THUMBNAIL_QUALITY` | `0.85` | 缩略图输出质量 |
-| `THUMBNAIL_FORMAT` | `jpg` | 缩略图格式 |
-| `AI_JOB_LOCK_DURATION` | `PT5M` | AI Job 锁租约；心跳会持续续期 |
-| `AI_JOB_MAX_ATTEMPTS` | `5` | AI Job 自动尝试上限 |
-| `UPLOAD_LOCK_DURATION` | `PT2M` | 上传 Worker 锁租约；心跳会持续续期 |
-| `MODEL_CACHE_DIR` | `/model_cache` | AI 容器内模型缓存路径 |
-| `AI_SERVICE_URL` | `http://backend-ai-service:8000` | Web 到 AI 的内部地址 |
+- `.env` 保存 PostgreSQL、MinIO 与监控账号凭据，只用于本地部署且不会提交 Git。
+- 服务地址、缩略图规格和 Worker 调度参数由应用提供适合 Compose 的默认值。
+- 标签阈值、AI 重试策略和上传任务保留期可在系统设置页中修改并立即作用于后续任务。
 
-数据库、MinIO、GPU/CPU 和全部配置说明见[部署指南](docs/deployment.md)。
+完整配置说明见[部署指南](docs/deployment.md)。
 
 ## 文档
 

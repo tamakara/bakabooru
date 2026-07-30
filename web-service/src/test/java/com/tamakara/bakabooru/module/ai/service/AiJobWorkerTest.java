@@ -55,11 +55,11 @@ class AiJobWorkerTest {
     @SuppressWarnings("unchecked")
     void setUp() {
         properties = new AiJobProperties();
-        properties.setMaxAttempts(5);
-        properties.setRetryBaseDelay(Duration.ofSeconds(30));
-        properties.setRetryMaxDelay(Duration.ofMinutes(30));
         worker = new AiJobWorker(aiJobRepository, imageRepository, aiServiceClient, tagService,
                 systemSettingService, properties, transactionTemplate, metrics);
+        when(systemSettingService.getAiMaxAttempts()).thenReturn(5);
+        when(systemSettingService.getAiRetryBaseDelaySeconds()).thenReturn(30L);
+        when(systemSettingService.getAiRetryMaxDelaySeconds()).thenReturn(1800L);
         when(transactionTemplate.execute(any())).thenAnswer(invocation ->
                 ((TransactionCallback<Object>) invocation.getArgument(0)).doInTransaction(null));
         doAnswer(invocation -> {

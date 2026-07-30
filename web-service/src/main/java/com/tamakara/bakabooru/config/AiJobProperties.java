@@ -13,7 +13,4 @@ import java.time.Duration;
 @ConfigurationProperties(prefix = "app.ai-job")
 public class AiJobProperties {
     private Duration lockDuration = Duration.ofMinutes(5);
-    private Duration retryBaseDelay = Duration.ofSeconds(30);
-    private Duration retryMaxDelay = Duration.ofMinutes(30);
-    private int maxAttempts = 5;
 }

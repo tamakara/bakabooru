@@ -11,5 +11,4 @@ import java.time.Duration;
 @ConfigurationProperties(prefix = "app.upload")
 public class UploadProperties {
     private Duration lockDuration = Duration.ofMinutes(2);
-    private Duration completedRetention = Duration.ofDays(7);
 }

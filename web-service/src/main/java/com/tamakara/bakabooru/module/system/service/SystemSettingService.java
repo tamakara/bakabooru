@@ -13,14 +13,28 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SystemSettingService {
 
+    public static final String TAG_THRESHOLD = "tag.threshold";
+    public static final String AI_MAX_ATTEMPTS = "ai-job.max-attempts";
+    public static final String AI_RETRY_BASE_DELAY_SECONDS = "ai-job.retry-base-delay-seconds";
+    public static final String AI_RETRY_MAX_DELAY_SECONDS = "ai-job.retry-max-delay-seconds";
+    public static final String UPLOAD_COMPLETED_RETENTION_DAYS = "upload.completed-retention-days";
+
+    private static final Set<String> EDITABLE_KEYS = Set.of(
+            TAG_THRESHOLD,
+            AI_MAX_ATTEMPTS,
+            AI_RETRY_BASE_DELAY_SECONDS,
+            AI_RETRY_MAX_DELAY_SECONDS,
+            UPLOAD_COMPLETED_RETENTION_DAYS
+    );
+
     private final SystemSettingRepository systemSettingRepository;
 
     /**
      * 获取所有配置。
      */
     @Transactional(readOnly = true)
-    public Map<String, String> getAllSettings() {
-        return systemSettingRepository.findAll().stream()
+    public Map<String, String> getEditableSettings() {
+        return systemSettingRepository.findAllById(EDITABLE_KEYS).stream()
                 .collect(Collectors.toMap(SystemSetting::getKey, SystemSetting::getValue));
     }
 
@@ -49,12 +63,102 @@ public class SystemSettingService {
         return Double.parseDouble(getSetting(key));
     }
 
+    public int getAiMaxAttempts() {
+        return getIntSetting(AI_MAX_ATTEMPTS);
+    }
+
+    public long getAiRetryBaseDelaySeconds() {
+        return getLongSetting(AI_RETRY_BASE_DELAY_SECONDS);
+    }
+
+    public long getAiRetryMaxDelaySeconds() {
+        return getLongSetting(AI_RETRY_MAX_DELAY_SECONDS);
+    }
+
+    public long getUploadCompletedRetentionDays() {
+        return getLongSetting(UPLOAD_COMPLETED_RETENTION_DAYS);
+    }
+
     /**
      * 单条更新
      */
     @Transactional
     public void updateSetting(String key, String value) {
         updateSettings(Collections.singletonMap(key, value));
+    }
+
+    @Transactional
+    public void updateEditableSettings(Map<String, String> newSettings) {
+        if (newSettings == null || newSettings.isEmpty()) {
+            return;
+        }
+
+        Set<String> unknownKeys = new HashSet<>(newSettings.keySet());
+        unknownKeys.removeAll(EDITABLE_KEYS);
+        if (!unknownKeys.isEmpty()) {
+            throw new IllegalArgumentException("Unknown or read-only settings: " + unknownKeys);
+        }
+
+        Map<String, String> effectiveSettings = new HashMap<>(getEditableSettings());
+        effectiveSettings.putAll(newSettings);
+        validateEditableSettings(effectiveSettings);
+        updateSettings(newSettings);
+    }
+
+    private void validateEditableSettings(Map<String, String> settings) {
+        double threshold = parseDouble(settings, TAG_THRESHOLD);
+        int maxAttempts = parseInt(settings, AI_MAX_ATTEMPTS);
+        long retryBaseDelay = parseLong(settings, AI_RETRY_BASE_DELAY_SECONDS);
+        long retryMaxDelay = parseLong(settings, AI_RETRY_MAX_DELAY_SECONDS);
+        long retentionDays = parseLong(settings, UPLOAD_COMPLETED_RETENTION_DAYS);
+
+        requireRange(TAG_THRESHOLD, threshold, 0.0, 1.0);
+        requireRange(AI_MAX_ATTEMPTS, maxAttempts, 1, 20);
+        requireRange(AI_RETRY_BASE_DELAY_SECONDS, retryBaseDelay, 1, 3600);
+        requireRange(AI_RETRY_MAX_DELAY_SECONDS, retryMaxDelay, 1, 86400);
+        requireRange(UPLOAD_COMPLETED_RETENTION_DAYS, retentionDays, 1, 365);
+        if (retryMaxDelay < retryBaseDelay) {
+            throw new IllegalArgumentException(AI_RETRY_MAX_DELAY_SECONDS
+                    + " must be greater than or equal to " + AI_RETRY_BASE_DELAY_SECONDS);
+        }
+    }
+
+    private int parseInt(Map<String, String> settings, String key) {
+        try {
+            return Integer.parseInt(requireValue(settings, key));
+        } catch (NumberFormatException error) {
+            throw new IllegalArgumentException(key + " must be an integer", error);
+        }
+    }
+
+    private long parseLong(Map<String, String> settings, String key) {
+        try {
+            return Long.parseLong(requireValue(settings, key));
+        } catch (NumberFormatException error) {
+            throw new IllegalArgumentException(key + " must be an integer", error);
+        }
+    }
+
+    private double parseDouble(Map<String, String> settings, String key) {
+        try {
+            return Double.parseDouble(requireValue(settings, key));
+        } catch (NumberFormatException error) {
+            throw new IllegalArgumentException(key + " must be a number", error);
+        }
+    }
+
+    private String requireValue(Map<String, String> settings, String key) {
+        String value = settings.get(key);
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException(key + " is required");
+        }
+        return value.trim();
+    }
+
+    private void requireRange(String key, double value, double minimum, double maximum) {
+        if (!Double.isFinite(value) || value < minimum || value > maximum) {
+            throw new IllegalArgumentException(key + " must be between " + minimum + " and " + maximum);
+        }
     }
 
     /**

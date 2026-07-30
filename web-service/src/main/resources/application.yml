@@ -4,7 +4,7 @@ spring:
 
   # 数据库配置
   datasource:
-    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+    url: jdbc:postgresql://${DB_HOST:db}:${DB_PORT:5432}/${DB_NAME:bakabooru}
     username: ${DB_USER}
     password: ${DB_PASS}
 
@@ -43,10 +43,10 @@ server:
 
 # MinIO 配置
 minio:
-  endpoint: http://${MINIO_HOST}:${MINIO_PORT}
+  endpoint: http://${MINIO_HOST:minio}:${MINIO_PORT:9000}
   access-key: ${MINIO_ACCESS_KEY}
   secret-key: ${MINIO_SECRET_KEY}
-  bucket-name: ${MINIO_BUCKET_NAME}
+  bucket-name: ${MINIO_BUCKET_NAME:images}
 
 # 监控端点配置
 management:
@@ -68,19 +68,15 @@ app:
     initial-delay-ms: ${UPLOAD_INITIAL_DELAY_MS:2000}
     heartbeat-interval-ms: ${UPLOAD_HEARTBEAT_INTERVAL_MS:30000}
     lock-duration: ${UPLOAD_LOCK_DURATION:PT2M}
-    completed-retention: ${UPLOAD_COMPLETED_RETENTION:P7D}
   # AI 服务配置
   ai-service:
-    url: ${AI_SERVICE_URL}
+    url: ${AI_SERVICE_URL:http://ai-service:8000}
   ai-job:
     poll-interval-ms: ${AI_JOB_POLL_INTERVAL_MS:1000}
     initial-delay-ms: ${AI_JOB_INITIAL_DELAY_MS:2000}
     heartbeat-interval-ms: ${AI_JOB_HEARTBEAT_INTERVAL_MS:30000}
     lock-duration: ${AI_JOB_LOCK_DURATION:PT5M}
-    retry-base-delay: ${AI_JOB_RETRY_BASE_DELAY:PT30S}
-    retry-max-delay: ${AI_JOB_RETRY_MAX_DELAY:PT30M}
-    max-attempts: ${AI_JOB_MAX_ATTEMPTS:5}
   thumbnail:
-    max-size: ${THUMBNAIL_MAX_SIZE:1024}
-    quality: ${THUMBNAIL_QUALITY:0.85}
-    format: ${THUMBNAIL_FORMAT:jpg}
+    max-size: 1024
+    quality: 0.85
+    format: jpg

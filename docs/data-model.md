@@ -106,10 +106,13 @@ AI 字段含义：
 | --- | --- | --- |
 | `system.auth-initialized` | `false` | 是否完成首次认证初始化 |
 | `system.auth-password` | 空 | Base64 编码的当前密码 |
-| `upload.poll-interval` | `1000` | 前端上传任务轮询间隔，毫秒 |
 | `tag.threshold` | `0.61` | AI 自动打标阈值 |
+| `ai-job.max-attempts` | `5` | AI 任务最大尝试次数 |
+| `ai-job.retry-base-delay-seconds` | `30` | AI 指数退避初始延迟，秒 |
+| `ai-job.retry-max-delay-seconds` | `1800` | AI 指数退避最大延迟，秒 |
+| `upload.completed-retention-days` | `7` | 已完成上传任务保留天数 |
 
-这些值直接以数据库为事实来源。缩略图规格由环境变量配置，不存于此表。
+这些值直接以数据库为事实来源。通用设置 API 仅返回可编辑业务配置，不返回认证密码或初始化标记。缩略图规格由应用启动配置提供，不存于此表。
 
 ### `upload_jobs`
 
@@ -126,7 +129,7 @@ flowchart LR
     Row["images.hash"] --> Original["images/original/{hash}"]
     Row --> Thumb["images/thumbnail/{maxSize}/{hash}.{format}"]
     Job["upload_jobs.id"] --> Staging["images/staging/{jobId}"]
-    Config["THUMBNAIL_MAX_SIZE<br/>THUMBNAIL_FORMAT"] --> Thumb
+    Config["应用缩略图配置"] --> Thumb
 ```
 
 `images` 是 Compose 创建的 bucket。数据库删除与对象清理由 Web Service 编排；数据库只保存 hash 和原始扩展名，不保存二进制内容。
