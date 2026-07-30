@@ -41,9 +41,8 @@ docker compose ps
 | `http://localhost` | BaKaBooru 前端 |
 | `http://localhost:9001` | MinIO 管理控制台 |
 | `http://localhost:9000` | MinIO S3 API（默认对宿主机暴露） |
-| `localhost:5432` | PostgreSQL（默认对宿主机暴露） |
 
-Web 与 AI 服务没有映射到宿主机端口，通过 Compose 网络互访。首次启动时 Flyway 会执行数据库迁移（包括标签字典与持久化任务表），AI Service 会下载模型；耗时取决于网络、磁盘和 GPU 环境。AI Service 不需要数据库账号。
+PostgreSQL、Web 与 AI 服务没有映射到宿主机端口，通过 Compose 网络互访。首次启动时 Flyway 会执行数据库迁移（包括标签字典与持久化任务表），AI Service 会下载模型；耗时取决于网络、磁盘和 GPU 环境。AI Service 不需要数据库账号。
 
 ## 数据卷
 
