@@ -2,9 +2,9 @@ services:
   # ===================================================
   # 1. 基础设施：PostgreSQL (pgvector)
   # ===================================================
-  db:
+  postgres:
     image: pgvector/pgvector:pg16
-    container_name: bakabooru-db
+    container_name: bakabooru-postgres
     restart: always
     environment:
       POSTGRES_USER: ${POSTGRES_USER:?Set POSTGRES_USER in .env}
@@ -23,7 +23,7 @@ services:
     image: pgvector/pgvector:pg16
     restart: "no"
     environment:
-      PGHOST: db
+      PGHOST: postgres
       PGPORT: 5432
       PGDATABASE: ${POSTGRES_DB:?Set POSTGRES_DB in .env}
       PGUSER: ${POSTGRES_USER:?Set POSTGRES_USER in .env}
@@ -34,7 +34,7 @@ services:
     entrypoint: ["/bin/sh", "/usr/local/bin/init-monitoring.sh"]
     networks: [bakabooru-net]
     depends_on:
-      db:
+      postgres:
         condition: service_healthy
 
   postgres-exporter:
@@ -42,7 +42,7 @@ services:
     container_name: bakabooru-postgres-exporter
     restart: unless-stopped
     environment:
-      DATA_SOURCE_NAME: postgresql://prometheus:${POSTGRES_EXPORTER_PASSWORD:?Set POSTGRES_EXPORTER_PASSWORD in .env}@db:5432/${POSTGRES_DB:?Set POSTGRES_DB in .env}?sslmode=disable
+      DATA_SOURCE_NAME: postgresql://prometheus:${POSTGRES_EXPORTER_PASSWORD:?Set POSTGRES_EXPORTER_PASSWORD in .env}@postgres:5432/${POSTGRES_DB:?Set POSTGRES_DB in .env}?sslmode=disable
     command: ["--extend.query-path=/etc/postgres_exporter/queries.yaml"]
     volumes:
       - ./monitoring/postgres/queries.yaml:/etc/postgres_exporter/queries.yaml:ro
@@ -152,7 +152,7 @@ services:
       retries: 5
       start_period: 30s
     depends_on:
-      db:
+      postgres:
         condition: service_healthy
       minio:
         condition: service_healthy

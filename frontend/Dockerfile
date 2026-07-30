@@ -25,10 +25,14 @@ RUN pnpm run build
 # ==========================================
 FROM nginx:alpine
 
+# Let the official entrypoint discover the container runtime's DNS servers.
+# Docker Compose resolves to 127.0.0.11; Kubernetes resolves to CoreDNS.
+ENV NGINX_ENTRYPOINT_LOCAL_RESOLVERS=1
+
 # 复制构建产物
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 # 复制 Nginx 配置
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/templates/default.conf.template
 
 CMD ["nginx", "-g", "daemon off;"]
