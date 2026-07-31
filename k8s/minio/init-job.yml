@@ -14,7 +14,7 @@ spec:
         image: minio/mc
         envFrom:
         - secretRef:
-            name: minio-secret
+            name: minio
         command:
         - /bin/sh
         - -c
