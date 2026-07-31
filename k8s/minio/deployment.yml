@@ -28,7 +28,7 @@ spec:
         - containerPort: 9001
         envFrom:
         - secretRef:
-            name: minio-secret
+            name: minio
         volumeMounts:
         - name: data
           mountPath: /data
