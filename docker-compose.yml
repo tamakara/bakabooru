@@ -195,39 +195,6 @@ services:
       minio:
         condition: service_healthy
 
-  loki:
-    image: grafana/loki:3.5.3
-    container_name: bakabooru-loki
-    command: ["-config.file=/etc/loki/config.yml"]
-    volumes:
-      - ./monitoring/loki/loki.yml:/etc/loki/config.yml:ro
-      - loki-data:/loki
-    networks: [bakabooru-net]
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "/busybox/wget", "--spider", "-q", "http://localhost:3100/ready"]
-      interval: 15s
-      timeout: 5s
-      retries: 5
-
-  alloy:
-    image: grafana/alloy:v1.10.2
-    container_name: bakabooru-alloy
-    command:
-      - run
-      - --server.http.listen-addr=0.0.0.0:12345
-      - --storage.path=/var/lib/alloy/data
-      - /etc/alloy/config.alloy
-    volumes:
-      - ./monitoring/alloy/config.alloy:/etc/alloy/config.alloy:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - alloy-data:/var/lib/alloy/data
-    networks: [bakabooru-net]
-    restart: unless-stopped
-    depends_on:
-      loki:
-        condition: service_healthy
-
   grafana:
     image: grafana/grafana:latest
     container_name: bakabooru-grafana
@@ -240,8 +207,6 @@ services:
     networks: [bakabooru-net]
     depends_on:
       prometheus:
-        condition: service_healthy
-      loki:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
@@ -257,5 +222,3 @@ networks:
 volumes:
   prometheus-data:
   grafana-data:
-  loki-data:
-  alloy-data:
