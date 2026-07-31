@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: ai
+  namespace: bakabooru
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ai
+  template:
+    metadata:
+      labels:
+        app: ai
+    spec:
+      containers:
+      - name: ai
+        image: ghcr.io/tamakara/bakabooru-ai:latest
+        ports:
+        - containerPort: 8000
+        envFrom:
+          - secretRef:
+              name: ai
+        volumeMounts:
+        - name: model-cache
+          mountPath: /model_cache
+      volumes:
+      - name: model-cache
+        emptyDir: {}

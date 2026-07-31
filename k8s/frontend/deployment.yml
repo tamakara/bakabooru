@@ -18,6 +18,5 @@ spec:
       containers:
       - name: frontend
         image: ghcr.io/tamakara/bakabooru-frontend:latest
-        imagePullPolicy: Always
         ports:
         - containerPort: 80
