@@ -21,8 +21,19 @@ spec:
       containers:
       - name: postgres
         image: pgvector/pgvector:pg16
+
         ports:
         - containerPort: 5432
+
         envFrom:
         - secretRef:
             name: postgres
+
+        volumeMounts:
+        - name: postgres-data
+          mountPath: /var/lib/postgresql/data
+
+      volumes:
+      - name: postgres-data
+        persistentVolumeClaim:
+          claimName: postgres-pvc
