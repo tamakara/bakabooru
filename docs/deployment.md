@@ -68,7 +68,6 @@ Compose 启动前必须存在 `.env`。可复制 `.env.example` 后填写；`.en
 | `POSTGRES_DB` | 应用数据库名 |
 | `MINIO_ROOT_USER` | MinIO root 账号；当前同时供应用使用 |
 | `MINIO_ROOT_PASSWORD` | MinIO root 密码 |
-| `POSTGRES_EXPORTER_PASSWORD` | PostgreSQL Exporter 专用账号密码 |
 
 Compose 使用必填变量表达式，缺少任何上述配置时会在创建容器前失败。不要提交包含真实凭据的 `.env`。
 

@@ -48,18 +48,15 @@ minio:
   secret-key: ${MINIO_SECRET_KEY}
   bucket-name: ${MINIO_BUCKET_NAME:images}
 
-# 监控端点配置
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus
+        include: health,info
 
   endpoint:
     health:
       show-details: always
-    prometheus:
-      enabled: true
 
 # 应用自定义配置
 app:

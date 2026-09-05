@@ -11,7 +11,6 @@ import com.tamakara.bakabooru.module.system.service.SystemSettingService;
 import com.tamakara.bakabooru.module.upload.entity.UploadJob;
 import com.tamakara.bakabooru.module.upload.entity.UploadJobStatus;
 import com.tamakara.bakabooru.module.upload.repository.UploadJobRepository;
-import com.tamakara.bakabooru.monitoring.BusinessMetrics;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -41,7 +40,6 @@ public class UploadJobWorker {
     private final UploadProperties uploadProperties;
     private final SystemSettingService systemSettingService;
     private final TransactionTemplate transactionTemplate;
-    private final BusinessMetrics metrics;
 
     private final String workerId = UUID.randomUUID().toString();
 
@@ -122,10 +120,8 @@ public class UploadJobWorker {
             thumbnailService.generateAndUploadThumbnail(stagingFile, hash);
 
             transactionTemplate.execute(status -> completeJob(jobId, job, imageInfo, hash));
-            metrics.uploadProcessed("success", Duration.between(job.getCreatedAt(), Instant.now()));
         } catch (Exception e) {
             markFailed(jobId, e);
-            metrics.uploadProcessed("failed", Duration.between(job.getCreatedAt(), Instant.now()));
             return;
         } finally {
             if (stagingFile != null && stagingFile.exists() && !stagingFile.delete()) {

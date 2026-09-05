@@ -8,7 +8,6 @@ import com.tamakara.bakabooru.module.image.service.ThumbnailService;
 import com.tamakara.bakabooru.module.system.service.SystemSettingService;
 import com.tamakara.bakabooru.module.upload.entity.UploadJobStatus;
 import com.tamakara.bakabooru.module.upload.repository.UploadJobRepository;
-import com.tamakara.bakabooru.monitoring.BusinessMetrics;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -34,7 +33,6 @@ class UploadJobWorkerTest {
     @Mock private AiJobService aiJobService;
     @Mock private SystemSettingService systemSettingService;
     @Mock private TransactionTemplate transactionTemplate;
-    @Mock private BusinessMetrics metrics;
 
     @Test
     void cleanupUsesLatestRetentionSetting() {
@@ -51,8 +49,7 @@ class UploadJobWorkerTest {
                 aiJobService,
                 new UploadProperties(),
                 systemSettingService,
-                transactionTemplate,
-                metrics
+                transactionTemplate
         );
 
         Instant before = Instant.now().minus(Duration.ofDays(14));

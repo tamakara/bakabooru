@@ -73,36 +73,6 @@ def test_versioned_embedding_routes_exist():
     assert "/v1/embeddings/image-file" in paths
 
 
-def test_metrics_endpoint_exposes_http_metrics():
-    client.get("/health")
-
-    response = client.get("/metrics")
-
-    assert response.status_code == 200
-    assert response.headers["content-type"].startswith("text/plain")
-    assert "bakabooru_ai_http_requests_total" in response.text
-    assert "bakabooru_ai_inference_total" in response.text
-    assert "bakabooru_ai_model_ready" in response.text
-
-
-def test_inference_metrics_record_success_and_failure(monkeypatch):
-    monkeypatch.setattr(
-        image_analysis_service,
-        "analyze",
-        Mock(side_effect=RuntimeError("inference failed")),
-    )
-    failed = client.post(
-        "/v1/images/analyze",
-        json={"object_name": "original/hash", "threshold": 0.61},
-    )
-    metrics_response = client.get("/metrics")
-
-    assert failed.status_code == 500
-    assert 'bakabooru_ai_inference_total{operation="analyze",result="failed"}' in metrics_response.text
-    assert "bakabooru_ai_inference_waiting 0.0" in metrics_response.text
-    assert "bakabooru_ai_inference_running 0.0" in metrics_response.text
-
-
 def test_service_has_no_database_or_minilm_state():
     assert not any(name.startswith("DB_") for name in type(settings).model_fields)
     assert not hasattr(model_manager, "_embeddings")

@@ -6,7 +6,6 @@ import com.tamakara.bakabooru.module.upload.dto.UploadTaskDto;
 import com.tamakara.bakabooru.module.upload.entity.UploadJob;
 import com.tamakara.bakabooru.module.upload.entity.UploadJobStatus;
 import com.tamakara.bakabooru.module.upload.repository.UploadJobRepository;
-import com.tamakara.bakabooru.monitoring.BusinessMetrics;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.stereotype.Service;
@@ -24,7 +23,6 @@ public class UploadJobService {
 
     private final UploadJobRepository uploadJobRepository;
     private final StorageService storageService;
-    private final BusinessMetrics metrics;
 
     public void createTask(MultipartFile file) {
         UUID id = UUID.randomUUID();
@@ -52,7 +50,6 @@ public class UploadJobService {
             job.setCreatedAt(now);
             job.setUpdatedAt(now);
             uploadJobRepository.save(job);
-            metrics.uploadAccepted(file.getSize());
         } catch (Exception e) {
             try {
                 storageService.deleteFile(stagingObjectName);

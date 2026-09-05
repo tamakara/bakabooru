@@ -10,7 +10,6 @@ import com.tamakara.bakabooru.module.image.entity.Image;
 import com.tamakara.bakabooru.module.image.repository.ImageRepository;
 import com.tamakara.bakabooru.module.system.service.SystemSettingService;
 import com.tamakara.bakabooru.module.tag.service.TagService;
-import com.tamakara.bakabooru.monitoring.BusinessMetrics;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,7 +45,6 @@ class AiJobWorkerTest {
     @Mock private TagService tagService;
     @Mock private SystemSettingService systemSettingService;
     @Mock private TransactionTemplate transactionTemplate;
-    @Mock private BusinessMetrics metrics;
 
     private AiJobProperties properties;
     private AiJobWorker worker;
@@ -56,7 +54,7 @@ class AiJobWorkerTest {
     void setUp() {
         properties = new AiJobProperties();
         worker = new AiJobWorker(aiJobRepository, imageRepository, aiServiceClient, tagService,
-                systemSettingService, properties, transactionTemplate, metrics);
+                systemSettingService, properties, transactionTemplate);
         when(systemSettingService.getAiMaxAttempts()).thenReturn(5);
         when(systemSettingService.getAiRetryBaseDelaySeconds()).thenReturn(30L);
         when(systemSettingService.getAiRetryMaxDelaySeconds()).thenReturn(1800L);
