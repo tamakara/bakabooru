@@ -24,10 +24,8 @@ public class SystemSettingService {
     public static final String BOOTSTRAP_STORAGE_ENDPOINT = "bootstrap.storage-endpoint";
 
     private static final Set<String> EDITABLE_KEYS = Set.of(
-                new SettingDefinitionDto(TAG_THRESHOLD, "Tag threshold", "number", "0.61", "HOT", false, "Minimum AI tag confidence"),
             AI_MAX_ATTEMPTS,
             AI_RETRY_BASE_DELAY_SECONDS,
-                new SettingDefinitionDto(AI_RETRY_MAX_DELAY_SECONDS, "AI retry max delay", "integer", "1800", "HOT", false, "Maximum retry delay seconds"),
             UPLOAD_COMPLETED_RETENTION_DAYS,
             AI_DEFAULT_VECTOR_MODELS
     );
@@ -37,18 +35,18 @@ public class SystemSettingService {
     public List<SettingDefinitionDto> getDefinitions() {
         return List.of(
                 new SettingDefinitionDto(TAG_THRESHOLD, "Tag threshold", "number", "0.61", "HOT", false, "Minimum AI tag confidence"),
-                new SettingDefinitionDto(AI_MAX_ATTEMPTS, "AI 闂備焦褰冪粔鐑芥儊椤栨埃鏋庨柍鈺佸暞濞?", "integer", "5", "HOT", false, "闂佸憡顨嗗ú鐔煎Υ?AI 婵炲濮鹃褎鎱ㄩ悢鐓庡珘闁逞屽墯瀵板嫯顦归柛锝呮憸閹风娀寮撮悤浣镐还闂?)",
-                new SettingDefinitionDto(AI_RETRY_BASE_DELAY_SECONDS, "AI 闂備焦褰冪粔鐑芥儊椤栫偛绀嗘繝闈涙－濞兼鈧偣鍊栭崕鑲╂崲?", "integer", "30", "HOT", false, "缂?)",
+                new SettingDefinitionDto(AI_MAX_ATTEMPTS, "AI max attempts", "integer", "5", "HOT", false, "Maximum AI attempts"),
+                new SettingDefinitionDto(AI_RETRY_BASE_DELAY_SECONDS, "AI retry base delay", "integer", "30", "HOT", false, "Base retry delay seconds"),
                 new SettingDefinitionDto(AI_RETRY_MAX_DELAY_SECONDS, "AI retry max delay", "integer", "1800", "HOT", false, "Maximum retry delay seconds"),
-                new SettingDefinitionDto(UPLOAD_COMPLETED_RETENTION_DAYS, "婵炴垶鎸搁敃锝囨閼哥數顩烽悹鍥ㄥ絻椤倕菐閸ャ劎绠橀柡鍡忓亾闂佸搫鍟悥鐓幬?", "integer", "7", "HOT", false, "婵?)",
-                new SettingDefinitionDto(AI_DEFAULT_VECTOR_MODELS, "婵帗绋掗…鍫ヮ敇閼姐倖顫曢柕蹇曞Х缁屽潡鏌涘顓炵伌闁革絽鎼灒闁炽儱纾埀?", "text", "clip-vit-base-patch32", "HOT", false, "闂備緡鍋呴〃鍛般亹閸ф绀嗛柛鈩冪⊕椤撻箖鏌ｉ妸銉ヮ仾閼垛晠鏌?ID"),
-                new SettingDefinitionDto(BOOTSTRAP_DATABASE_URL, "闂佽桨鑳舵晶妤€鐣垫担瑙勫劅闁规儳婀辩粻楣冩煙?", "text", "jdbc:postgresql://postgres:5432/bakabooru", "BOOTSTRAP", false, "闂佸憡鍑归崹鐗堟叏閳哄啰妫憸鏃堝储閵堝洨纾炬い鏇炴缁€澶愭煕濞嗘ü娴锋い?)",
-                new SettingDefinitionDto(BOOTSTRAP_STORAGE_ENDPOINT, "Storage endpoint", "text", "http://minio:9000", "BOOTSTRAP", false, "Storage service endpoint"),
+                new SettingDefinitionDto(UPLOAD_COMPLETED_RETENTION_DAYS, "Upload retention", "integer", "7", "HOT", false, "Completed upload retention days"),
+                new SettingDefinitionDto(AI_DEFAULT_VECTOR_MODELS, "Default vector models", "text", "clip-vit-base-patch32", "HOT", false, "Default vector model IDs"),
+                new SettingDefinitionDto(BOOTSTRAP_DATABASE_URL, "Database URL", "text", "jdbc:postgresql://postgres:5432/bakabooru", "BOOTSTRAP", false, "Database connection URL"),
+                new SettingDefinitionDto(BOOTSTRAP_STORAGE_ENDPOINT, "Storage endpoint", "text", "http://minio:9000", "BOOTSTRAP", false, "Storage service endpoint")
         );
     }
 
     /**
-     * 闂佸吋鍎抽崲鑼躲亹閸ヮ剙绠ラ柍褜鍓熷鍨緞閹邦剙璧嬬紓鍌氬枤閸犳捇鍩€?     */
+     * 闂傚倷绀侀崥瀣磿閹惰棄搴婇柤鑹扮堪娴滃綊鏌涢妷顔煎缂佺姰鍎甸弻宥堫檨闁告挾鍠庨锝夊垂椤愩垻绐為梺褰掑亰閸撴瑧鎸х€ｎ剛纾介柛灞捐壘閺嬨倝鏌涢悩铏磳闁糕斁鍋?     */
     @Transactional(readOnly = true)
     public Map<String, String> getEditableSettings() {
         return systemSettingRepository.findAllById(EDITABLE_KEYS).stream()
@@ -62,7 +60,7 @@ public class SystemSettingService {
                 .orElseThrow(() -> new RuntimeException("Setting with key: " + key + " not found"));
     }
 
-    // --- 缂備緡鍋夐褔鎮楅柨瀣妞ゆ帊绀佹惔濠囧级閸繃鍣瑰┑顕呬邯瀵剛鎲撮崟顓溾偓?---
+    // --- 缂傚倸鍊风欢锟犲磻婢舵劦鏁嬬憸鏃堝箖濡ゅ懏鐓ラ悗锝庡亜椤€愁渻閵堝棗绗傜紒鈧担瑙勫劅濠电姴娲ょ痪褔鏌涢锝囩畺闁革絿鎳撻埞鎴︻敋閸涱剟鍋楅悗娈垮櫘閸撴盯骞夐幘顔肩妞ゆ挻澹曢崑?---
 
     public Boolean getBooleanSetting(String key) {
         return "true".equalsIgnoreCase(getSetting(key));
@@ -97,7 +95,7 @@ public class SystemSettingService {
     }
 
     /**
-     * 闂佸憡顨嗗ú妯侯焽椤栫偛鍗抽悗娑櫳戦悡鈧?
+     * 闂傚倷绀侀幉锟犮€冮崱妞曞搫螣娓氼垳鍔峰銈嗙墱閸嬫盯宕￠幎鑺ュ€垫繛鎴烆伆閹达附鍋傞柍?
      */
     @Transactional
     public void updateSetting(String key, String value) {
@@ -130,10 +128,8 @@ public class SystemSettingService {
         long retentionDays = parseLong(settings, UPLOAD_COMPLETED_RETENTION_DAYS);
         String defaultModels = settings.get(AI_DEFAULT_VECTOR_MODELS);
 
-                new SettingDefinitionDto(TAG_THRESHOLD, "Tag threshold", "number", "0.61", "HOT", false, "Minimum AI tag confidence"),
         requireRange(AI_MAX_ATTEMPTS, maxAttempts, 1, 20);
         requireRange(AI_RETRY_BASE_DELAY_SECONDS, retryBaseDelay, 1, 3600);
-                new SettingDefinitionDto(AI_RETRY_MAX_DELAY_SECONDS, "AI retry max delay", "integer", "1800", "HOT", false, "Maximum retry delay seconds"),
         requireRange(UPLOAD_COMPLETED_RETENTION_DAYS, retentionDays, 1, 365);
         if (retryMaxDelay < retryBaseDelay) {
             throw new IllegalArgumentException(AI_RETRY_MAX_DELAY_SECONDS
@@ -183,7 +179,7 @@ public class SystemSettingService {
     }
 
     /**
-     * 闂佸綊娼х紞濠囧闯濞差亜鍗抽悗娑櫳戦悡鈧?(濠电儑绲藉畷顒傗偓纭呮珪鐎电厧螣閸濆嫷鍤欓梺?
+     * 闂傚倷绀佺紞濠傤焽瑜忕槐鐐寸節閸パ囨７濠电偛妯婃禍婊堝础閹惰姤鍊垫繛鎴烆伆閹达附鍋傞柍?(濠电姷鏁搁崕鎴犲緤閽樺鏆︽い鎺戝€甸崑鎾舵兜閸涱喚褰ч柣搴ｆ暩閸樠嗙亽闂佸憡绻傜€氱兘宕靛▎鎾粹拺?
      */
     @Transactional
     public void updateSettings(Map<String, String> newSettings) {
@@ -193,12 +189,12 @@ public class SystemSettingService {
 
         Set<String> keys = new HashSet<>(newSettings.keySet());
 
-        // 1. 闂佸綊娼х紞濠囧闯濞差亜钃熼柕澶樼厛閸?DB (1濠?SQL: SELECT * FROM table WHERE id IN (...))
+        // 1. 闂傚倷绀佺紞濠傤焽瑜忕槐鐐寸節閸パ囨７濠电偛妯婃禍婊堟嫅閻斿吋鐓忓鑸殿焽閸樻盯鏌?DB (1濠?SQL: SELECT * FROM table WHERE id IN (...))
         List<SystemSetting> existingSettings = systemSettingRepository.findAllById(keys);
 
-        // 2. 婵炴垶鎸堕崕鏌ユ偋缁嬭娑㈠焵椤掑嫬钃熼柕澶樺灣缁愭鐥褍鏋欑紒缁樺哺楠炲秹鍩€椤掑嫬瀚?Key 闂備緡鍠涘Λ鍕偤閵娾晛鎹堕柕濞垮€楅懝楣冩煛娴ｅ搫顣肩€规挷鐒﹂幆鏃堝箻閼艰泛骞€
+        // 2. 婵犵數鍋為崹鍫曞箰閸洖纾块柡灞诲劜閸嬪绱掔€ｎ収鍤︽繛鎴欏灩閻掑灚銇勯幒鎴濐仼闁藉啰鍠栭弻鏇熷緞濡櫣浠紓浣瑰姈椤ㄥ牓鎯€椤忓牜鏁囩憸宥夊几濞嗘垹纾肩紓浣姑崫鐑橆殽閻愯尙效闁糕斁鍋撳銈嗗笒鐎氼剛鈧?Key 闂傚倸鍊风欢锟犲窗濞戞娑㈠礋椤栨稑浠遍梺闈浥堥弲娑㈠箲閸洘鐓忓┑鐐茬仢閳ь剚顨婇幊婵囥偅閸愨晝鍘告繛杈剧到閹碱偊銆傞懖鈹惧亾鐟欏嫭灏柣鎺炵畵楠炲棝寮崼婵堫啋闂佽壈澹堝▔娑㈢嵁閳?
         if (existingSettings.size() != keys.size()) {
-            // 闂佺懓鐏氶崕鎶藉吹椤撱垹浼犳い蹇撳暣閸?Key 婵炴垶鎸哥粔鎾偤閵娾晛鎹?(闂佸憡鐟崹鍫曞焵椤掆偓椤р偓缂佽鲸绻堥幃浠嬪Ω閵堝洩澹橀梺纭呯堪閸庣敻寮繝鍥х闁归偊鍠撴禒?
+            // 闂傚倷鑳堕幊鎾绘倶濮樿泛纾块柟鎯版閸氳銇勯幘鍗炵仼濞磋偐濮甸妵鍕疀閹捐櫕娈婚梺?Key 婵犵數鍋為崹鍫曞箰閸濄儳鐭撻柟缁㈠枟閸嬨倝鏌曟繛鐐珔闁?(闂傚倷绀侀幉锟犳偡椤栫偛鍨傞柛顐ｆ礀閻掑灚銇勯幒鍡椾壕濡炪伇鈧崑鎾剁磽娴ｄ粙鍝虹紒璇茬墦楠炲啯绂掔€ｎ€晠鏌曢崼婵囩┛濠㈣锕㈠铏规兜閸涱垰鐗氶梺绋挎捣閺佽顕ｉ锝囩瘈闁搞儜鍜佸斀闂備礁缍婇崑濠囧窗閹惧顩?
             Set<String> existingKeys = existingSettings.stream()
                     .map(SystemSetting::getKey)
                     .collect(Collectors.toSet());
@@ -206,13 +202,13 @@ public class SystemSettingService {
             throw new RuntimeException("Update failed. The following keys do not exist: " + keys);
         }
 
-        // 3. 闂侀潻璐熼崝宀勫船鐎电硶鍋撳☉娅ジ鎳欓幋锕€鍗抽悗娑櫳戦悡鈧?Entity 闁诲海鏁搁、濠囨寘?
+        // 3. 闂傚倷绶氬鑽ゆ嫻閻旂厧绀夌€光偓閸曨偉鍩為柣搴ｆ暩绾爼宕戦幘鏂ユ婵炲拋鍘奸妶鎼佸箠濞嗘挸绠ｉ柨鏇楀亾闁告濞婇幃妤€鈽夊▍铏灴閹繝鍩€?Entity 闂備浇顕уù鐑藉极閹间降鈧焦绻濋崶銊ョ樁?
         for (SystemSetting setting : existingSettings) {
             String newValue = newSettings.get(setting.getKey());
             setting.setValue(newValue);
         }
 
-        // 4. 闂佸綊娼х紞濠囧闯閻戞鈹嶆繝闈涙閹界娀鏌?DB (1濠?SQL 婵炲瓨鍤庨崐鎾惰姳娴煎瓨鏅悘鐐舵缁插潡鏌涢幇顒€甯犵紒?JPA 闁诲骸婀遍崑鐔肩嵁閸ヮ剚鏅€光偓閸曘劌浜炬慨姗嗗墰閸╂鏌?batch update)
+        // 4. 闂傚倷绀佺紞濠傤焽瑜忕槐鐐寸節閸パ囨７闂佺粯鍨堕…鍥煘瀹ュ棛绡€闂傚牊绋掗ˉ鐘绘煙閻ｅ苯鈻堥柡?DB (1濠?SQL 婵犵數鍋涢悺銊╁吹鎼淬劌纾归柟鐐劶婵啿霉閻撳海鎽犻柡鍜佸墴閹﹢鎮欓懜娈挎缂備焦褰冨锟犲蓟濞戙垹绠涙い鎺嗗亾閻㈩垳濮风槐?JPA 闂備浇顕ф绋匡耿闁秴纾婚柣鏃囧亹瀹撲線鏌涢妷顔煎闁哄拋鍓涢埀顒€鍘滈崑鎾绘煕閺囨ê濡煎ù婊呭亾閹便劌顫滈崱妤€顫梺绯曟櫆椤ㄥ﹪寮?batch update)
         systemSettingRepository.saveAll(existingSettings);
 
     }

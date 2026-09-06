@@ -32,9 +32,9 @@ public class ImageService {
     @Transactional
     public ImageDto getImage(Long id) {
         Image image = imageRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("闁归潧褰炵粭澶愬礆閺夋寧绂堥柣?)");
+                .orElseThrow(() -> new RuntimeException("Image not found: " + id));
 
-        // 濠⒀呭仜婵偤寮婚妷褎绠欐繛鍡忓墲閺?
+        // 濠电姭鎷冮崨顓濈捕婵犳鍠氶崑銈咁嚕婵犳艾唯鐟滃海绮诲▎鎰闁糕€崇箰婢ф煡鏌?
         image.setViewCount(image.getViewCount() + 1);
         imageRepository.save(image);
 
@@ -53,7 +53,7 @@ public class ImageService {
     @Transactional
     public ImageDto updateImage(Long id, ImageDto dto) {
         Image image = imageRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("闁归潧褰炵粭澶愬礆閺夋寧绂堥柣?)");
+                .orElseThrow(() -> new RuntimeException("Image not found: " + id));
 
         if (dto.getTitle() != null) {
             image.setTitle(dto.getTitle());
@@ -65,7 +65,7 @@ public class ImageService {
     @Transactional
     public ImageDto addTag(Long id, Long tagId) {
         Image image = imageRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("闁归潧褰炵粭澶愬礆閺夋寧绂堥柣?)");
+                .orElseThrow(() -> new RuntimeException("Image not found: " + id));
         Tag tag = tagService.getTagById(tagId);
         image.getTagRelations().stream()
                 .filter(relation -> relation.getTag().getId().equals(tagId))
@@ -81,7 +81,7 @@ public class ImageService {
     @Transactional
     public ImageDto removeTag(Long id, Long tagId) {
         Image image = imageRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("闁归潧褰炵粭澶愬礆閺夋寧绂堥柣?)");
+                .orElseThrow(() -> new RuntimeException("Image not found: " + id));
 
         image.getTags().removeIf(tag -> tag.getId().equals(tagId));
         image.setUpdatedAt(Instant.now());
@@ -100,7 +100,7 @@ public class ImageService {
                 .orElseThrow(() -> new RuntimeException("Image not found: " + id));
         if ((tagModelId == null || tagModelId.isBlank())
                 && (vectorModelIds == null || vectorModelIds.isBlank())) {
-            throw new IllegalArgumentException("闁煎嘲鍟块惃顖炴焻婢跺顏ュ☉鎾亾濞?AI 婵☆垪鈧磭鈧?");
+            throw new IllegalArgumentException("At least one AI model is required");
         }
         aiJobService.enqueue(image, tagModelId, vectorModelIds);
         return imageMapper.toDto(image);
@@ -109,7 +109,7 @@ public class ImageService {
     @Transactional
     public void deleteImage(Long id) {
         Image image = imageRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("闁归潧褰炵粭澶愬礆閺夋寧绂堥柣?)");
+                .orElseThrow(() -> new RuntimeException("Image not found: " + id));
 
         String objectName = "original/" + image.getHash();
         storageService.deleteFile(objectName);
@@ -124,7 +124,7 @@ public class ImageService {
             try {
                 deleteImage(id);
             } catch (Exception e) {
-                throw new RuntimeException("闁告帞濞€濞呭酣宕堕崜褍顣诲鎯扮簿鐟?(ID: " + id + "): " + e.getMessage(), e);
+                throw new RuntimeException("闂備礁鎲＄敮鐐寸箾閳ь剚绻涢崨顓㈠弰鐎规洖鐖煎畷婊嗩槻妞わ綀顕ч…鍧楀箚閹殿喚缈遍柣?(ID: " + id + "): " + e.getMessage(), e);
             }
         });
     }
@@ -137,8 +137,8 @@ public class ImageService {
                 storageService.deleteFile("original/" + image.getHash());
                 storageService.deleteFile("thumbnail/" + image.getHash());
             } catch (Exception ignored) {
-                // 闁告鍠庡ù姗€寮甸鈧銊╁矗椤栨繂鍘村☉鎾崇Т閻°劑宕烽…鎺斿耿闁轰胶澧楀畵浣规償閹捐鍞剁憸鐗堟磻缁稒鎯旈弬鍨仼闂?            }
-            imageRepository.delete(image);
+                // Missing objects are ignored; the database record is still removed.
+            }
         }
         return missing.size();
     }
@@ -153,7 +153,7 @@ public class ImageService {
                 String objectName = "original/" + image.getHash();
                 File file = storageService.getFile(objectName);
                 if (file.exists()) {
-                    // 濞达綀娉曢弫?ID_闁哄秴娲。?闁圭鏅涢惈宥夊触?闁哄秶鍘х槐锟犳⒓閸欏鍓鹃柡鍌氭矗濞嗐垽宕ュ鍛毐缂?
+                    // 濠电偠鎻紞鈧繛澶嬫礋瀵?ID_闂備礁鎼粔鏉懨洪顫偓?闂備礁婀遍。浠嬪疾濞戙垺鍎撶€广儱顦憴?闂備礁鎼粔鍫曞储瑜忓Σ鎰版晸閻樻枼鎸€闂佸憡鐟ラˇ浠嬪礈妤ｅ啯鐓涢柛灞剧閻绻涢崱鎰伈鐎规洏鍎遍濂稿川椤撶喐鐦ｇ紓?
                     String fileName = String.format("%d_%s.%s", image.getId(), image.getTitle(), image.getExtension());
                     zos.putNextEntry(new ZipEntry(fileName));
                     Files.copy(file.toPath(), zos);
@@ -161,7 +161,7 @@ public class ImageService {
                 }
             }
         } catch (Exception e) {
-            throw new RuntimeException("闁瑰灚鎸哥€垫ɑ绋夌€ｎ厽绁板鎯扮簿鐟? " + e.getMessage(), e);
+            throw new RuntimeException("闂備胶鎳撻悘姘跺箰閸濄儮鍋撻崹顐嗘垹绮欐径灞稿亾閿濆骸骞楃紒浣规緲椤潡骞嗛幍顔剧勘闁? " + e.getMessage(), e);
         }
     }
 }
