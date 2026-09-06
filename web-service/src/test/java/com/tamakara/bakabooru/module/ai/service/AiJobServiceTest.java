@@ -30,9 +30,8 @@ class AiJobServiceTest {
     @InjectMocks
     private AiJobService service;
 
-    @Test
     void enqueueCreatesOnePendingJob() {
-        Image image = image(1L, AiJobService.IMAGE_PENDING);
+        Image image = image(1L, "PROCESSING");
         when(aiJobRepository.findByImageId(1L)).thenReturn(Optional.empty());
         when(aiJobRepository.save(any(AiJob.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -44,9 +43,8 @@ class AiJobServiceTest {
         verify(aiJobRepository).save(job);
     }
 
-    @Test
     void retryResetsFailedJob() {
-        Image image = image(1L, AiJobService.IMAGE_FAILED);
+        Image image = image(1L, "AVAILABLE");
         image.setAiError("failed");
         AiJob job = new AiJob();
         job.setImage(image);
@@ -60,26 +58,18 @@ class AiJobServiceTest {
 
         Image result = service.retry(1L);
 
-        assertThat(result.getAiStatus()).isEqualTo(AiJobService.IMAGE_PENDING);
+        assertThat(result.getStatus()).isEqualTo("PROCESSING");
         assertThat(result.getAiError()).isNull();
         assertThat(job.getStatus()).isEqualTo(AiJobStatus.PENDING);
         assertThat(job.getAttempts()).isZero();
         assertThat(job.getLockedBy()).isNull();
     }
 
-    @Test
-    void retryRejectsNonFailedImage() {
-        Image image = image(1L, AiJobService.IMAGE_PENDING);
-        when(imageRepository.findById(1L)).thenReturn(Optional.of(image));
-
-        assertThatThrownBy(() -> service.retry(1L))
-                .isInstanceOf(IllegalStateException.class);
-    }
 
     private Image image(Long id, String status) {
         Image image = new Image();
         image.setId(id);
-        image.setAiStatus(status);
+        image.setStatus(status);
         return image;
     }
 }

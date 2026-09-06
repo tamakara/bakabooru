@@ -8,6 +8,7 @@ import com.tamakara.bakabooru.module.ai.entity.AiJobStatus;
 import com.tamakara.bakabooru.module.ai.repository.AiJobRepository;
 import com.tamakara.bakabooru.module.image.entity.Image;
 import com.tamakara.bakabooru.module.image.repository.ImageRepository;
+import com.tamakara.bakabooru.module.image.service.StorageService;
 import com.tamakara.bakabooru.module.system.service.SystemSettingService;
 import com.tamakara.bakabooru.module.tag.service.TagService;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,6 +42,7 @@ class AiJobWorkerTest {
 
     @Mock private AiJobRepository aiJobRepository;
     @Mock private ImageRepository imageRepository;
+    @Mock private StorageService storageService;
     @Mock private AiServiceClient aiServiceClient;
     @Mock private TagService tagService;
     @Mock private SystemSettingService systemSettingService;
@@ -54,7 +56,7 @@ class AiJobWorkerTest {
     void setUp() {
         properties = new AiJobProperties();
         worker = new AiJobWorker(aiJobRepository, imageRepository, aiServiceClient, tagService,
-                systemSettingService, properties, transactionTemplate);
+                systemSettingService, properties, transactionTemplate, storageService);
         when(systemSettingService.getAiMaxAttempts()).thenReturn(5);
         when(systemSettingService.getAiRetryBaseDelaySeconds()).thenReturn(30L);
         when(systemSettingService.getAiRetryMaxDelaySeconds()).thenReturn(1800L);
@@ -81,7 +83,7 @@ class AiJobWorkerTest {
         worker.markFailure(1L, new RuntimeException("inference failed"));
 
         assertThat(job.getStatus()).isEqualTo(AiJobStatus.FAILED);
-        assertThat(job.getImage().getAiStatus()).isEqualTo(AiJobService.IMAGE_FAILED);
+        assertThat(job.getImage().getStatus()).isEqualTo("AVAILABLE");
         assertThat(job.getImage().getAiError()).isEqualTo("inference failed");
     }
 
@@ -94,7 +96,7 @@ class AiJobWorkerTest {
 
         assertThat(job.getStatus()).isEqualTo(AiJobStatus.PENDING);
         assertThat(job.getNextRetryAt()).isAfter(Instant.now());
-        assertThat(job.getImage().getAiStatus()).isEqualTo(AiJobService.IMAGE_PENDING);
+        assertThat(job.getImage().getStatus()).isEqualTo("PROCESSING");
     }
 
     @Test
@@ -114,7 +116,7 @@ class AiJobWorkerTest {
     private AiJob runningJob(int attempts, String lockedBy) {
         Image image = new Image();
         image.setId(10L);
-        image.setAiStatus(AiJobService.IMAGE_PROCESSING);
+        image.setStatus("PROCESSING");
         AiJob job = new AiJob();
         job.setId(1L);
         job.setImage(image);

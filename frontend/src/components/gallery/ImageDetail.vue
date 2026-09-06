@@ -64,7 +64,7 @@ const addingTag = ref(false)
 const retryingAi = ref(false)
 const recomputing = ref(false)
 
-// 褰搃mage鍙樺寲鏃舵洿鏂扮紪杈戣〃鍗?
+// 当image变化时更新编辑表单
 watch(() => props.image, (newImage) => {
   if (newImage) {
     newName.value = newImage.title
@@ -75,13 +75,13 @@ watch(() => props.image, (newImage) => {
 const tagTypeOrder = ['copyright', 'character', 'artist', 'general', 'meta', 'rating', 'year']
 
 const tagTypeMap: Record<string, string> = {
-  copyright: '鐗堟潈',
-  character: '瑙掕壊',
-  artist: '浣滆€?,
-  general: '涓€鑸?,
-  meta: '鍏冩暟鎹?,
-  rating: '鍒嗙骇',
-  year: '骞翠唤',
+  copyright: '版权',
+  character: '角色',
+  artist: '作者',
+  general: '一般',
+  meta: '元数据',
+  rating: '分级',
+  year: '年份',
 }
 
 const formattedSize = computed(() => {
@@ -129,10 +129,10 @@ const saveName = async () => {
   try {
     const updated = await galleryApi.updateImage(props.image.id, {title: newName.value})
     emit('update:image', updated)
-    message.success('鍚嶇О宸叉洿鏂?)
+    message.success('名称已更新')
     emit('refresh')
   } catch (e) {
-    message.error('鏇存柊鍚嶇О澶辫触')
+    message.error('更新名称失败')
   } finally {
     editingName.value = false
   }
@@ -142,11 +142,11 @@ const handleDelete = async () => {
   if (!props.image) return
   try {
     await galleryApi.deleteImage(props.image.id)
-    message.success('鍥剧墖宸插垹闄?)
+    message.success('图片已删除')
     emit('refresh')
     handleClose()
   } catch (e) {
-    message.error('鍒犻櫎鍥剧墖澶辫触')
+    message.error('删除图片失败')
   }
 }
 
@@ -185,23 +185,23 @@ const handleAddTag = async (value?: string | any) => {
     const targetTag = existingTags.find(t => t.name.toLowerCase() === tagName.toLowerCase())
 
     if (!targetTag) {
-      message.error('娣诲姞澶辫触锛氭爣绛句笉瀛樺湪锛屽彧鑳芥坊鍔犳暟鎹簱涓凡鏈夋爣绛?)
+      message.error('添加失败：标签不存在，只能添加数据库中已有标签')
       return
     }
 
     if (props.image.tags.some(t => t.id === targetTag.id)) {
-      message.warning('璇ユ爣绛惧凡娣诲姞')
+      message.warning('该标签已添加')
       newTagName.value = ''
       return
     }
 
     const updated = await galleryApi.addTag(props.image.id, targetTag.id)
     emit('update:image', updated)
-    message.success('鏍囩娣诲姞鎴愬姛')
+    message.success('标签添加成功')
     newTagName.value = ''
     tagSearchOptions.value = []
   } catch (e) {
-    message.error('鏍囩娣诲姞澶辫触')
+    message.error('标签添加失败')
   } finally {
     addingTag.value = false
   }
@@ -235,9 +235,9 @@ const handleRemoveTag = async (tag: ImageTagDto) => {
   try {
     const updated = await galleryApi.removeTag(props.image.id, tag.id)
     emit('update:image', updated)
-    message.success('鏍囩宸茬Щ闄?)
+    message.success('标签已移除')
   } catch (e) {
-    message.error('绉婚櫎鏍囩澶辫触')
+    message.error('移除标签失败')
   }
 }
 
@@ -253,10 +253,10 @@ const handleDownload = () => {
 
 const statusText = computed(() => {
   if (!props.image) return ''
-  if (props.image.status === 'AVAILABLE') return '宸插畬鎴?
-  if (props.image.status === 'PROCESSING') return '澶勭悊涓?
-  if (props.image.status === 'MISSING') return '澶勭悊澶辫触'
-  return '寰呭鐞?
+  if (props.image.status === 'AVAILABLE') return '正常'
+  if (props.image.status === 'PROCESSING') return '计算中'
+  if (props.image.status === 'MISSING') return '文件异常'
+  return '正常'
 })
 
 const statusType = computed<'default' | 'success' | 'info' | 'warning' | 'error'>(() => {
@@ -278,38 +278,42 @@ const handleRetryAi = async () => {
     const updated = await galleryApi.retryAiProcessing(props.image.id)
     emit('update:image', updated)
     emit('refresh')
-    message.success('宸插紑濮?AI 澶勭悊')
+    message.success('已开始 AI 处理')
   } catch (e) {
-    message.error('閲嶈瘯 AI 澶勭悊澶辫触')
+    message.error('重试 AI 处理失败')
   } finally {
     retryingAi.value = false
   }
 }
 
 const handleRecomputeTags = async () => {
-  if (!props.image || !props.image.tagModelId || recomputing.value) return
+  if (!props.image?.tagModelId || recomputing.value) return
   recomputing.value = true
   try {
     const updated = await galleryApi.generateTags(props.image.id, props.image.tagModelId)
     emit('update:image', updated)
     emit('refresh')
-    message.success('宸查噸鏂版帓闃熸爣绛剧敓鎴?)
+    message.success('标签重算任务已提交')
   } catch {
-    message.error('鏍囩鐢熸垚鎺掗槦澶辫触')
-  } finally { recomputing.value = false }
+    message.error('提交标签重算失败')
+  } finally {
+    recomputing.value = false
+  }
 }
 
 const handleRecomputeVectors = async () => {
-  if (!props.image || !props.image.indexVectors?.length || recomputing.value) return
+  if (!props.image?.indexVectors?.length || recomputing.value) return
   recomputing.value = true
   try {
     const updated = await galleryApi.generateVectors(props.image.id, props.image.indexVectors.map(v => v.modelId))
     emit('update:image', updated)
     emit('refresh')
-    message.success('宸查噸鏂版帓闃熷悜閲忚绠?)
+    message.success('向量重算任务已提交')
   } catch {
-    message.error('鍚戦噺璁＄畻鎺掗槦澶辫触')
-  } finally { recomputing.value = false }
+    message.error('提交向量重算失败')
+  } finally {
+    recomputing.value = false
+  }
 }
 
 const groupedTags = computed(() => {
@@ -363,12 +367,12 @@ const getTagColor = (type: string) => {
       <div
           class="flex-1 flex flex-col lg:flex-row w-full h-full lg:overflow-hidden overflow-y-auto custom-scrollbar relative">
 
-        <!-- 涓诲浘鐗囧尯鍩?-->
+        <!-- 主图片区域 -->
         <div
             class="flex-none w-full h-[60vh] lg:h-full lg:flex-1 lg:w-auto flex items-center justify-center bg-black overflow-hidden group sticky top-0 lg:relative z-0">
 
-          <!-- 鍔犺浇鐘舵€?-->
-          <n-spin v-if="props.loading" size="large" description="鍔犺浇涓?.." />
+          <!-- 加载状态 -->
+          <n-spin v-if="props.loading" size="large" description="加载中..." />
 
           <n-image
               v-else-if="props.image"
@@ -379,7 +383,7 @@ const getTagColor = (type: string) => {
               :img-props="{ class: 'max-h-full max-w-full object-contain' }"
           />
 
-          <!-- 瀵艰埅鎸夐挳 -->
+          <!-- 导航按钮 -->
           <div v-if="hasPrev"
                class="absolute left-4 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-black/50 hover:bg-black/80 text-white cursor-pointer transition-all flex items-center justify-center aspect-square"
                @click.stop="handlePrev">
@@ -393,11 +397,11 @@ const getTagColor = (type: string) => {
           </div>
         </div>
 
-        <!-- 淇℃伅闈㈡澘 -->
+        <!-- 信息面板 -->
         <div
             class="flex-none w-full lg:w-[400px] lg:h-full bg-gray-900 border-t lg:border-t-0 lg:border-l border-gray-800 flex flex-col relative shadow-2xl z-20 min-h-[40vh]">
 
-          <!-- 椤堕儴鎿嶄綔鏍?-->
+          <!-- 顶部操作栏 -->
           <div v-if="props.loading" class="p-4 border-b border-gray-800 bg-gray-900 shrink-0">
             <div class="grid grid-cols-3 gap-2">
               <n-skeleton height="34px" :sharp="false" />
@@ -413,31 +417,31 @@ const getTagColor = (type: string) => {
                     <template #icon>
                       <n-icon :component="TrashOutline"/>
                     </template>
-                    鍒犻櫎
+                    删除
                   </n-button>
                 </template>
-                纭畾瑕佸垹闄よ繖寮犲浘鐗囧悧锛?
+                确定要删除这张图片吗？
               </n-popconfirm>
 
               <n-button secondary type="info" block @click="handleDownload">
                 <template #icon>
                   <n-icon :component="DownloadOutline"/>
                 </template>
-                涓嬭浇
+                下载
               </n-button>
 
               <n-button secondary block @click="handleClose">
                 <template #icon>
                   <n-icon :component="CloseOutline"/>
                 </template>
-                鍏抽棴
+                关闭
               </n-button>
             </div>
           </div>
 
-          <!-- 鍔犺浇鐘舵€佷笅鐨勫唴瀹归鏋?-->
+          <!-- 加载状态下的内容骨架 -->
           <div v-if="props.loading" class="flex-1 lg:overflow-y-auto p-6 flex flex-col custom-scrollbar gap-6">
-            <!-- 鏍囬楠ㄦ灦 -->
+            <!-- 标题骨架 -->
             <div class="flex flex-col gap-2">
               <n-skeleton text style="width: 60px" />
               <n-skeleton text style="width: 80%" :repeat="1" />
@@ -445,7 +449,7 @@ const getTagColor = (type: string) => {
 
             <n-divider class="my-0 bg-gray-800"/>
 
-            <!-- 璇︾粏淇℃伅楠ㄦ灦 -->
+            <!-- 详细信息骨架 -->
             <div class="flex flex-col gap-4">
               <n-skeleton text style="width: 80px" />
               <div class="grid grid-cols-2 gap-y-5 gap-x-4">
@@ -468,7 +472,7 @@ const getTagColor = (type: string) => {
 
             <n-divider class="my-0 bg-gray-800"/>
 
-            <!-- 鏍囩楠ㄦ灦 -->
+            <!-- 标签骨架 -->
             <div class="flex flex-col gap-3">
               <n-skeleton text style="width: 50px" />
               <div class="flex flex-wrap gap-2">
@@ -478,12 +482,12 @@ const getTagColor = (type: string) => {
           </div>
 
           <div v-else-if="props.image" class="flex-1 lg:overflow-y-auto p-6 flex flex-col custom-scrollbar">
-            <!-- 鏍囬閮ㄥ垎 -->
+            <!-- 标题部分 -->
             <div class="flex flex-col gap-2">
-              <div class="text-sm text-gray-400 uppercase font-bold tracking-wider">鏍囬</div>
+              <div class="text-sm text-gray-400 uppercase font-bold tracking-wider">标题</div>
               <div v-if="!editingName" @click="editingName = true"
                    class="text-xl lg:text-2xl font-semibold cursor-pointer hover:text-primary-400 break-words transition-colors"
-                   title="鐐瑰嚮缂栬緫">
+                   title="点击编辑">
                 {{ props.image.title }}
               </div>
               <n-input
@@ -491,48 +495,48 @@ const getTagColor = (type: string) => {
                   @blur="saveName"
                   @keyup.enter="saveName"
                   autofocus
-                  placeholder="杈撳叆鍚嶇О" size="large"
+                  placeholder="输入名称" size="large"
               />
             </div>
 
             <n-divider class="my-0 bg-gray-800"/>
 
-            <!-- 璇︾粏淇℃伅 -->
+            <!-- 详细信息 -->
             <div class="flex flex-col gap-4">
-              <div class="text-sm text-gray-400 uppercase font-bold tracking-wider">璇︾粏淇℃伅</div>
+              <div class="text-sm text-gray-400 uppercase font-bold tracking-wider">详细信息</div>
               <div class="grid grid-cols-2 gap-y-5 gap-x-4 text-sm lg:text-base">
                 <!-- Size -->
                 <div class="flex flex-col gap-1">
                       <span class="text-gray-500 text-xs flex items-center gap-1">
-                         <n-icon :component="ResizeOutline"/> 灏哄
+                         <n-icon :component="ResizeOutline"/> 尺寸
                       </span>
-                  <span class="text-gray-200 font-mono">{{ props.image.width }} 脳 {{ props.image.height }}</span>
+                  <span class="text-gray-200 font-mono">{{ props.image.width }} × {{ props.image.height }}</span>
                 </div>
                 <!-- View Count -->
                 <div class="flex flex-col gap-1">
                       <span class="text-gray-500 text-xs flex items-center gap-1">
-                         <n-icon :component="EyeOutline"/> 鏌ョ湅娆℃暟
+                         <n-icon :component="EyeOutline"/> 查看次数
                       </span>
                   <span class="text-gray-200 font-mono">{{ props.image.viewCount || 0 }}</span>
                 </div>
                 <!-- File Size -->
                 <div class="flex flex-col gap-1">
                       <span class="text-gray-500 text-xs flex items-center gap-1">
-                         <n-icon :component="HardwareChipOutline"/> 澶у皬
+                         <n-icon :component="HardwareChipOutline"/> 大小
                       </span>
                   <span class="text-gray-200 font-mono">{{ formattedSize }}</span>
                 </div>
                 <!-- Format -->
                 <div class="flex flex-col gap-1">
                       <span class="text-gray-500 text-xs flex items-center gap-1">
-                         <n-icon :component="ImageOutline"/> 鏍煎紡
+                         <n-icon :component="ImageOutline"/> 格式
                       </span>
                   <span class="text-gray-200 uppercase font-mono">{{ props.image.extension }}</span>
                 </div>
                 <!-- Date -->
                 <div class="flex flex-col gap-1">
                       <span class="text-gray-500 text-xs flex items-center gap-1">
-                         <n-icon :component="TimeOutline"/> 鍒涘缓鏃堕棿
+                         <n-icon :component="TimeOutline"/> 创建时间
                       </span>
                   <span class="text-gray-200 font-mono">{{
                       useDateFormat(props.image.createdAt, 'YYYY-MM-DD').value
@@ -541,7 +545,7 @@ const getTagColor = (type: string) => {
                 <!-- AI Status -->
                 <div class="flex flex-col gap-1">
                       <span class="text-gray-500 text-xs flex items-center gap-1">
-                         <n-icon :component="HardwareChipOutline"/> AI 鐘舵€?
+                         <n-icon :component="HardwareChipOutline"/> AI 状态
                       </span>
                   <div class="flex items-center gap-2">
                     <n-tag size="small" :type="statusType" :bordered="false">
@@ -558,7 +562,7 @@ const getTagColor = (type: string) => {
                       <template #icon>
                         <n-icon :component="RefreshOutline"/>
                       </template>
-                      閲嶈瘯
+                      重试
                     </n-button>
                   </div>
                 </div>
@@ -571,22 +575,22 @@ const getTagColor = (type: string) => {
               <div class="grid grid-cols-1 gap-2 text-sm">
                 <div>
                   <div class="flex items-center justify-between">
-                    <span class="text-gray-500 text-xs">绱㈠紩鍚戦噺</span>
-                    <n-button v-if="props.image.indexVectors?.length" size="tiny" text :loading="recomputing" @click="handleRecomputeVectors">閲嶆柊璁＄畻</n-button>
+                    <span class="text-gray-500 text-xs">索引向量</span>
+                    <n-button v-if="props.image.indexVectors?.length" size="tiny" text :loading="recomputing" @click="handleRecomputeVectors">重新计算</n-button>
                   </div>
                   <div class="flex flex-wrap gap-1 mt-1">
                     <n-tag v-for="vector in props.image.indexVectors || []" :key="`${vector.modelId}-${vector.modelRevision}`" size="small" :bordered="false">
-                      {{ vector.modelId }} 路 {{ vector.status }}
+                      {{ vector.modelId }} / {{ vector.status }}
                     </n-tag>
-                    <span v-if="!props.image.indexVectors?.length" class="text-gray-500 text-xs">鏈绠?/span>
+                    <span v-if="!props.image.indexVectors?.length" class="text-gray-500 text-xs">未计算</span>
                   </div>
                 </div>
                 <div>
                   <div class="flex items-center justify-between">
-                    <span class="text-gray-500 text-xs">鏍囩鐢熸垚妯″瀷</span>
-                    <n-button v-if="props.image.tagModelId" size="tiny" text :loading="recomputing" @click="handleRecomputeTags">閲嶆柊鐢熸垚</n-button>
+                    <span class="text-gray-500 text-xs">标签生成模型</span>
+                    <n-button v-if="props.image.tagModelId" size="tiny" text :loading="recomputing" @click="handleRecomputeTags">重新生成</n-button>
                   </div>
-                  <div class="text-gray-200 mt-1">{{ props.image.tagModelId || '鏈娇鐢? }}</div>
+                  <div class="text-gray-200 mt-1">{{ props.image.tagModelId || '未使用' }}</div>
                 </div>
               </div>
 
@@ -594,7 +598,7 @@ const getTagColor = (type: string) => {
               <div class="flex flex-col gap-3 mt-2">
                 <div class="flex flex-col gap-1">
                      <span class="text-gray-500 text-xs flex items-center gap-1">
-                        <n-icon :component="DocumentTextOutline"/> 鏂囦欢鍚?
+                        <n-icon :component="DocumentTextOutline"/> 文件名
                      </span>
                   <n-tooltip trigger="hover" placement="top">
                     <template #trigger>
@@ -609,7 +613,7 @@ const getTagColor = (type: string) => {
 
                 <div class="flex flex-col gap-1">
                      <span class="text-gray-500 text-xs flex items-center gap-1">
-                        <span class="font-bold text-[10px]">#</span> 鍝堝笇
+                        <span class="font-bold text-[10px]">#</span> 哈希
                      </span>
                   <n-tooltip trigger="hover" placement="top">
                     <template #trigger>
@@ -626,12 +630,12 @@ const getTagColor = (type: string) => {
 
             <n-divider class="my-0 bg-gray-800"/>
 
-            <!-- 鏍囩閮ㄥ垎 -->
+            <!-- 标签部分 -->
             <div class="flex flex-col gap-3">
               <div class="flex items-center justify-between">
                 <div class="text-sm text-gray-400 uppercase font-bold tracking-wider flex items-center gap-1">
                   <n-icon :component="PricetagOutline"/>
-                  鏍囩
+                  标签
                 </div>
                 <div class="flex gap-2">
                   <n-button
@@ -653,7 +657,7 @@ const getTagColor = (type: string) => {
                   <n-auto-complete
                       v-model:value="newTagName"
                       :options="tagSearchOptions"
-                      placeholder="杈撳叆鏍囩鍚嶇О..."
+                      placeholder="输入标签名称..."
                       size="small"
                       clearable
                       @update:value="handleTagSearch"
@@ -692,7 +696,7 @@ const getTagColor = (type: string) => {
                   </div>
                 </template>
               </div>
-              <span v-else class="text-gray-500 text-sm italic py-1">鏆傛棤鏍囩</span>
+              <span v-else class="text-gray-500 text-sm italic py-1">暂无标签</span>
             </div>
           </div>
         </div>
@@ -715,6 +719,4 @@ const getTagColor = (type: string) => {
   border-radius: 3px;
 }
 </style>
-
-
 
