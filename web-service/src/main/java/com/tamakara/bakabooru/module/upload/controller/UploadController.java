@@ -18,13 +18,13 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/upload")
 @RequiredArgsConstructor
-@Tag(name = "上传", description = "图片上传操作")
+@Tag(name = "API")
 public class UploadController {
 
     private final UploadJobService uploadJobService;
 
     @PostMapping
-    @Operation(summary = "上传图片", description = "上传单个图片并创建持久化任务")
+    @Operation(summary = "operation")
     public void createTask(@RequestParam("file") MultipartFile file,
                            @RequestParam(required = false) String tagModelId,
                            @RequestParam(required = false) String vectorModelIds) {
@@ -32,19 +32,19 @@ public class UploadController {
     }
 
     @GetMapping("/tasks")
-    @Operation(summary = "获取任务列表信息")
+    @Operation(summary = "operation")
     public TasksInfoDto getTasksInfo() {
         return uploadJobService.getTasksInfo();
     }
 
     @PostMapping("/tasks")
-    @Operation(summary = "重试上传任务")
+    @Operation(summary = "operation")
     public void retryTask(@RequestParam UUID id) {
         uploadJobService.retryTask(id);
     }
 
     @DeleteMapping("/tasks")
-    @Operation(summary = "清空失败任务")
+    @Operation(summary = "operation")
     public void clearFailedTasks() {
         uploadJobService.clearFailedTasks();
     }

@@ -1,4 +1,4 @@
-﻿package com.tamakara.bakabooru.module.image.entity;
+package com.tamakara.bakabooru.module.image.entity;
 
 import com.tamakara.bakabooru.config.VectorConverter;
 import com.tamakara.bakabooru.module.image.dto.ImageTagDto;
@@ -51,11 +51,6 @@ public class Image {
 
     @Column(name = "image_status", nullable = false)
     private String status = "AVAILABLE";
-
-    /** @deprecated use status and index-vector job state instead. */
-    @Transient
-    @Deprecated
-    private String aiStatus;
 
     @Column(nullable = false)
     private Long viewCount = 0L;

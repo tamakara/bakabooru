@@ -23,7 +23,7 @@ public class SearchDto {
     private Double distanceThreshold;
     private Set<String> positiveTags;
     private Set<String> negativeTags;
-    private List<Float> embedding;  // CLIP 向量用于语义搜索
+    private List<Float> embedding;  // CLIP 閸氭垿鍣洪悽銊ょ艾鐠囶厺绠熼幖婊呭偍
     private List<String> vectorModelIds;
     private String tagModelId;
 }

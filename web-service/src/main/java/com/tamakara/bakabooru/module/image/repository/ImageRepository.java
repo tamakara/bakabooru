@@ -1,4 +1,4 @@
-﻿package com.tamakara.bakabooru.module.image.repository;
+package com.tamakara.bakabooru.module.image.repository;
 
 import com.tamakara.bakabooru.module.image.entity.Image;
 import org.springframework.data.jpa.repository.JpaRepository;

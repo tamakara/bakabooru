@@ -27,7 +27,7 @@ public class ThumbnailService {
 
             storageService.uploadFile(imageUrlService.getThumbnailObjectName(hash), thumbnailFile);
         } catch (Exception e) {
-            throw new RuntimeException("生成缩略图失败: " + e.getMessage(), e);
+            throw new RuntimeException("閻㈢喐鍨氱紓鈺冩殣閸ユ儳銇戠拹? " + e.getMessage(), e);
         } finally {
             if (thumbnailFile != null && thumbnailFile.exists()) {
                 thumbnailFile.delete();

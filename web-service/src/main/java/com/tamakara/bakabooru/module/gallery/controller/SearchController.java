@@ -20,19 +20,19 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/search")
 @RequiredArgsConstructor
-@Tag(name = "搜索", description = "高级搜索操作")
+@Tag(name = "API")
 public class SearchController {
 
     private final SearchService searchService;
 
     @PostMapping
-    @Operation(summary = "搜索图片", description = "使用标签进行高级搜索")
+    @Operation(summary = "operation")
     public SearchResultDto<ImageThumbnailDto> search(@RequestBody SearchRequestDto request) {
         return searchService.search(request);
     }
 
     @PostMapping(path = "/image", consumes = "multipart/form-data")
-    @Operation(summary = "以图搜图", description = "上传图片搜相似图片")
+    @Operation(summary = "operation")
     public SearchResultDto<ImageThumbnailDto> searchByImage(
             @RequestPart("file") MultipartFile file,
             @RequestParam(required = false, defaultValue = "0.7") Double threshold,

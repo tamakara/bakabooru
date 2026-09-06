@@ -1,4 +1,4 @@
-﻿package com.tamakara.bakabooru.module.ai.service;
+package com.tamakara.bakabooru.module.ai.service;
 
 import com.tamakara.bakabooru.module.ai.entity.AiJob;
 import com.tamakara.bakabooru.module.ai.entity.AiJobStatus;
@@ -14,11 +14,6 @@ import java.time.Instant;
 @Service
 @RequiredArgsConstructor
 public class AiJobService {
-
-    public static final String IMAGE_PENDING = "PENDING";
-    public static final String IMAGE_PROCESSING = "PROCESSING";
-    public static final String IMAGE_READY = "READY";
-    public static final String IMAGE_FAILED = "FAILED";
 
     private final AiJobRepository aiJobRepository;
     private final ImageRepository imageRepository;
@@ -65,9 +60,9 @@ public class AiJobService {
     @Transactional
     public Image retry(Long imageId) {
         Image image = imageRepository.findById(imageId)
-                .orElseThrow(() -> new RuntimeException("鍥剧墖涓嶅瓨鍦?));
+                .orElseThrow(() -> new RuntimeException("Image not found: " + imageId));
         AiJob job = aiJobRepository.findByImageId(imageId)
-                .orElseThrow(() -> new IllegalStateException("AI 浠诲姟涓嶅瓨鍦?));
+                .orElseThrow(() -> new IllegalStateException("AI job not found: " + imageId));
         Instant now = Instant.now();
         job.setStatus(AiJobStatus.PENDING);
         job.setAttempts(0);

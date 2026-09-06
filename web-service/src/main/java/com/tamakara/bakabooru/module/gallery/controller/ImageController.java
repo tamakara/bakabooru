@@ -14,49 +14,49 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * 图片管理控制器
- * 处理图片的增删改查、标签管理及批量操作
+ * 闁搞儱澧芥晶鏍不閿涘嫭鍊為柟璨夊啫鐓戦柛?
+ * 濠㈣泛瀚幃濠囧炊閸撗冾暬闁汇劌瀚·鍐礆閻樿櫕鏆柡灞诲劘閳ь兛鐒﹂悥锝囩驳閸撗屽悁闁荤偛妫楀鐑藉箥瑜版帒娅ら柟鍨С缂?
  */
 @RestController
 @RequestMapping("/api/images")
 @RequiredArgsConstructor
-@Tag(name = "图库管理", description = "图片库核心操作")
+@Tag(name = "API")
 public class ImageController {
 
     private final ImageService imageService;
 
     @GetMapping("/{id}")
-    @Operation(summary = "获取详情", description = "获取图片详细信息并增加查看次数")
+    @Operation(summary = "operation")
     public ImageDto getImage(@PathVariable Long id) {
         return imageService.getImage(id);
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "删除图片")
+    @Operation(summary = "operation")
     public void deleteImage(@PathVariable Long id) {
         imageService.deleteImage(id);
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "更新信息")
+    @Operation(summary = "operation")
     public ImageDto updateImage(@PathVariable Long id, @RequestBody ImageDto dto) {
         return imageService.updateImage(id, dto);
     }
 
     @PostMapping("/{id}/tags/{tagId}")
-    @Operation(summary = "添加标签")
+    @Operation(summary = "operation")
     public ImageDto addTag(@PathVariable Long id, @PathVariable Long tagId) {
         return imageService.addTag(id, tagId);
     }
 
     @DeleteMapping("/{id}/tags/{tagId}")
-    @Operation(summary = "移除标签")
+    @Operation(summary = "operation")
     public ImageDto removeTag(@PathVariable Long id, @PathVariable Long tagId) {
         return imageService.removeTag(id, tagId);
     }
 
     @PostMapping("/{id}/ai/retry")
-    @Operation(summary = "重试 AI 处理")
+    @Operation(summary = "operation")
     public ImageDto retryAiProcessing(@PathVariable Long id) {
         return imageService.retryAiProcessing(id);
     }
@@ -73,19 +73,19 @@ public class ImageController {
     }
 
     @PostMapping("/batch/delete")
-    @Operation(summary = "批量删除")
+    @Operation(summary = "operation")
     public void deleteImages(@RequestBody List<Long> ids) {
         imageService.deleteImages(ids);
     }
 
     @PostMapping("/batch/delete-missing")
-    @Operation(summary = "删除所有文件丢失记录")
+    @Operation(summary = "operation")
     public int deleteMissingImages() {
         return imageService.deleteMissingImages();
     }
 
     @PostMapping("/batch/download")
-    @Operation(summary = "批量下载")
+    @Operation(summary = "operation")
     public void downloadImages(@RequestBody List<Long> ids, HttpServletResponse response) throws IOException {
         response.setContentType("application/zip");
         response.setHeader("Content-Disposition", "attachment; filename=\"images.zip\"");

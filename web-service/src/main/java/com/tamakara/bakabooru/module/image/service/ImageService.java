@@ -32,9 +32,9 @@ public class ImageService {
     @Transactional
     public ImageDto getImage(Long id) {
         Image image = imageRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("找不到图片"));
+                .orElseThrow(() -> new RuntimeException("闁归潧褰炵粭澶愬礆閺夋寧绂堥柣?)");
 
-        // 增加查看次数
+        // 濠⒀呭仜婵偤寮婚妷褎绠欐繛鍡忓墲閺?
         image.setViewCount(image.getViewCount() + 1);
         imageRepository.save(image);
 
@@ -53,7 +53,7 @@ public class ImageService {
     @Transactional
     public ImageDto updateImage(Long id, ImageDto dto) {
         Image image = imageRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("找不到图片"));
+                .orElseThrow(() -> new RuntimeException("闁归潧褰炵粭澶愬礆閺夋寧绂堥柣?)");
 
         if (dto.getTitle() != null) {
             image.setTitle(dto.getTitle());
@@ -65,7 +65,7 @@ public class ImageService {
     @Transactional
     public ImageDto addTag(Long id, Long tagId) {
         Image image = imageRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("找不到图片"));
+                .orElseThrow(() -> new RuntimeException("闁归潧褰炵粭澶愬礆閺夋寧绂堥柣?)");
         Tag tag = tagService.getTagById(tagId);
         image.getTagRelations().stream()
                 .filter(relation -> relation.getTag().getId().equals(tagId))
@@ -81,7 +81,7 @@ public class ImageService {
     @Transactional
     public ImageDto removeTag(Long id, Long tagId) {
         Image image = imageRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("找不到图片"));
+                .orElseThrow(() -> new RuntimeException("闁归潧褰炵粭澶愬礆閺夋寧绂堥柣?)");
 
         image.getTags().removeIf(tag -> tag.getId().equals(tagId));
         image.setUpdatedAt(Instant.now());
@@ -100,7 +100,7 @@ public class ImageService {
                 .orElseThrow(() -> new RuntimeException("Image not found: " + id));
         if ((tagModelId == null || tagModelId.isBlank())
                 && (vectorModelIds == null || vectorModelIds.isBlank())) {
-            throw new IllegalArgumentException("至少选择一个 AI 模型");
+            throw new IllegalArgumentException("闁煎嘲鍟块惃顖炴焻婢跺顏ュ☉鎾亾濞?AI 婵☆垪鈧磭鈧?");
         }
         aiJobService.enqueue(image, tagModelId, vectorModelIds);
         return imageMapper.toDto(image);
@@ -109,7 +109,7 @@ public class ImageService {
     @Transactional
     public void deleteImage(Long id) {
         Image image = imageRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("找不到图片"));
+                .orElseThrow(() -> new RuntimeException("闁归潧褰炵粭澶愬礆閺夋寧绂堥柣?)");
 
         String objectName = "original/" + image.getHash();
         storageService.deleteFile(objectName);
@@ -124,7 +124,7 @@ public class ImageService {
             try {
                 deleteImage(id);
             } catch (Exception e) {
-                throw new RuntimeException("删除图片失败 (ID: " + id + "): " + e.getMessage(), e);
+                throw new RuntimeException("闁告帞濞€濞呭酣宕堕崜褍顣诲鎯扮簿鐟?(ID: " + id + "): " + e.getMessage(), e);
             }
         });
     }
@@ -137,8 +137,7 @@ public class ImageService {
                 storageService.deleteFile("original/" + image.getHash());
                 storageService.deleteFile("thumbnail/" + image.getHash());
             } catch (Exception ignored) {
-                // 原图本就可能不存在；数据库记录仍应删除
-            }
+                // 闁告鍠庡ù姗€寮甸鈧銊╁矗椤栨繂鍘村☉鎾崇Т閻°劑宕烽…鎺斿耿闁轰胶澧楀畵浣规償閹捐鍞剁憸鐗堟磻缁稒鎯旈弬鍨仼闂?            }
             imageRepository.delete(image);
         }
         return missing.size();
@@ -154,7 +153,7 @@ public class ImageService {
                 String objectName = "original/" + image.getHash();
                 File file = storageService.getFile(objectName);
                 if (file.exists()) {
-                    // 使用 ID_标题.扩展名 格式防止文件名冲突
+                    // 濞达綀娉曢弫?ID_闁哄秴娲。?闁圭鏅涢惈宥夊触?闁哄秶鍘х槐锟犳⒓閸欏鍓鹃柡鍌氭矗濞嗐垽宕ュ鍛毐缂?
                     String fileName = String.format("%d_%s.%s", image.getId(), image.getTitle(), image.getExtension());
                     zos.putNextEntry(new ZipEntry(fileName));
                     Files.copy(file.toPath(), zos);
@@ -162,7 +161,7 @@ public class ImageService {
                 }
             }
         } catch (Exception e) {
-            throw new RuntimeException("打包下载失败: " + e.getMessage(), e);
+            throw new RuntimeException("闁瑰灚鎸哥€垫ɑ绋夌€ｎ厽绁板鎯扮簿鐟? " + e.getMessage(), e);
         }
     }
 }

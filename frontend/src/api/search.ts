@@ -6,7 +6,6 @@ export interface SearchRequestDto {
   keyword?: string
   semanticQuery?: string  // 语义描述搜索
   status?: 'AVAILABLE' | 'PROCESSING' | 'MISSING'
-  status?: 'AVAILABLE' | 'PROCESSING' | 'MISSING'
   randomSeed?: string
   widthMin?: number
   widthMax?: number

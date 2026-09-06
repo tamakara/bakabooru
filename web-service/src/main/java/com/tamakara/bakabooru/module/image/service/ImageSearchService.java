@@ -1,4 +1,4 @@
-﻿package com.tamakara.bakabooru.module.image.service;
+package com.tamakara.bakabooru.module.image.service;
 
 import com.tamakara.bakabooru.module.gallery.dto.SearchResultDto;
 import com.tamakara.bakabooru.module.image.dto.ImageThumbnailDto;
@@ -83,7 +83,7 @@ public class ImageSearchService {
             rows = rows.subList(0, size);
         }
 
-        log.info("鎼滅储瀹屾垚 - 鑰楁椂: {}ms, 椤? {}, 鏁伴噺: {}, hasNext: {}",
+        log.info("闁瑰吋绮庨崒銊р偓鐟版湰閸?- 闁肩増顨嗗? {}ms, 濡? {}, 闁轰椒鍗抽崳? {}, hasNext: {}",
                 System.currentTimeMillis() - startTime, page, rows.size(), hasNext);
         return new SearchResultDto<>(rows, page, size, hasNext);
     }
@@ -190,7 +190,7 @@ public class ImageSearchService {
     }
 
     private void applyStatus(SearchDto searchDto, List<String> predicates, MapSqlParameterSource params) {
-        String value = StringUtils.hasText(searchDto.getStatus()) ? searchDto.getStatus() : searchDto.getStorageStatus();
+        String value = searchDto.getStatus();
         if (!StringUtils.hasText(value)) return;
         String status = value.trim().toUpperCase();
         if (!IMAGE_STATUSES.contains(status)) return;

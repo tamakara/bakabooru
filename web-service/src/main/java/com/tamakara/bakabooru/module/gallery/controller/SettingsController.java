@@ -14,19 +14,19 @@ import java.util.Map;
 import java.util.List;
 
 /**
- * 系统设置控制器
- * 管理全局配置参数
+ * 缁崵绮虹拋鍓х枂閹貉冨煑閸?
+ * 缁狅紕鎮婇崗銊ョ湰闁板秶鐤嗛崣鍌涙殶
  */
 @RestController
 @RequestMapping("/api/system/settings")
 @RequiredArgsConstructor
-@Tag(name = "系统设置", description = "全局参数配置")
+@Tag(name = "API")
 public class SettingsController {
 
     private final SystemSettingService systemSettingService;
 
     @GetMapping
-    @Operation(summary = "获取设置")
+    @Operation(summary = "operation")
     public Map<String, String> getAllSettings() {
         return systemSettingService.getEditableSettings();
     }
@@ -37,7 +37,7 @@ public class SettingsController {
     }
 
     @PostMapping
-    @Operation(summary = "更新设置")
+    @Operation(summary = "operation")
     public void updateSettings(@RequestBody Map<String, String> settings) {
         try {
             systemSettingService.updateEditableSettings(settings);

@@ -22,7 +22,7 @@ public class AiModelService {
 
     @Transactional
     public AiModelDto setEnabled(String id, boolean enabled) {
-        AiModel model = repository.findById(id).orElseThrow(() -> new IllegalArgumentException("模型不存在: " + id));
+        AiModel model = repository.findById(id).orElseThrow(() -> new IllegalArgumentException("濡€崇€锋稉宥呯摠閸? " + id));
         model.setStatus(enabled ? "READY" : "DISABLED");
         model.setUpdatedAt(Instant.now());
         return AiModelDto.from(repository.save(model));
@@ -30,7 +30,7 @@ public class AiModelService {
 
     @Transactional
     public AiModelDto markDownloadStarted(String id) {
-        AiModel model = repository.findById(id).orElseThrow(() -> new IllegalArgumentException("模型不存在: " + id));
+        AiModel model = repository.findById(id).orElseThrow(() -> new IllegalArgumentException("濡€崇€锋稉宥呯摠閸? " + id));
         // The AI service owns the actual runtime cache; the registry records availability.
         model.setStatus("READY");
         model.setUpdatedAt(Instant.now());
@@ -39,7 +39,7 @@ public class AiModelService {
 
     @Transactional
     public AiModelDto uninstall(String id) {
-        AiModel model = repository.findById(id).orElseThrow(() -> new IllegalArgumentException("模型不存在: " + id));
+        AiModel model = repository.findById(id).orElseThrow(() -> new IllegalArgumentException("濡€崇€锋稉宥呯摠閸? " + id));
         model.setStatus("DISABLED");
         model.setArtifactObject(null);
         model.setUpdatedAt(Instant.now());

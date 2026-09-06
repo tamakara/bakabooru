@@ -30,15 +30,15 @@ public class AuthService {
     }
 
     public String login(String password) {
-        // 简单解码 Base64 存储的密码 (注意: 生产环境应使用 BCrypt 等哈希算法)
+        // 缂備胶濮崑鎾绘煕濡や焦绀夌悮娆撴煟?Base64 闁诲孩绋掗敋闁稿绉归幆鍐礋椤愩倖顫氶梺?(濠电偛顦崝宥夊礈? 闂佹眹鍨婚崰宥嗩殽閸ヮ剚鍋濇い鏍ㄥ嚬閺嗘棃骞栫€涙ɑ鐓ｅ┑鐐叉喘閹?BCrypt 缂備焦绋戦ˇ顖炲箹鏉堚晜鏆滅€光偓閳ь剟鎮剧拠娴嬫灃?
         String storedEncoded = getEncodedPassword();
         String currentPassword = decodePassword(storedEncoded);
 
         if (!currentPassword.equals(password)) {
-            throw new RuntimeException("密码错误");
+            throw new RuntimeException("Authentication failed");
         }
 
-        // 生成 Token，有效期 24小时
+        // 闂佹眹鍨婚崰鎰板垂?Token闂佹寧绋戦張顒€锕㈡笟鈧顐﹀醇閻旂鐒?24闁诲繐绻愮换鎴濐渻?
         return JwtUtils.createToken(JwtUtils.generateSecretKey(currentPassword), 1000 * 60 * 60 * 24);
     }
 
@@ -60,7 +60,7 @@ public class AuthService {
         if (!StringUtils.hasText(currentPassword)) return;
 
         if (JwtUtils.isTokenExpired(token, JwtUtils.generateSecretKey(currentPassword))) {
-            throw new RuntimeException("Token已过期或无效");
+            throw new RuntimeException("Authentication failed");
         }
     }
 

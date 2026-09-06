@@ -58,7 +58,7 @@ public class UploadJobService {
             } catch (Exception ignored) {
                 // Best-effort compensation for a partially uploaded staging object.
             }
-            throw new RuntimeException("创建上传任务失败: " + e.getMessage(), e);
+            throw new RuntimeException("闁告帗绋戠紓鎾寸▔婵犱胶鐐婂ù鐘侯嚙婵喐寰勬潏顐バ? " + e.getMessage(), e);
         }
     }
 
@@ -83,12 +83,12 @@ public class UploadJobService {
     @Transactional
     public void retryTask(UUID id) {
         UploadJob job = uploadJobRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("上传任务不存在"));
+                .orElseThrow(() -> new RuntimeException("濞戞挸锕ｇ槐鑸电鐠囨彃顫ゅ☉鎾崇Т閻°劑宕?)");
         if (job.getStatus() != UploadJobStatus.FAILED) {
-            throw new RuntimeException("只有失败任务可以重试");
+            throw new RuntimeException("闁告瑯浜濆﹢浣瑰緞鏉堫偉袝濞寸姾顕ф慨鐔煎矗椤栨瑤绨伴梺鎻掔Х閻?");
         }
         if (!storageService.existFile(job.getStagingObjectName())) {
-            throw new RuntimeException("暂存文件不存在，请重新上传");
+            throw new RuntimeException("闁哄棗鍊搁悺銊╁棘閸ワ附顐藉☉鎾崇Т閻°劑宕烽…鎺旂閻犲洨鍏橀崳鎼佸棘妫颁胶鐟愬ù?");
         }
 
         job.setStatus(UploadJobStatus.PENDING);

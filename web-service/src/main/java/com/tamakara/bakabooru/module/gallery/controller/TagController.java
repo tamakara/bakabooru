@@ -10,19 +10,19 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * 标签管理控制器
- * 处理标签的检索
+ * 閺嶅洨顒风粻锛勬倞閹貉冨煑閸?
+ * 婢跺嫮鎮婇弽鍥╊劮閻ㄥ嫭顥呯槐?
  */
 @RestController
 @RequestMapping("/api/tags")
 @RequiredArgsConstructor
-@Tag(name = "标签管理", description = "标签检索与维护")
+@Tag(name = "API")
 public class TagController {
 
     private final TagService tagService;
 
     @GetMapping
-    @Operation(summary = "获取标签", description = "获取所有标签或按关键词搜索")
+    @Operation(summary = "operation")
     public List<TagDto> listTags(@RequestParam(required = false) String query) {
         if (query != null && !query.isEmpty()) {
             return tagService.searchTags(query);

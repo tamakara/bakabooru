@@ -1,4 +1,4 @@
-﻿package com.tamakara.bakabooru.module.ai.service;
+package com.tamakara.bakabooru.module.ai.service;
 
 import com.tamakara.bakabooru.config.AiJobProperties;
 import com.tamakara.bakabooru.module.ai.client.AiServiceClient;
@@ -96,7 +96,7 @@ public class AiJobWorker {
         try {
             ProcessingInput input = transactionTemplate.execute(status -> aiJobRepository.findById(jobId)
                     .map(job -> new ProcessingInput(job.getImage().getHash(), job.getTagModelId(), job.getVectorModelIds()))
-                    .orElseThrow(() -> new IllegalStateException("AI 浠诲姟涓嶅瓨鍦?)));
+                    .orElseThrow(() -> new IllegalStateException("AI job not found: " + jobId)));
             double threshold = systemSettingService.getDoubleSetting("tag.threshold");
             if (!storageService.existFile("original/" + input.hash())) {
                 transactionTemplate.executeWithoutResult(tx -> aiJobRepository.findById(jobId).ifPresent(job -> { job.getImage().setStatus("MISSING"); imageRepository.save(job.getImage()); }));
@@ -115,7 +115,7 @@ public class AiJobWorker {
     void completeJob(Long jobId, AnalyzeImageResponseDto response) {
         AiJob job = aiJobRepository.findById(jobId).orElse(null);
         if (!owns(job)) {
-            log.warn("蹇界暐宸插け鍘荤绾︾殑 AI 浠诲姟缁撴灉 jobId={}", jobId);
+            log.warn("闂傚倸顭崑鍕洪妸鈺佺柧妞ゆ劧绠戝Ч鏌ユ煙闁箑澧婚柛鐔锋嚇閺岀喓绱掑Ο铏诡伝婵炲瓨绮岄妶鎼佸蓟濞戞鐔煎垂椤斿吋鍎俊鐐€ら崑渚€宕愬Δ鍛剦妞ゅ繐鐗婇弲婊堟煟閹伴潧澧伴柡?AI 婵犵數鍋涢顓熸叏妤ｅ喚鏁嬬憸搴ㄥ箞閵娾晜鍋勯柧蹇撴贡閿涙粓姊虹憴鍕姢妞ゆ洦鍘界粋?jobId={}", jobId);
             return;
         }
 
@@ -159,7 +159,7 @@ public class AiJobWorker {
                             image, tag, entry.getValue(), "AI", tagModel));
                 }
             } catch (RuntimeException ignored) {
-                log.debug("璺宠繃鏈煡鏍囩: {}", entry.getKey());
+                log.debug("闂備浇宕垫慨鎾箹椤愶附鍋柛銉㈡櫆瀹曟煡鏌涢幇闈涙灈閻庢艾顦伴妵鍕疀閹炬惌妫ら梺鍛婄憿閸嬫捇姊绘担鍛婃儓缂佸娼欑叅闁靛ň鏅╅弫? {}", entry.getKey());
             }
         }
 
@@ -178,7 +178,7 @@ public class AiJobWorker {
     }
 
     void markFailure(Long jobId, Exception error) {
-        log.warn("AI 浠诲姟澶勭悊澶辫触 jobId={}: {}", jobId, error.getMessage());
+        log.warn("AI 婵犵數鍋涢顓熸叏妤ｅ喚鏁嬬憸搴ㄥ箞閵娾晜鍋勭紒瀣硶缁愮偤姊洪崨濠冨闁告ü绮欏畷鎰版倷瀹割喚鍞甸梺璇″灡婢瑰棛鑺遍崸妤佸仭?jobId={}: {}", jobId, error.getMessage());
         transactionTemplate.executeWithoutResult(status -> {
             AiJob job = aiJobRepository.findById(jobId).orElse(null);
             if (!owns(job)) return;
@@ -225,16 +225,13 @@ public class AiJobWorker {
 
     private void validateResponse(AnalyzeImageResponseDto response) {
         if (response == null || response.getEmbedding() == null || response.getEmbedding().size() != 512) {
-            throw new IllegalStateException("AI 鍥剧墖鍚戦噺鍝嶅簲鏃犳晥");
+            throw new IllegalStateException("AI response invalid");
         }
         if (response.getTags() == null) {
-            throw new IllegalStateException("AI 鏍囩鍝嶅簲鏃犳晥");
+            throw new IllegalStateException("AI response invalid");
         }
     }
 
     private record ProcessingInput(String hash, String tagModelId, String vectorModelIds) {
     }
 }
-
-
-

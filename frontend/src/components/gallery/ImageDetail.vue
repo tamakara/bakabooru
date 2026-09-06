@@ -268,7 +268,7 @@ const statusType = computed<'default' | 'success' | 'info' | 'warning' | 'error'
 })
 
 const canRetryAi = computed(() => {
-  return !!props.image && props.image.status === 'MISSING'
+  return false
 })
 
 const handleRetryAi = async () => {

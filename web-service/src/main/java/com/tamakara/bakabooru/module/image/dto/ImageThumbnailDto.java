@@ -1,12 +1,12 @@
-﻿package com.tamakara.bakabooru.module.image.dto;
+package com.tamakara.bakabooru.module.image.dto;
 
 import lombok.Data;
 
 import java.util.List;
 
 /**
- * 鍥剧墖缂╃暐鍥綝TO锛岀敤浜庢悳绱㈠垪琛ㄥ睍绀?
- * 鍙寘鍚繀瑕佺殑鍩烘湰淇℃伅锛屽噺灏戞暟鎹紶杈撻噺
+ * 闁搞儱澧芥晶鏍磽閳哄啯娈ｉ柛銉хTO闁挎稑鐬奸弫銈嗙鎼淬垺鍋濈紒渚垮灩閸亞鎮伴妸銉ф綌缂佲偓?
+ * 闁告瑯浜滅€垫﹢宕ラ銏㈢畱閻熸洑鑳跺▓鎴﹀春閻戞ɑ鎷卞ǎ鍥ｅ墲娴煎懘鏁嶇仦钘夋閻忓繑鍨堕弳鐔煎箲椤旇崵鐐婇弶鍫熸崌閸?
  */
 @Data
 public class ImageThumbnailDto {

@@ -24,10 +24,10 @@ public class SystemSettingService {
     public static final String BOOTSTRAP_STORAGE_ENDPOINT = "bootstrap.storage-endpoint";
 
     private static final Set<String> EDITABLE_KEYS = Set.of(
-            TAG_THRESHOLD,
+                new SettingDefinitionDto(TAG_THRESHOLD, "Tag threshold", "number", "0.61", "HOT", false, "Minimum AI tag confidence"),
             AI_MAX_ATTEMPTS,
             AI_RETRY_BASE_DELAY_SECONDS,
-            AI_RETRY_MAX_DELAY_SECONDS,
+                new SettingDefinitionDto(AI_RETRY_MAX_DELAY_SECONDS, "AI retry max delay", "integer", "1800", "HOT", false, "Maximum retry delay seconds"),
             UPLOAD_COMPLETED_RETENTION_DAYS,
             AI_DEFAULT_VECTOR_MODELS
     );
@@ -36,20 +36,19 @@ public class SystemSettingService {
 
     public List<SettingDefinitionDto> getDefinitions() {
         return List.of(
-                new SettingDefinitionDto(TAG_THRESHOLD, "标签阈值", "number", "0.61", "HOT", false, "AI 标签最低置信度"),
-                new SettingDefinitionDto(AI_MAX_ATTEMPTS, "AI 重试次数", "integer", "5", "HOT", false, "单项 AI 任务最大重试次数"),
-                new SettingDefinitionDto(AI_RETRY_BASE_DELAY_SECONDS, "AI 重试初始延迟", "integer", "30", "HOT", false, "秒"),
-                new SettingDefinitionDto(AI_RETRY_MAX_DELAY_SECONDS, "AI 重试最大延迟", "integer", "1800", "HOT", false, "秒"),
-                new SettingDefinitionDto(UPLOAD_COMPLETED_RETENTION_DAYS, "上传任务保留时间", "integer", "7", "HOT", false, "天"),
-                new SettingDefinitionDto(AI_DEFAULT_VECTOR_MODELS, "默认索引向量模型", "text", "clip-vit-base-patch32", "HOT", false, "逗号分隔的模型 ID"),
-                new SettingDefinitionDto(BOOTSTRAP_DATABASE_URL, "数据库连接", "text", "jdbc:postgresql://postgres:5432/bakabooru", "BOOTSTRAP", false, "启动级配置，只读"),
-                new SettingDefinitionDto(BOOTSTRAP_STORAGE_ENDPOINT, "对象存储地址", "text", "http://minio:9000", "BOOTSTRAP", false, "启动级配置，只读")
+                new SettingDefinitionDto(TAG_THRESHOLD, "Tag threshold", "number", "0.61", "HOT", false, "Minimum AI tag confidence"),
+                new SettingDefinitionDto(AI_MAX_ATTEMPTS, "AI 闂備焦褰冪粔鐑芥儊椤栨埃鏋庨柍鈺佸暞濞?", "integer", "5", "HOT", false, "闂佸憡顨嗗ú鐔煎Υ?AI 婵炲濮鹃褎鎱ㄩ悢鐓庡珘闁逞屽墯瀵板嫯顦归柛锝呮憸閹风娀寮撮悤浣镐还闂?)",
+                new SettingDefinitionDto(AI_RETRY_BASE_DELAY_SECONDS, "AI 闂備焦褰冪粔鐑芥儊椤栫偛绀嗘繝闈涙－濞兼鈧偣鍊栭崕鑲╂崲?", "integer", "30", "HOT", false, "缂?)",
+                new SettingDefinitionDto(AI_RETRY_MAX_DELAY_SECONDS, "AI retry max delay", "integer", "1800", "HOT", false, "Maximum retry delay seconds"),
+                new SettingDefinitionDto(UPLOAD_COMPLETED_RETENTION_DAYS, "婵炴垶鎸搁敃锝囨閼哥數顩烽悹鍥ㄥ絻椤倕菐閸ャ劎绠橀柡鍡忓亾闂佸搫鍟悥鐓幬?", "integer", "7", "HOT", false, "婵?)",
+                new SettingDefinitionDto(AI_DEFAULT_VECTOR_MODELS, "婵帗绋掗…鍫ヮ敇閼姐倖顫曢柕蹇曞Х缁屽潡鏌涘顓炵伌闁革絽鎼灒闁炽儱纾埀?", "text", "clip-vit-base-patch32", "HOT", false, "闂備緡鍋呴〃鍛般亹閸ф绀嗛柛鈩冪⊕椤撻箖鏌ｉ妸銉ヮ仾閼垛晠鏌?ID"),
+                new SettingDefinitionDto(BOOTSTRAP_DATABASE_URL, "闂佽桨鑳舵晶妤€鐣垫担瑙勫劅闁规儳婀辩粻楣冩煙?", "text", "jdbc:postgresql://postgres:5432/bakabooru", "BOOTSTRAP", false, "闂佸憡鍑归崹鐗堟叏閳哄啰妫憸鏃堝储閵堝洨纾炬い鏇炴缁€澶愭煕濞嗘ü娴锋い?)",
+                new SettingDefinitionDto(BOOTSTRAP_STORAGE_ENDPOINT, "Storage endpoint", "text", "http://minio:9000", "BOOTSTRAP", false, "Storage service endpoint"),
         );
     }
 
     /**
-     * 获取所有配置。
-     */
+     * 闂佸吋鍎抽崲鑼躲亹閸ヮ剙绠ラ柍褜鍓熷鍨緞閹邦剙璧嬬紓鍌氬枤閸犳捇鍩€?     */
     @Transactional(readOnly = true)
     public Map<String, String> getEditableSettings() {
         return systemSettingRepository.findAllById(EDITABLE_KEYS).stream()
@@ -63,7 +62,7 @@ public class SystemSettingService {
                 .orElseThrow(() -> new RuntimeException("Setting with key: " + key + " not found"));
     }
 
-    // --- 类型转换辅助方法 ---
+    // --- 缂備緡鍋夐褔鎮楅柨瀣妞ゆ帊绀佹惔濠囧级閸繃鍣瑰┑顕呬邯瀵剛鎲撮崟顓溾偓?---
 
     public Boolean getBooleanSetting(String key) {
         return "true".equalsIgnoreCase(getSetting(key));
@@ -98,7 +97,7 @@ public class SystemSettingService {
     }
 
     /**
-     * 单条更新
+     * 闂佸憡顨嗗ú妯侯焽椤栫偛鍗抽悗娑櫳戦悡鈧?
      */
     @Transactional
     public void updateSetting(String key, String value) {
@@ -131,10 +130,10 @@ public class SystemSettingService {
         long retentionDays = parseLong(settings, UPLOAD_COMPLETED_RETENTION_DAYS);
         String defaultModels = settings.get(AI_DEFAULT_VECTOR_MODELS);
 
-        requireRange(TAG_THRESHOLD, threshold, 0.0, 1.0);
+                new SettingDefinitionDto(TAG_THRESHOLD, "Tag threshold", "number", "0.61", "HOT", false, "Minimum AI tag confidence"),
         requireRange(AI_MAX_ATTEMPTS, maxAttempts, 1, 20);
         requireRange(AI_RETRY_BASE_DELAY_SECONDS, retryBaseDelay, 1, 3600);
-        requireRange(AI_RETRY_MAX_DELAY_SECONDS, retryMaxDelay, 1, 86400);
+                new SettingDefinitionDto(AI_RETRY_MAX_DELAY_SECONDS, "AI retry max delay", "integer", "1800", "HOT", false, "Maximum retry delay seconds"),
         requireRange(UPLOAD_COMPLETED_RETENTION_DAYS, retentionDays, 1, 365);
         if (retryMaxDelay < retryBaseDelay) {
             throw new IllegalArgumentException(AI_RETRY_MAX_DELAY_SECONDS
@@ -184,7 +183,7 @@ public class SystemSettingService {
     }
 
     /**
-     * 批量更新 (深度优化版)
+     * 闂佸綊娼х紞濠囧闯濞差亜鍗抽悗娑櫳戦悡鈧?(濠电儑绲藉畷顒傗偓纭呮珪鐎电厧螣閸濆嫷鍤欓梺?
      */
     @Transactional
     public void updateSettings(Map<String, String> newSettings) {
@@ -194,12 +193,12 @@ public class SystemSettingService {
 
         Set<String> keys = new HashSet<>(newSettings.keySet());
 
-        // 1. 批量查询 DB (1次 SQL: SELECT * FROM table WHERE id IN (...))
+        // 1. 闂佸綊娼х紞濠囧闯濞差亜钃熼柕澶樼厛閸?DB (1濠?SQL: SELECT * FROM table WHERE id IN (...))
         List<SystemSetting> existingSettings = systemSettingRepository.findAllById(keys);
 
-        // 2. 严格检查：确保所有 Key 都存在于数据库中
+        // 2. 婵炴垶鎸堕崕鏌ユ偋缁嬭娑㈠焵椤掑嫬钃熼柕澶樺灣缁愭鐥褍鏋欑紒缁樺哺楠炲秹鍩€椤掑嫬瀚?Key 闂備緡鍠涘Λ鍕偤閵娾晛鎹堕柕濞垮€楅懝楣冩煛娴ｅ搫顣肩€规挷鐒﹂幆鏃堝箻閼艰泛骞€
         if (existingSettings.size() != keys.size()) {
-            // 找出哪个 Key 不存在 (可选，用于报错提示)
+            // 闂佺懓鐏氶崕鎶藉吹椤撱垹浼犳い蹇撳暣閸?Key 婵炴垶鎸哥粔鎾偤閵娾晛鎹?(闂佸憡鐟崹鍫曞焵椤掆偓椤р偓缂佽鲸绻堥幃浠嬪Ω閵堝洩澹橀梺纭呯堪閸庣敻寮繝鍥х闁归偊鍠撴禒?
             Set<String> existingKeys = existingSettings.stream()
                     .map(SystemSetting::getKey)
                     .collect(Collectors.toSet());
@@ -207,13 +206,13 @@ public class SystemSettingService {
             throw new RuntimeException("Update failed. The following keys do not exist: " + keys);
         }
 
-        // 3. 在内存中更新 Entity 对象
+        // 3. 闂侀潻璐熼崝宀勫船鐎电硶鍋撳☉娅ジ鎳欓幋锕€鍗抽悗娑櫳戦悡鈧?Entity 闁诲海鏁搁、濠囨寘?
         for (SystemSetting setting : existingSettings) {
             String newValue = newSettings.get(setting.getKey());
             setting.setValue(newValue);
         }
 
-        // 4. 批量保存到 DB (1次 SQL 交互，取决于 JPA 实现，通常是 batch update)
+        // 4. 闂佸綊娼х紞濠囧闯閻戞鈹嶆繝闈涙閹界娀鏌?DB (1濠?SQL 婵炲瓨鍤庨崐鎾惰姳娴煎瓨鏅悘鐐舵缁插潡鏌涢幇顒€甯犵紒?JPA 闁诲骸婀遍崑鐔肩嵁閸ヮ剚鏅€光偓閸曘劌浜炬慨姗嗗墰閸╂鏌?batch update)
         systemSettingRepository.saveAll(existingSettings);
 
     }

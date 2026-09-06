@@ -10,19 +10,19 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 /**
- * 系统认证控制器
- * 处理登录、状态检查及密码管理
+ * 缁崵绮虹拋銈堢槈閹貉冨煑閸?
+ * 婢跺嫮鎮婇惂璇茬秿閵嗕胶濮搁幀浣诡梾閺屻儱寮风€靛棛鐖滅粻锛勬倞
  */
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-@Tag(name = "系统认证", description = "认证与权限管理")
+@Tag(name = "API")
 public class AuthController {
 
     private final AuthService authService;
 
     @GetMapping("/status")
-    @Operation(summary = "获取状态", description = "检查系统初始化状态")
+    @Operation(summary = "operation")
     public ResponseEntity<Map<String, Object>> getStatus() {
         return ResponseEntity.ok(Map.of(
                 "initialized", authService.isInitialized(),
@@ -31,14 +31,14 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    @Operation(summary = "用户登���")
+    @Operation(summary = "operation")
     public ResponseEntity<Map<String, String>> login(@RequestBody Map<String, String> body) {
         String token = authService.login(body.getOrDefault("password", ""));
         return ResponseEntity.ok(Map.of("token", token));
     }
 
     @PostMapping("/setup")
-    @Operation(summary = "系统初始化", description = "首次设置密码")
+    @Operation(summary = "operation")
     public ResponseEntity<Void> setup(@RequestBody Map<String, String> body) {
         if (authService.isInitialized()) {
             return ResponseEntity.badRequest().build();
@@ -48,7 +48,7 @@ public class AuthController {
     }
 
     @PostMapping("/password")
-    @Operation(summary = "修改密码")
+    @Operation(summary = "operation")
     public ResponseEntity<Void> updatePassword(@RequestBody Map<String, String> body) {
         authService.setPassword(body.getOrDefault("password", ""));
         return ResponseEntity.ok().build();

@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 /**
- * CLIP Embedding 响应 DTO
+ * CLIP Embedding 閸濆秴绨?DTO
  */
 @Data
 @NoArgsConstructor
