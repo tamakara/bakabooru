@@ -1,6 +1,7 @@
 package com.tamakara.bakabooru.module.system.service;
 
 import com.tamakara.bakabooru.module.system.entity.SystemSetting;
+import com.tamakara.bakabooru.module.system.dto.SettingDefinitionDto;
 import com.tamakara.bakabooru.module.system.repository.SystemSettingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,16 +19,33 @@ public class SystemSettingService {
     public static final String AI_RETRY_BASE_DELAY_SECONDS = "ai-job.retry-base-delay-seconds";
     public static final String AI_RETRY_MAX_DELAY_SECONDS = "ai-job.retry-max-delay-seconds";
     public static final String UPLOAD_COMPLETED_RETENTION_DAYS = "upload.completed-retention-days";
+    public static final String AI_DEFAULT_VECTOR_MODELS = "ai.default-vector-models";
+    public static final String BOOTSTRAP_DATABASE_URL = "bootstrap.database-url";
+    public static final String BOOTSTRAP_STORAGE_ENDPOINT = "bootstrap.storage-endpoint";
 
     private static final Set<String> EDITABLE_KEYS = Set.of(
             TAG_THRESHOLD,
             AI_MAX_ATTEMPTS,
             AI_RETRY_BASE_DELAY_SECONDS,
             AI_RETRY_MAX_DELAY_SECONDS,
-            UPLOAD_COMPLETED_RETENTION_DAYS
+            UPLOAD_COMPLETED_RETENTION_DAYS,
+            AI_DEFAULT_VECTOR_MODELS
     );
 
     private final SystemSettingRepository systemSettingRepository;
+
+    public List<SettingDefinitionDto> getDefinitions() {
+        return List.of(
+                new SettingDefinitionDto(TAG_THRESHOLD, "标签阈值", "number", "0.61", "HOT", false, "AI 标签最低置信度"),
+                new SettingDefinitionDto(AI_MAX_ATTEMPTS, "AI 重试次数", "integer", "5", "HOT", false, "单项 AI 任务最大重试次数"),
+                new SettingDefinitionDto(AI_RETRY_BASE_DELAY_SECONDS, "AI 重试初始延迟", "integer", "30", "HOT", false, "秒"),
+                new SettingDefinitionDto(AI_RETRY_MAX_DELAY_SECONDS, "AI 重试最大延迟", "integer", "1800", "HOT", false, "秒"),
+                new SettingDefinitionDto(UPLOAD_COMPLETED_RETENTION_DAYS, "上传任务保留时间", "integer", "7", "HOT", false, "天"),
+                new SettingDefinitionDto(AI_DEFAULT_VECTOR_MODELS, "默认索引向量模型", "text", "clip-vit-base-patch32", "HOT", false, "逗号分隔的模型 ID"),
+                new SettingDefinitionDto(BOOTSTRAP_DATABASE_URL, "数据库连接", "text", "jdbc:postgresql://postgres:5432/bakabooru", "BOOTSTRAP", false, "启动级配置，只读"),
+                new SettingDefinitionDto(BOOTSTRAP_STORAGE_ENDPOINT, "对象存储地址", "text", "http://minio:9000", "BOOTSTRAP", false, "启动级配置，只读")
+        );
+    }
 
     /**
      * 获取所有配置。
@@ -111,6 +129,7 @@ public class SystemSettingService {
         long retryBaseDelay = parseLong(settings, AI_RETRY_BASE_DELAY_SECONDS);
         long retryMaxDelay = parseLong(settings, AI_RETRY_MAX_DELAY_SECONDS);
         long retentionDays = parseLong(settings, UPLOAD_COMPLETED_RETENTION_DAYS);
+        String defaultModels = settings.get(AI_DEFAULT_VECTOR_MODELS);
 
         requireRange(TAG_THRESHOLD, threshold, 0.0, 1.0);
         requireRange(AI_MAX_ATTEMPTS, maxAttempts, 1, 20);
@@ -120,6 +139,9 @@ public class SystemSettingService {
         if (retryMaxDelay < retryBaseDelay) {
             throw new IllegalArgumentException(AI_RETRY_MAX_DELAY_SECONDS
                     + " must be greater than or equal to " + AI_RETRY_BASE_DELAY_SECONDS);
+        }
+        if (defaultModels != null && defaultModels.isBlank()) {
+            throw new IllegalArgumentException(AI_DEFAULT_VECTOR_MODELS + " is required");
         }
     }
 

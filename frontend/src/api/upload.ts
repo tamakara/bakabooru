@@ -26,11 +26,13 @@ export const uploadApi = {
   /**
    * 上传文件
    */
-  uploadFile: async (file: File) => {
+  uploadFile: async (file: File, options?: { tagModelId?: string, vectorModelIds?: string[] }) => {
     const formData = new FormData()
     // 处理文件名，确保不包含路径
     const filename = file.name.split(/[/\\]/).pop() || file.name
     formData.append('file', file, filename)
+    if (options?.tagModelId) formData.append('tagModelId', options.tagModelId)
+    if (options?.vectorModelIds?.length) formData.append('vectorModelIds', options.vectorModelIds.join(','))
 
     await apiClient.post('/upload', formData, {
       headers: {

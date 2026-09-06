@@ -54,4 +54,7 @@ public class AiJob {
     private Instant updatedAt;
 
     private Instant completedAt;
+
+    private String tagModelId;
+    private String vectorModelIds;
 }

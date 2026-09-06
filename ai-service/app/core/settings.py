@@ -28,8 +28,8 @@ class Settings(BaseSettings):
     # MinIO 配置
     MINIO_HOST: str = "minio"
     MINIO_PORT: str = "9000"
-    MINIO_ACCESS_KEY: str = "minio_user"
-    MINIO_SECRET_KEY: str = "minio_pass"
+    MINIO_ACCESS_KEY: str = "bakabooru"
+    MINIO_SECRET_KEY: str = "change-me"
     MINIO_BUCKET_NAME: str = "images"
 
     # 设备配置 (auto 表示自动检测)

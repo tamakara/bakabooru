@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import {useQuery} from '@tanstack/vue-query'
 import {searchApi} from '../api/search'
 import {galleryApi, type ImageDto, type ImageThumbnailDto} from '../api/gallery'
@@ -54,7 +54,7 @@ const formState = reactive({
   keyword: '',
   tags: '',
   semanticQuery: '',  // 语义描述搜索
-  aiStatus: null as 'PENDING' | 'PROCESSING' | 'READY' | 'FAILED' | null,
+  status: null as 'AVAILABLE' | 'PROCESSING' | 'MISSING' | null,
   sortBy: 'createdAt',
   sortDirection: 'DESC',
   widthMin: null as number | null,
@@ -108,25 +108,23 @@ const pageSizeOptions = [
 ]
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const aiStatusOptions: any[] = [
+const statusOptions: any[] = [
   {label: '全部', value: null},
-  {label: '待处理', value: 'PENDING'},
+  {label: '正常', value: 'AVAILABLE'},
   {label: '处理中', value: 'PROCESSING'},
-  {label: '已完成', value: 'READY'},
-  {label: '处理失败', value: 'FAILED'}
+  {label: '文件异常', value: 'MISSING'}
 ]
 
-function aiStatusLabel(status?: string) {
-  if (status === 'READY') return '已完成'
-  if (status === 'PROCESSING') return '处理中'
-  if (status === 'FAILED') return '处理失败'
-  return '待处理'
+function statusLabel(status?: string) {
+  if (status === 'PROCESSING') return '计算中'
+  if (status === 'MISSING') return '文件异常'
+  return '正常'
 }
 
-function aiStatusClass(status?: string) {
-  if (status === 'READY') return 'bg-emerald-500/90 text-white'
+function statusClass(status?: string) {
+  if (status === 'AVAILABLE') return 'bg-emerald-500/90 text-white'
   if (status === 'PROCESSING') return 'bg-sky-500/90 text-white'
-  if (status === 'FAILED') return 'bg-red-600/90 text-white'
+  if (status === 'MISSING') return 'bg-red-600/90 text-white'
   return 'bg-amber-500/90 text-black'
 }
 
@@ -160,7 +158,7 @@ function handleReset() {
     formState.keyword = ''
     formState.tags = ''
     formState.semanticQuery = ''
-    formState.aiStatus = null
+    formState.status = null
     formState.sortBy = 'createdAt'
     formState.sortDirection = 'DESC'
     formState.widthMin = null
@@ -207,7 +205,7 @@ const {
           keyword: currentState.keyword,
           tags: currentState.tags,
           semanticQuery: currentState.semanticQuery,
-          aiStatus: currentState.aiStatus,
+          status: currentState.status,
           page: page.value,
           size: pageSize.value,
           sort
@@ -217,7 +215,7 @@ const {
           keyword: currentState.keyword,
           tags: currentState.tags,
           semanticQuery: currentState.semanticQuery || undefined,
-          aiStatus: currentState.aiStatus ?? undefined,
+          status: currentState.status ?? undefined,
           randomSeed: currentState.randomSeed,
           widthMin: currentState.widthMin ?? undefined,
           widthMax: currentState.widthMax ?? undefined,
@@ -620,8 +618,8 @@ async function handleBatchDownload() {
 
                   <n-form-item label="AI 状态">
                     <n-select
-                        v-model:value="formState.aiStatus"
-                        :options="aiStatusOptions"
+                        v-model:value="formState.status"
+                        :options="statusOptions"
                         clearable
                         size="small"
                     />
@@ -854,9 +852,9 @@ async function handleBatchDownload() {
 
             <div
                 class="absolute top-2 left-2 z-10 px-2 py-0.5 rounded text-[11px] font-medium shadow"
-                :class="aiStatusClass(image.aiStatus)"
+                :class="statusClass(image.status)"
             >
-              {{ aiStatusLabel(image.aiStatus) }}
+              {{ statusLabel(image.status) }}
             </div>
 
             <div
@@ -905,4 +903,5 @@ async function handleBatchDownload() {
     />
   </n-layout>
 </template>
+
 

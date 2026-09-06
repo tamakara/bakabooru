@@ -2,6 +2,7 @@
 import {computed, h, ref} from 'vue'
 import {useMutation, useQuery, useQueryClient} from '@tanstack/vue-query'
 import {uploadApi, type UploadTask} from '../api/upload'
+import {aiModelApi} from '../api/system'
 import {useQueueStore} from '../stores/queue'
 import {
   type DataTableColumns,
@@ -14,6 +15,7 @@ import {
   NSpace,
   NTag,
   NText,
+  NSelect,
   NTooltip,
   NUpload,
   NUploadDragger,
@@ -27,13 +29,26 @@ const message = useMessage()
 const queryClient = useQueryClient()
 const queueStore = useQueueStore()
 
+const {data: aiModels} = useQuery({queryKey: ['aiModels'], queryFn: aiModelApi.list})
+const selectedTagModelId = ref<string | null>(null)
+const selectedVectorModelIds = ref<string[]>([])
+const tagModelOptions = computed(() => (aiModels.value || [])
+  .filter(model => model.capability === 'TAGGING' && model.status !== 'DISABLED')
+  .map(model => ({label: model.name, value: model.id})))
+const vectorModelOptions = computed(() => (aiModels.value || [])
+  .filter(model => model.capability === 'TEXT_TO_IMAGE' || model.capability === 'IMAGE_TO_IMAGE')
+  .map(model => ({label: model.name, value: model.id})))
+
 // ===== 上传区域 =====
 const isRecursiveScan = ref(true)
 const uploadFileList = ref<UploadFileInfo[]>([])
 const folderInputRef = ref<HTMLInputElement | null>(null)
 
 function addToQueue(file: File) {
-  queueStore.addFileToQueue(file)
+  queueStore.addFileToQueue(file, {
+    tagModelId: selectedTagModelId.value || undefined,
+    vectorModelIds: selectedVectorModelIds.value
+  })
 }
 
 const scanFolderBatchUpload = (e: Event) => {
@@ -176,6 +191,10 @@ const columns: DataTableColumns<UploadTask> = [
             />
           </div>
         </template>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+          <n-select v-model:value="selectedTagModelId" :options="tagModelOptions" clearable placeholder="标签模型（可选）" size="small" />
+          <n-select v-model:value="selectedVectorModelIds" :options="vectorModelOptions" multiple clearable placeholder="索引向量模型（可选）" size="small" />
+        </div>
         <n-upload
             v-model:file-list="uploadFileList"
             multiple

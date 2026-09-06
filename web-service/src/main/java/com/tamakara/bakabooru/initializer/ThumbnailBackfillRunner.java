@@ -37,11 +37,18 @@ public class ThumbnailBackfillRunner implements ApplicationRunner {
             File original = null;
             try {
                 String thumbnailObject = imageUrlService.getThumbnailObjectName(hash);
+                if (!storageService.existFile("original/" + hash)) {
+                    jdbcTemplate.update("UPDATE images SET image_status = 'MISSING' WHERE hash = ?", hash);
+                    log.warn("原图缺失，已标记为 MISSING hash={}", hash);
+                    continue;
+                }
                 if (storageService.existFile(thumbnailObject)) {
+                    jdbcTemplate.update("UPDATE images SET image_status = 'AVAILABLE' WHERE hash = ?", hash);
                     continue;
                 }
                 original = storageService.getFile("original/" + hash);
                 thumbnailService.generateAndUploadThumbnail(original, hash);
+                jdbcTemplate.update("UPDATE images SET image_status = 'AVAILABLE' WHERE hash = ?", hash);
                 created++;
             } catch (Exception e) {
                 log.warn("历史缩略图生成失败 hash={}: {}", hash, e.getMessage());

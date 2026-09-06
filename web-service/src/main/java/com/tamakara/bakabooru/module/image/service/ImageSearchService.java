@@ -1,4 +1,4 @@
-package com.tamakara.bakabooru.module.image.service;
+﻿package com.tamakara.bakabooru.module.image.service;
 
 import com.tamakara.bakabooru.module.gallery.dto.SearchResultDto;
 import com.tamakara.bakabooru.module.image.dto.ImageThumbnailDto;
@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +26,7 @@ import java.util.stream.Collectors;
 public class ImageSearchService {
 
     private static final int MAX_PAGE_SIZE = 100;
-    private static final Set<String> AI_STATUSES = Set.of("PENDING", "PROCESSING", "READY", "FAILED");
+    private static final Set<String> IMAGE_STATUSES = Set.of("AVAILABLE", "PROCESSING", "MISSING");
     private static final Map<String, String> SORT_COLUMNS = new HashMap<>();
 
     static {
@@ -57,15 +58,19 @@ public class ImageSearchService {
         predicates.add("1 = 1");
 
         applyKeyword(searchDto, predicates, params);
-        applyAiStatus(searchDto, predicates, params);
+        applyStatus(searchDto, predicates, params);
         applyRanges(searchDto, predicates, params);
         if (!applyTags(searchDto.getPositiveTags(), searchDto.getNegativeTags(), predicates, params)) {
             return new SearchResultDto<>(List.of(), page, size, false);
         }
         applyVector(searchDto, predicates, params);
+        applyModelFilters(searchDto, predicates, params);
 
         String sql = """
-                SELECT i.id, i.title, i.hash, i.extension, i.ai_status
+                SELECT i.id, i.title, i.hash, i.extension, i.image_status, i.tag_model_id,
+                       COALESCE((SELECT array_agg(DISTINCT e.model_id)
+                                 FROM image_embeddings e
+                                 WHERE e.image_id = i.id AND e.status = 'READY'), ARRAY[]::text[]) AS index_vector_model_ids
                 FROM images i
                 WHERE %s
                 %s
@@ -78,7 +83,7 @@ public class ImageSearchService {
             rows = rows.subList(0, size);
         }
 
-        log.info("搜索完成 - 耗时: {}ms, 页: {}, 数量: {}, hasNext: {}",
+        log.info("鎼滅储瀹屾垚 - 鑰楁椂: {}ms, 椤? {}, 鏁伴噺: {}, hasNext: {}",
                 System.currentTimeMillis() - startTime, page, rows.size(), hasNext);
         return new SearchResultDto<>(rows, page, size, hasNext);
     }
@@ -91,18 +96,18 @@ public class ImageSearchService {
             String hash = rs.getString("hash");
             dto.setThumbnailUrl(imageUrlService.getThumbnailUrl(hash));
             dto.setImageUrl(imageUrlService.getImageUrl(hash, dto.getId(), dto.getTitle(), rs.getString("extension")));
-            dto.setAiStatus(rs.getString("ai_status"));
+            dto.setStatus(rs.getString("image_status"));
+            dto.setTagModelId(rs.getString("tag_model_id"));
+            try {
+                java.sql.Array array = rs.getArray("index_vector_model_ids");
+                if (array != null) dto.setIndexVectorModelIds(Arrays.asList((String[]) array.getArray()));
+            } catch (java.sql.SQLException ignored) {
+                dto.setIndexVectorModelIds(List.of());
+            }
             return dto;
         };
     }
 
-    private void applyAiStatus(SearchDto searchDto, List<String> predicates, MapSqlParameterSource params) {
-        if (!StringUtils.hasText(searchDto.getAiStatus())) return;
-        String status = searchDto.getAiStatus().trim().toUpperCase();
-        if (!AI_STATUSES.contains(status)) return;
-        predicates.add("i.ai_status = :aiStatus");
-        params.addValue("aiStatus", status);
-    }
 
     private void applyKeyword(SearchDto searchDto, List<String> predicates, MapSqlParameterSource params) {
         if (!StringUtils.hasText(searchDto.getKeyword())) return;
@@ -184,6 +189,27 @@ public class ImageSearchService {
         }
     }
 
+    private void applyStatus(SearchDto searchDto, List<String> predicates, MapSqlParameterSource params) {
+        String value = StringUtils.hasText(searchDto.getStatus()) ? searchDto.getStatus() : searchDto.getStorageStatus();
+        if (!StringUtils.hasText(value)) return;
+        String status = value.trim().toUpperCase();
+        if (!IMAGE_STATUSES.contains(status)) return;
+        predicates.add("i.image_status = :imageStatus");
+        params.addValue("imageStatus", status);
+    }
+
+    private void applyModelFilters(SearchDto searchDto, List<String> predicates, MapSqlParameterSource params) {
+        if (searchDto.getVectorModelIds() != null && !searchDto.getVectorModelIds().isEmpty()) {
+            predicates.add("EXISTS (SELECT 1 FROM image_embeddings ef WHERE ef.image_id = i.id "
+                    + "AND ef.status = 'READY' AND ef.model_id IN (:vectorModelIds))");
+            params.addValue("vectorModelIds", searchDto.getVectorModelIds());
+        }
+        if (StringUtils.hasText(searchDto.getTagModelId())) {
+            predicates.add("i.tag_model_id = :tagModelId");
+            params.addValue("tagModelId", searchDto.getTagModelId().trim());
+        }
+    }
+
     private String buildOrderBy(SearchDto searchDto) {
         if (searchDto.getEmbedding() != null && !searchDto.getEmbedding().isEmpty()) {
             return "ORDER BY i.embedding <=> CAST(:embedding AS vector), i.id ASC";
@@ -205,3 +231,4 @@ public class ImageSearchService {
                 .collect(Collectors.joining(",", "[", "]"));
     }
 }
+

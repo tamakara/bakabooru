@@ -67,7 +67,14 @@ public class ImageService {
         Image image = imageRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("找不到图片"));
         Tag tag = tagService.getTagById(tagId);
-        image.addTag(tag, 1.0);
+        image.getTagRelations().stream()
+                .filter(relation -> relation.getTag().getId().equals(tagId))
+                .findFirst()
+                .ifPresentOrElse(relation -> {
+                    relation.setSourceType("MANUAL");
+                    relation.setSourceModelId(null);
+                    relation.setScore(1.0);
+                }, () -> image.addTag(tag, 1.0));
         return imageMapper.toDto(imageRepository.save(image));
     }
 
@@ -84,6 +91,18 @@ public class ImageService {
 
     public ImageDto retryAiProcessing(Long id) {
         Image image = aiJobService.retry(id);
+        return imageMapper.toDto(image);
+    }
+
+    @Transactional
+    public ImageDto enqueueAi(Long id, String tagModelId, String vectorModelIds) {
+        Image image = imageRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Image not found: " + id));
+        if ((tagModelId == null || tagModelId.isBlank())
+                && (vectorModelIds == null || vectorModelIds.isBlank())) {
+            throw new IllegalArgumentException("至少选择一个 AI 模型");
+        }
+        aiJobService.enqueue(image, tagModelId, vectorModelIds);
         return imageMapper.toDto(image);
     }
 
@@ -108,6 +127,21 @@ public class ImageService {
                 throw new RuntimeException("删除图片失败 (ID: " + id + "): " + e.getMessage(), e);
             }
         });
+    }
+
+    @Transactional
+    public int deleteMissingImages() {
+        List<Image> missing = imageRepository.findByStatus("MISSING");
+        for (Image image : missing) {
+            try {
+                storageService.deleteFile("original/" + image.getHash());
+                storageService.deleteFile("thumbnail/" + image.getHash());
+            } catch (Exception ignored) {
+                // 原图本就可能不存在；数据库记录仍应删除
+            }
+            imageRepository.delete(image);
+        }
+        return missing.size();
     }
 
     @Transactional(readOnly = true)

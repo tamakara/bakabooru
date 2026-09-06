@@ -13,7 +13,7 @@ public class SearchDto {
     private Integer size = 20;
     private String sortProperty = "createdAt";
     private String sortDirection = "DESC";
-    private String aiStatus;
+    private String status;
     private Integer widthMin;
     private Integer widthMax;
     private Integer heightMin;
@@ -24,4 +24,6 @@ public class SearchDto {
     private Set<String> positiveTags;
     private Set<String> negativeTags;
     private List<Float> embedding;  // CLIP 向量用于语义搜索
+    private List<String> vectorModelIds;
+    private String tagModelId;
 }

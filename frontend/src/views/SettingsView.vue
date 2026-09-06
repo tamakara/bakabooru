@@ -2,7 +2,7 @@
 import {ref, watch} from 'vue'
 import axios from 'axios'
 import {useMutation, useQuery, useQueryClient} from '@tanstack/vue-query'
-import {systemApi} from '../api/system'
+import {aiModelApi, systemApi, type AiModelDto} from '../api/system'
 import {authApi} from '../api/auth'
 import {
   NButton,
@@ -19,6 +19,29 @@ import {
 const message = useMessage()
 const queryClient = useQueryClient()
 
+const {data: aiModels} = useQuery({queryKey: ['aiModels'], queryFn: aiModelApi.list})
+const modelMutation = useMutation({
+  mutationFn: ({id, action}: {id: string, action: 'download' | 'enable' | 'disable'}) => aiModelApi[action](id),
+  onSuccess: () => queryClient.invalidateQueries({queryKey: ['aiModels']}),
+  onError: () => message.error('模型操作失败')
+})
+
+function modelAction(model: AiModelDto) {
+  if (model.status === 'READY' || model.status === 'AVAILABLE') {
+    modelMutation.mutate({id: model.id, action: model.status === 'READY' ? 'disable' : 'download'})
+  } else if (model.status === 'DISABLED') {
+    modelMutation.mutate({id: model.id, action: 'enable'})
+  }
+}
+
+function modelActionLabel(model: AiModelDto) {
+  if (model.status === 'AVAILABLE') return '下载'
+  if (model.status === 'DOWNLOADING') return '下载中'
+  if (model.status === 'DISABLED') return '启用'
+  if (model.status === 'READY') return '停用'
+  return '重试'
+}
+
 // --- 系统设置 ---
 const {data: settings} = useQuery({
   queryKey: ['settings'],
@@ -31,7 +54,8 @@ const settingsForm = ref({
   'ai-job.max-attempts': 5,
   'ai-job.retry-base-delay-seconds': 30,
   'ai-job.retry-max-delay-seconds': 1800,
-  'upload.completed-retention-days': 7
+  'upload.completed-retention-days': 7,
+  'ai.default-vector-models': 'clip-vit-base-patch32'
 })
 
 watch(settings, (newVal) => {
@@ -41,7 +65,8 @@ watch(settings, (newVal) => {
       'ai-job.max-attempts': Number(newVal['ai-job.max-attempts']),
       'ai-job.retry-base-delay-seconds': Number(newVal['ai-job.retry-base-delay-seconds']),
       'ai-job.retry-max-delay-seconds': Number(newVal['ai-job.retry-max-delay-seconds']),
-      'upload.completed-retention-days': Number(newVal['upload.completed-retention-days'])
+      'upload.completed-retention-days': Number(newVal['upload.completed-retention-days']),
+      'ai.default-vector-models': newVal['ai.default-vector-models'] || 'clip-vit-base-patch32'
     }
   }
 }, {immediate: true})
@@ -150,6 +175,9 @@ function handleUpdatePassword() {
                 <template #suffix>天</template>
               </n-input-number>
             </n-form-item-gi>
+            <n-form-item-gi label="默认向量模型">
+              <n-input v-model:value="settingsForm['ai.default-vector-models']" size="small" />
+            </n-form-item-gi>
           </n-grid>
         </n-form>
         <template #action>
@@ -162,6 +190,22 @@ function handleUpdatePassword() {
             保存设置
           </n-button>
         </template>
+      </n-card>
+
+      <n-card size="small">
+        <template #header><span class="text-sm font-medium">AI 模型</span></template>
+        <div class="space-y-2">
+          <div v-for="model in aiModels || []" :key="model.id"
+               class="flex items-center justify-between gap-3 border-b border-gray-100 dark:border-gray-800 pb-2 last:border-0">
+            <div class="min-w-0">
+              <div class="text-sm truncate">{{ model.name }}</div>
+              <div class="text-xs text-gray-500">{{ model.capability }} · {{ model.status }}</div>
+            </div>
+            <n-button size="small" :disabled="model.status === 'DOWNLOADING'" @click="modelAction(model)">
+              {{ modelActionLabel(model) }}
+            </n-button>
+          </div>
+        </div>
       </n-card>
 
       <!-- 安全设置 -->

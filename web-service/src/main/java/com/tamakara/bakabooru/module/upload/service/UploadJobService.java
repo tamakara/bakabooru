@@ -24,7 +24,7 @@ public class UploadJobService {
     private final UploadJobRepository uploadJobRepository;
     private final StorageService storageService;
 
-    public void createTask(MultipartFile file) {
+    public void createTask(MultipartFile file, String tagModelId, String vectorModelIds) {
         UUID id = UUID.randomUUID();
         String stagingObjectName = "staging/" + id;
         String filename = FilenameUtils.getName(file.getOriginalFilename());
@@ -49,6 +49,8 @@ public class UploadJobService {
             job.setStatus(UploadJobStatus.PENDING);
             job.setCreatedAt(now);
             job.setUpdatedAt(now);
+            job.setTagModelId(tagModelId);
+            job.setVectorModelIds(vectorModelIds);
             uploadJobRepository.save(job);
         } catch (Exception e) {
             try {

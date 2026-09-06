@@ -25,8 +25,10 @@ public class UploadController {
 
     @PostMapping
     @Operation(summary = "上传图片", description = "上传单个图片并创建持久化任务")
-    public void createTask(@RequestParam("file") MultipartFile file) {
-        uploadJobService.createTask(file);
+    public void createTask(@RequestParam("file") MultipartFile file,
+                           @RequestParam(required = false) String tagModelId,
+                           @RequestParam(required = false) String vectorModelIds) {
+        uploadJobService.createTask(file, tagModelId, vectorModelIds);
     }
 
     @GetMapping("/tasks")

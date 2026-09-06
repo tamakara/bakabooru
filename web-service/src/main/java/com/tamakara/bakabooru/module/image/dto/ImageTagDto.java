@@ -10,4 +10,6 @@ public class ImageTagDto {
     private String name;
     private String type;
     private Double score;
+    private String sourceType;
+    private String sourceModelId;
 }

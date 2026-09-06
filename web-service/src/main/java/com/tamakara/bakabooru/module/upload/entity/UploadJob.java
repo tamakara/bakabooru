@@ -44,6 +44,9 @@ public class UploadJob {
     private Instant lockedUntil;
     private Long imageId;
 
+    private String tagModelId;
+    private String vectorModelIds;
+
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
 

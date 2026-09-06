@@ -1,4 +1,4 @@
-package com.tamakara.bakabooru.module.image.dto;
+﻿package com.tamakara.bakabooru.module.image.dto;
 
 import lombok.Data;
 
@@ -16,14 +16,17 @@ public class ImageDto {
     private Integer width;
     private Integer height;
     private String hash;
+    private String status;
     private Long viewCount;
-    private String aiStatus;
     private String aiError;
     private Instant aiAttemptedAt;
     private Instant aiCompletedAt;
+    private List<ImageVectorDto> indexVectors;
+    private String tagModelId;
     private Instant createdAt;
     private Instant updatedAt;
     private List<ImageTagDto> tags;
     private String imageUrl;
     private String thumbnailUrl;
 }
+

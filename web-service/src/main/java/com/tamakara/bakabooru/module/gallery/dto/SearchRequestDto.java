@@ -2,12 +2,14 @@ package com.tamakara.bakabooru.module.gallery.dto;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class SearchRequestDto {
     private String tags;
     private String keyword;
     private String semanticQuery;  // 语义描述搜索
-    private String aiStatus;
+    private String status;
     private String randomSeed;
     private Integer widthMin;
     private Integer widthMax;
@@ -18,4 +20,6 @@ public class SearchRequestDto {
     private Integer page;
     private Integer size;
     private String sort;
+    private List<String> vectorModelIds;
+    private String tagModelId;
 }

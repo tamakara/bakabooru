@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/search")
 @RequiredArgsConstructor
@@ -35,8 +37,10 @@ public class SearchController {
             @RequestPart("file") MultipartFile file,
             @RequestParam(required = false, defaultValue = "0.7") Double threshold,
             @RequestParam(required = false, defaultValue = "0") Integer page,
-            @RequestParam(required = false, defaultValue = "20") Integer size
+            @RequestParam(required = false, defaultValue = "20") Integer size,
+            @RequestParam(required = false) List<String> vectorModelIds,
+            @RequestParam(required = false) String tagModelId
     ) {
-        return searchService.searchByImage(file, threshold, page, size);
+        return searchService.searchByImage(file, threshold, page, size, vectorModelIds, tagModelId);
     }
 }

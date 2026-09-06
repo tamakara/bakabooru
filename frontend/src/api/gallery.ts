@@ -12,7 +12,17 @@ export interface ImageThumbnailDto {
   thumbnailUrl: string
   /** 原图访问URL，用于缩略图缺失时兜底 */
   imageUrl: string
-  aiStatus: 'PENDING' | 'PROCESSING' | 'READY' | 'FAILED'
+  status: 'AVAILABLE' | 'PROCESSING' | 'MISSING'
+  indexVectorModelIds: string[]
+  tagModelId?: string
+}
+
+export interface ImageVectorDto {
+  modelId: string
+  modelRevision: string
+  status: string
+  errorMessage?: string
+  computedAt?: string
 }
 
 /**
@@ -35,7 +45,7 @@ export interface ImageDto {
   hash: string
   /** 查看次数 */
   viewCount: number
-  aiStatus: 'PENDING' | 'PROCESSING' | 'READY' | 'FAILED'
+  status: 'AVAILABLE' | 'PROCESSING' | 'MISSING'
   aiError?: string
   aiAttemptedAt?: string
   aiCompletedAt?: string
@@ -47,6 +57,8 @@ export interface ImageDto {
   thumbnailUrl: string
   /** 关联标签列表 */
   tags: ImageTagDto[]
+  indexVectors: ImageVectorDto[]
+  tagModelId?: string
 }
 
 /**
@@ -60,6 +72,8 @@ export interface ImageTagDto {
   type: string
   /** AI标签置信度分数 */
   score?: number
+  sourceType?: 'MANUAL' | 'AI' | 'LEGACY' | string
+  sourceModelId?: string
 }
 
 /**
@@ -134,12 +148,27 @@ export const galleryApi = {
     return response.data
   },
 
+  generateTags: async (id: number, modelId: string) => {
+    const response = await apiClient.post<ImageDto>(`/images/${id}/ai/tags`, {modelId})
+    return response.data
+  },
+
+  generateVectors: async (id: number, modelIds: string[]) => {
+    const response = await apiClient.post<ImageDto>(`/images/${id}/ai/vectors`, {modelIds})
+    return response.data
+  },
+
   /**
    * 批量删除图片
    * @param ids 图片ID数组
    */
   deleteImages: async (ids: number[]) => {
     await apiClient.post('/images/batch/delete', ids)
+  },
+
+  deleteMissingImages: async () => {
+    const response = await apiClient.post<number>('/images/batch/delete-missing')
+    return response.data
   },
 
   /**

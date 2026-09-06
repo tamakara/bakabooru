@@ -1,6 +1,7 @@
 package com.tamakara.bakabooru.module.gallery.controller;
 
 import com.tamakara.bakabooru.module.system.service.SystemSettingService;
+import com.tamakara.bakabooru.module.system.dto.SettingDefinitionDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 import java.util.Map;
+import java.util.List;
 
 /**
  * 系统设置控制器
@@ -27,6 +29,11 @@ public class SettingsController {
     @Operation(summary = "获取设置")
     public Map<String, String> getAllSettings() {
         return systemSettingService.getEditableSettings();
+    }
+
+    @GetMapping("/metadata")
+    public List<SettingDefinitionDto> getMetadata() {
+        return systemSettingService.getDefinitions();
     }
 
     @PostMapping

@@ -1,4 +1,4 @@
-package com.tamakara.bakabooru.module.upload.service;
+﻿package com.tamakara.bakabooru.module.upload.service;
 
 import com.tamakara.bakabooru.config.UploadProperties;
 import com.tamakara.bakabooru.module.ai.service.AiJobService;
@@ -76,7 +76,7 @@ public class UploadJobWorker {
                 storageService.deleteFile(job.getStagingObjectName());
                 uploadJobRepository.deleteById(job.getId());
             } catch (Exception e) {
-                log.warn("清理已完成上传任务失败 jobId={}: {}", job.getId(), e.getMessage());
+                log.warn("娓呯悊宸插畬鎴愪笂浼犱换鍔″け璐?jobId={}: {}", job.getId(), e.getMessage());
             }
         }
     }
@@ -108,12 +108,12 @@ public class UploadJobWorker {
             stagingFile = storageService.getFile(job.getStagingObjectName());
             String hash = calculateHash(stagingFile);
             if (imageService.existImageByHash(hash)) {
-                throw new RuntimeException("图片已存在 (Hash: " + hash + ")");
+                throw new RuntimeException("鍥剧墖宸插瓨鍦?(Hash: " + hash + ")");
             }
 
             ImageInfo imageInfo = new ImageInfo(stagingFile);
             if (imageInfo.isAnimated()) {
-                throw new UnsupportedOperationException("暂不支持动图");
+                throw new UnsupportedOperationException("鏆備笉鏀寔鍔ㄥ浘");
             }
 
             storageService.copyFile(job.getStagingObjectName(), "original/" + hash);
@@ -125,14 +125,14 @@ public class UploadJobWorker {
             return;
         } finally {
             if (stagingFile != null && stagingFile.exists() && !stagingFile.delete()) {
-                log.warn("无法删除上传任务临时文件: {}", stagingFile);
+                log.warn("鏃犳硶鍒犻櫎涓婁紶浠诲姟涓存椂鏂囦欢: {}", stagingFile);
             }
         }
 
         try {
             storageService.deleteFile(job.getStagingObjectName());
         } catch (Exception e) {
-            log.warn("图片已入库，但 staging 对象清理失败 jobId={}: {}", jobId, e.getMessage());
+            log.warn("鍥剧墖宸插叆搴擄紝浣?staging 瀵硅薄娓呯悊澶辫触 jobId={}: {}", jobId, e.getMessage());
         }
 
     }
@@ -146,12 +146,16 @@ public class UploadJobWorker {
         image.setWidth(info.getWidth());
         image.setHeight(info.getHeight());
         image.setHash(hash);
-        image.setAiStatus(AiJobService.IMAGE_PENDING);
+        boolean hasAiSelection = (snapshot.getTagModelId() != null && !snapshot.getTagModelId().isBlank())
+                || (snapshot.getVectorModelIds() != null && !snapshot.getVectorModelIds().isBlank());
+        image.setStatus("AVAILABLE");
         Image savedImage = imageService.addImage(image);
-        aiJobService.enqueue(savedImage);
+        if (hasAiSelection) {
+            aiJobService.enqueue(savedImage, snapshot.getTagModelId(), snapshot.getVectorModelIds());
+        }
 
         UploadJob current = uploadJobRepository.findById(jobId)
-                .orElseThrow(() -> new RuntimeException("上传任务不存在"));
+                .orElseThrow(() -> new RuntimeException("涓婁紶浠诲姟涓嶅瓨鍦?));
         Instant now = Instant.now();
         current.setStatus(UploadJobStatus.COMPLETED);
         current.setImageId(savedImage.getId());
@@ -165,7 +169,7 @@ public class UploadJobWorker {
     }
 
     private void markFailed(UUID jobId, Exception error) {
-        log.warn("上传任务处理失败 jobId={}: {}", jobId, error.getMessage(), error);
+        log.warn("涓婁紶浠诲姟澶勭悊澶辫触 jobId={}: {}", jobId, error.getMessage(), error);
         transactionTemplate.executeWithoutResult(status -> uploadJobRepository.findById(jobId).ifPresent(job -> {
             if (job.getStatus() == UploadJobStatus.COMPLETED) return;
             job.setStatus(UploadJobStatus.FAILED);
@@ -181,7 +185,8 @@ public class UploadJobWorker {
         try (InputStream stream = new FileInputStream(file)) {
             return DigestUtils.sha256Hex(stream);
         } catch (Exception e) {
-            throw new RuntimeException("计算哈希失败", e);
+            throw new RuntimeException("璁＄畻鍝堝笇澶辫触", e);
         }
     }
 }
+

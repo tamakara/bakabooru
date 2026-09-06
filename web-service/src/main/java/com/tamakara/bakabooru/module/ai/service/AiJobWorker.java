@@ -1,4 +1,4 @@
-package com.tamakara.bakabooru.module.ai.service;
+﻿package com.tamakara.bakabooru.module.ai.service;
 
 import com.tamakara.bakabooru.config.AiJobProperties;
 import com.tamakara.bakabooru.module.ai.client.AiServiceClient;
@@ -8,7 +8,9 @@ import com.tamakara.bakabooru.module.ai.entity.AiJob;
 import com.tamakara.bakabooru.module.ai.entity.AiJobStatus;
 import com.tamakara.bakabooru.module.ai.repository.AiJobRepository;
 import com.tamakara.bakabooru.module.image.entity.Image;
+import com.tamakara.bakabooru.module.image.entity.ImageEmbedding;
 import com.tamakara.bakabooru.module.image.repository.ImageRepository;
+import com.tamakara.bakabooru.module.image.service.StorageService;
 import com.tamakara.bakabooru.module.system.service.SystemSettingService;
 import com.tamakara.bakabooru.module.tag.entity.Tag;
 import com.tamakara.bakabooru.module.tag.service.TagService;
@@ -30,6 +32,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AiJobWorker {
 
+    private static final String DEFAULT_VECTOR_MODEL = "clip-vit-base-patch32";
+    private static final String DEFAULT_TAG_MODEL = "camie-tagger-v2";
+
     private final AiJobRepository aiJobRepository;
     private final ImageRepository imageRepository;
     private final AiServiceClient aiServiceClient;
@@ -37,6 +42,7 @@ public class AiJobWorker {
     private final SystemSettingService systemSettingService;
     private final AiJobProperties properties;
     private final TransactionTemplate transactionTemplate;
+    private final StorageService storageService;
 
     private final String workerId = UUID.randomUUID().toString();
 
@@ -74,7 +80,7 @@ public class AiJobWorker {
                         job.setUpdatedAt(now);
 
                         Image image = job.getImage();
-                        image.setAiStatus(AiJobService.IMAGE_PROCESSING);
+                        image.setStatus("PROCESSING");
                         image.setAiError(null);
                         image.setAiAttemptedAt(now);
                         image.setAiCompletedAt(null);
@@ -89,9 +95,13 @@ public class AiJobWorker {
     void processJob(Long jobId) {
         try {
             ProcessingInput input = transactionTemplate.execute(status -> aiJobRepository.findById(jobId)
-                    .map(job -> new ProcessingInput(job.getImage().getHash()))
-                    .orElseThrow(() -> new IllegalStateException("AI 任务不存在")));
+                    .map(job -> new ProcessingInput(job.getImage().getHash(), job.getTagModelId(), job.getVectorModelIds()))
+                    .orElseThrow(() -> new IllegalStateException("AI 浠诲姟涓嶅瓨鍦?)));
             double threshold = systemSettingService.getDoubleSetting("tag.threshold");
+            if (!storageService.existFile("original/" + input.hash())) {
+                transactionTemplate.executeWithoutResult(tx -> aiJobRepository.findById(jobId).ifPresent(job -> { job.getImage().setStatus("MISSING"); imageRepository.save(job.getImage()); }));
+                return;
+            }
             AnalyzeImageResponseDto response = aiServiceClient.analyzeImage(
                     new AnalyzeImageRequestDto("original/" + input.hash(), threshold)
             );
@@ -105,12 +115,39 @@ public class AiJobWorker {
     void completeJob(Long jobId, AnalyzeImageResponseDto response) {
         AiJob job = aiJobRepository.findById(jobId).orElse(null);
         if (!owns(job)) {
-            log.warn("忽略已失去租约的 AI 任务结果 jobId={}", jobId);
+            log.warn("蹇界暐宸插け鍘荤绾︾殑 AI 浠诲姟缁撴灉 jobId={}", jobId);
             return;
         }
 
         Image image = job.getImage();
         image.setEmbedding(response.getEmbedding().stream().mapToDouble(Double::doubleValue).toArray());
+        ImageEmbedding vector = new ImageEmbedding();
+        vector.setImage(image);
+        String selectedVectors = job.getVectorModelIds();
+        String[] vectorModels = selectedVectors == null || selectedVectors.isBlank()
+                ? new String[]{DEFAULT_VECTOR_MODEL}
+                : selectedVectors.split(",");
+        vector.setModelId(vectorModels[0].trim());
+        vector.setModelRevision("1");
+        vector.setEmbedding(image.getEmbedding());
+        vector.setStatus("READY");
+        vector.setComputedAt(Instant.now());
+        image.getIndexVectors().removeIf(existing -> java.util.Arrays.asList(vectorModels).contains(existing.getModelId()));
+        image.getIndexVectors().add(vector);
+        for (int i = 1; i < vectorModels.length; i++) {
+            ImageEmbedding extra = new ImageEmbedding();
+            extra.setImage(image);
+            extra.setModelId(vectorModels[i].trim());
+            extra.setModelRevision("1");
+            extra.setEmbedding(image.getEmbedding());
+            extra.setStatus("READY");
+            extra.setComputedAt(Instant.now());
+            image.getIndexVectors().add(extra);
+        }
+        String tagModel = job.getTagModelId() == null || job.getTagModelId().isBlank()
+                ? DEFAULT_TAG_MODEL : job.getTagModelId().trim();
+        image.setTagModelId(tagModel);
+        image.getTagRelations().removeIf(relation -> "AI".equals(relation.getSourceType()));
         Set<Long> existingTagIds = image.getTagRelations().stream()
                 .map(relation -> relation.getTag().getId())
                 .collect(Collectors.toSet());
@@ -118,15 +155,16 @@ public class AiJobWorker {
             try {
                 Tag tag = tagService.getTagByName(entry.getKey());
                 if (existingTagIds.add(tag.getId())) {
-                    image.addTag(tag, entry.getValue());
+                    image.getTagRelations().add(new com.tamakara.bakabooru.module.tag.entity.ImageTagRelation(
+                            image, tag, entry.getValue(), "AI", tagModel));
                 }
             } catch (RuntimeException ignored) {
-                log.debug("跳过未知标签: {}", entry.getKey());
+                log.debug("璺宠繃鏈煡鏍囩: {}", entry.getKey());
             }
         }
 
         Instant now = Instant.now();
-        image.setAiStatus(AiJobService.IMAGE_READY);
+        image.setStatus("AVAILABLE");
         image.setAiError(null);
         image.setAiCompletedAt(now);
         job.setStatus(AiJobStatus.COMPLETED);
@@ -140,7 +178,7 @@ public class AiJobWorker {
     }
 
     void markFailure(Long jobId, Exception error) {
-        log.warn("AI 任务处理失败 jobId={}: {}", jobId, error.getMessage());
+        log.warn("AI 浠诲姟澶勭悊澶辫触 jobId={}: {}", jobId, error.getMessage());
         transactionTemplate.executeWithoutResult(status -> {
             AiJob job = aiJobRepository.findById(jobId).orElse(null);
             if (!owns(job)) return;
@@ -156,13 +194,13 @@ public class AiJobWorker {
             if (job.getAttempts() >= systemSettingService.getAiMaxAttempts()) {
                 job.setStatus(AiJobStatus.FAILED);
                 job.setCompletedAt(now);
-                image.setAiStatus(AiJobService.IMAGE_FAILED);
+                image.setStatus("AVAILABLE");
                 image.setAiError(message);
                 image.setAiCompletedAt(now);
             } else {
                 job.setStatus(AiJobStatus.PENDING);
                 job.setNextRetryAt(now.plus(retryDelay(job.getAttempts())));
-                image.setAiStatus(AiJobService.IMAGE_PENDING);
+                image.setStatus("PROCESSING");
                 image.setAiError(null);
                 image.setAiCompletedAt(null);
             }
@@ -187,13 +225,16 @@ public class AiJobWorker {
 
     private void validateResponse(AnalyzeImageResponseDto response) {
         if (response == null || response.getEmbedding() == null || response.getEmbedding().size() != 512) {
-            throw new IllegalStateException("AI 图片向量响应无效");
+            throw new IllegalStateException("AI 鍥剧墖鍚戦噺鍝嶅簲鏃犳晥");
         }
         if (response.getTags() == null) {
-            throw new IllegalStateException("AI 标签响应无效");
+            throw new IllegalStateException("AI 鏍囩鍝嶅簲鏃犳晥");
         }
     }
 
-    private record ProcessingInput(String hash) {
+    private record ProcessingInput(String hash, String tagModelId, String vectorModelIds) {
     }
 }
+
+
+

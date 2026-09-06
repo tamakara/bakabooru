@@ -5,8 +5,8 @@ spring:
   # 数据库配置
   datasource:
     url: jdbc:postgresql://${DB_HOST:postgres}:${DB_PORT:5432}/${DB_NAME:bakabooru}
-    username: ${DB_USER}
-    password: ${DB_PASS}
+    username: ${DB_USER:bakabooru}
+    password: ${DB_PASS:change-me}
 
   # JPA / Hibernate 配置
   jpa:
@@ -44,8 +44,8 @@ server:
 # MinIO 配置
 minio:
   endpoint: http://${MINIO_HOST:minio}:${MINIO_PORT:9000}
-  access-key: ${MINIO_ACCESS_KEY}
-  secret-key: ${MINIO_SECRET_KEY}
+  access-key: ${MINIO_ACCESS_KEY:bakabooru}
+  secret-key: ${MINIO_SECRET_KEY:change-me}
   bucket-name: ${MINIO_BUCKET_NAME:images}
 
 management:

@@ -1,4 +1,4 @@
-package com.tamakara.bakabooru.module.ai.service;
+﻿package com.tamakara.bakabooru.module.ai.service;
 
 import com.tamakara.bakabooru.module.ai.entity.AiJob;
 import com.tamakara.bakabooru.module.ai.entity.AiJobStatus;
@@ -25,7 +25,27 @@ public class AiJobService {
 
     @Transactional
     public AiJob enqueue(Image image) {
-        return aiJobRepository.findByImageId(image.getId()).orElseGet(() -> {
+        return enqueue(image, null, null);
+    }
+
+    @Transactional
+    public AiJob enqueue(Image image, String tagModelId, String vectorModelIds) {
+        return aiJobRepository.findByImageId(image.getId()).map(existing -> {
+            Instant now = Instant.now();
+            existing.setTagModelId(tagModelId);
+            existing.setVectorModelIds(vectorModelIds);
+            existing.setStatus(AiJobStatus.PENDING);
+            existing.setAttempts(0);
+            existing.setNextRetryAt(now);
+            existing.setLockedBy(null);
+            existing.setLockedUntil(null);
+            existing.setErrorMessage(null);
+            existing.setCompletedAt(null);
+            existing.setUpdatedAt(now);
+            image.setAiError(null);
+            image.setAiCompletedAt(null);
+            return aiJobRepository.save(existing);
+        }).orElseGet(() -> {
             Instant now = Instant.now();
             AiJob job = new AiJob();
             job.setImage(image);
@@ -34,9 +54,10 @@ public class AiJobService {
             job.setNextRetryAt(now);
             job.setCreatedAt(now);
             job.setUpdatedAt(now);
-            image.setAiStatus(IMAGE_PENDING);
             image.setAiError(null);
             image.setAiCompletedAt(null);
+            job.setTagModelId(tagModelId);
+            job.setVectorModelIds(vectorModelIds);
             return aiJobRepository.save(job);
         });
     }
@@ -44,13 +65,9 @@ public class AiJobService {
     @Transactional
     public Image retry(Long imageId) {
         Image image = imageRepository.findById(imageId)
-                .orElseThrow(() -> new RuntimeException("图片不存在"));
-        if (!IMAGE_FAILED.equals(image.getAiStatus())) {
-            throw new IllegalStateException("只有 AI 处理失败的图片可以重试");
-        }
-
+                .orElseThrow(() -> new RuntimeException("鍥剧墖涓嶅瓨鍦?));
         AiJob job = aiJobRepository.findByImageId(imageId)
-                .orElseThrow(() -> new IllegalStateException("AI 任务不存在"));
+                .orElseThrow(() -> new IllegalStateException("AI 浠诲姟涓嶅瓨鍦?));
         Instant now = Instant.now();
         job.setStatus(AiJobStatus.PENDING);
         job.setAttempts(0);
@@ -60,11 +77,11 @@ public class AiJobService {
         job.setErrorMessage(null);
         job.setCompletedAt(null);
         job.setUpdatedAt(now);
-
-        image.setAiStatus(IMAGE_PENDING);
         image.setAiError(null);
         image.setAiCompletedAt(null);
         aiJobRepository.save(job);
         return imageRepository.save(image);
     }
 }
+
+

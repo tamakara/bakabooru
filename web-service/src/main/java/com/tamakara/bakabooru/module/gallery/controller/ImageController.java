@@ -1,6 +1,8 @@
 package com.tamakara.bakabooru.module.gallery.controller;
 
 import com.tamakara.bakabooru.module.image.dto.ImageDto;
+import com.tamakara.bakabooru.module.image.dto.AiTagsRequest;
+import com.tamakara.bakabooru.module.image.dto.AiVectorsRequest;
 import com.tamakara.bakabooru.module.image.service.ImageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -59,10 +61,27 @@ public class ImageController {
         return imageService.retryAiProcessing(id);
     }
 
+    @PostMapping("/{id}/ai/tags")
+    public ImageDto generateTags(@PathVariable Long id, @RequestBody AiTagsRequest request) {
+        return imageService.enqueueAi(id, request == null ? null : request.modelId(), null);
+    }
+
+    @PostMapping("/{id}/ai/vectors")
+    public ImageDto generateVectors(@PathVariable Long id, @RequestBody AiVectorsRequest request) {
+        List<String> models = request == null || request.modelIds() == null ? List.of() : request.modelIds();
+        return imageService.enqueueAi(id, null, String.join(",", models));
+    }
+
     @PostMapping("/batch/delete")
     @Operation(summary = "批量删除")
     public void deleteImages(@RequestBody List<Long> ids) {
         imageService.deleteImages(ids);
+    }
+
+    @PostMapping("/batch/delete-missing")
+    @Operation(summary = "删除所有文件丢失记录")
+    public int deleteMissingImages() {
+        return imageService.deleteMissingImages();
     }
 
     @PostMapping("/batch/download")

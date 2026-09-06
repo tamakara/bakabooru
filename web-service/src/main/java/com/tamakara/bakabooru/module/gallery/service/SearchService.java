@@ -38,7 +38,7 @@ public class SearchService {
         searchDto.setPage(request.getPage());
         searchDto.setSize(request.getSize());
         searchDto.setKeyword(StringUtils.hasText(request.getKeyword()) ? request.getKeyword().trim() : "");
-        searchDto.setAiStatus(request.getAiStatus());
+        searchDto.setStatus(request.getStatus());
         searchDto.setRandomSeed(request.getRandomSeed());
         searchDto.setWidthMin(request.getWidthMin());
         searchDto.setWidthMax(request.getWidthMax());
@@ -46,6 +46,8 @@ public class SearchService {
         searchDto.setHeightMax(request.getHeightMax());
         searchDto.setSizeMin(request.getSizeMin());
         searchDto.setSizeMax(request.getSizeMax());
+        searchDto.setVectorModelIds(request.getVectorModelIds());
+        searchDto.setTagModelId(request.getTagModelId());
         applySort(request, searchDto);
 
         Set<String> positiveTags = new HashSet<>();
@@ -66,17 +68,21 @@ public class SearchService {
         return imageSearchService.searchImages(searchDto);
     }
 
-    public SearchResultDto<ImageThumbnailDto> searchByImage(MultipartFile file, Double threshold, Integer page, Integer size) {
-        return doSearchByImage(file, threshold, page, size);
+    public SearchResultDto<ImageThumbnailDto> searchByImage(MultipartFile file, Double threshold, Integer page, Integer size,
+                                                            java.util.List<String> vectorModelIds, String tagModelId) {
+        return doSearchByImage(file, threshold, page, size, vectorModelIds, tagModelId);
     }
 
-    private SearchResultDto<ImageThumbnailDto> doSearchByImage(MultipartFile file, Double threshold, Integer page, Integer size) {
+    private SearchResultDto<ImageThumbnailDto> doSearchByImage(MultipartFile file, Double threshold, Integer page, Integer size,
+                                                               java.util.List<String> vectorModelIds, String tagModelId) {
         double[] embedding = embeddingService.generateImageEmbedding(file);
 
         SearchDto searchDto = new SearchDto();
         searchDto.setPage(page == null ? 0 : page);
         searchDto.setSize(size == null ? 20 : size);
         searchDto.setEmbedding(DoubleStream.of(embedding).mapToObj(d -> (float) d).toList());
+        searchDto.setVectorModelIds(vectorModelIds);
+        searchDto.setTagModelId(tagModelId);
         searchDto.setSortProperty("similarity");
         searchDto.setSortDirection("DESC");
 
