@@ -281,25 +281,27 @@ const statusType = computed<'default' | 'success' | 'info' | 'warning' | 'error'
   return 'default'
 })
 
-const handleRecomputeTags = async () => {
-  if (!props.image || recomputing.value) return
+const handleRecomputeTags = async (): Promise<boolean> => {
+  if (!props.image || recomputing.value) return false
   recomputing.value = true
   try {
-    if (!selectedTagModelId.value) { message.warning('请先下载并选择标签模型'); return }
+    if (!selectedTagModelId.value) { message.warning('请先下载并选择标签模型'); return false }
     const updated = await galleryApi.generateTags(props.image.id, selectedTagModelId.value)
     emit('update:image', updated)
     emit('refresh')
     message.success('标签重算任务已提交')
     showTagModelModal.value = false
+    return false
   } catch {
     message.error('提交标签重算失败')
+    return false
   } finally {
     recomputing.value = false
   }
 }
 
-const handleRecomputeVectors = async () => {
-  if (!props.image || !selectedVectorModelIds.value.length || recomputing.value) return
+const handleRecomputeVectors = async (): Promise<boolean> => {
+  if (!props.image || !selectedVectorModelIds.value.length || recomputing.value) return false
   recomputing.value = true
   try {
     const updated = await galleryApi.generateVectors(props.image.id, selectedVectorModelIds.value)
@@ -307,8 +309,10 @@ const handleRecomputeVectors = async () => {
     emit('refresh')
     message.success('向量重算任务已提交')
     showVectorModelModal.value = false
+    return false
   } catch {
     message.error('提交向量重算失败')
+    return false
   } finally {
     recomputing.value = false
   }
@@ -686,12 +690,18 @@ const getTagColor = (type: string) => {
       </div>
     </div>
 
-    <n-modal v-model:show="showTagModelModal" preset="dialog" title="选择标签模型" positive-text="开始生成" negative-text="取消" @positive-click="handleRecomputeTags">
+  </n-modal>
+
+  <!-- Keep auxiliary dialogs outside the full-screen modal so each modal has one root child. -->
+  <n-modal v-model:show="showTagModelModal" preset="dialog" title="选择标签模型" positive-text="开始生成" negative-text="取消" @positive-click="handleRecomputeTags">
+    <div class="w-full">
       <n-select v-model:value="selectedTagModelId" :options="tagModels.map(model => ({ label: model.name, value: model.id }))" placeholder="选择已下载的标签模型" />
-    </n-modal>
-    <n-modal v-model:show="showVectorModelModal" preset="dialog" title="选择索引向量模型" positive-text="开始计算" negative-text="取消" @positive-click="handleRecomputeVectors">
-      <n-select v-model:value="selectedVectorModelIds" multiple :options="clipModels.filter(model => model.artifactState === 'READY').map(model => ({ label: model.name, value: model.id }))" placeholder="选择一个或多个已下载模型" />
-    </n-modal>
+    </div>
+  </n-modal>
+  <n-modal v-model:show="showVectorModelModal" preset="dialog" title="选择索引向量模型" positive-text="开始计算" negative-text="取消" @positive-click="handleRecomputeVectors">
+    <div class="w-full">
+      <n-select v-model:value="selectedVectorModelIds" multiple :options="clipModels.map(model => ({ label: model.name, value: model.id }))" placeholder="选择一个或多个已下载模型" />
+    </div>
   </n-modal>
 </template>
 

@@ -23,6 +23,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -115,11 +116,54 @@ public class AiJobWorker {
         }
         boolean includesTags = "TAGS".equals(job.getCapability()) || "TAGS_AND_VECTORS".equals(job.getCapability());
         if (includesTags && response.getTags() != null) {
-            image.getTagRelations().removeIf(relation -> "AI".equals(relation.getSourceType()));
-            Set<Long> existingTagIds = image.getTagRelations().stream().map(relation -> relation.getTag().getId()).collect(Collectors.toSet());
+            // Merge generated tags in place. Removing all AI relations and then
+            // adding transient entities for the same tags can leave Hibernate
+            // with orphaned/null-id entries when a flush fails. Updating the
+            // existing relation also avoids unique-key collisions with manual
+            // tags and keeps the persistence context consistent.
+            // Discard any unsaved relation left by a previously aborted
+            // attempt before Hibernate flushes this aggregate again.
+            for (var iterator = image.getTagRelations().iterator(); iterator.hasNext();) {
+                var relation = iterator.next();
+                if (relation == null) {
+                    iterator.remove();
+                    continue;
+                }
+                if (relation.getId() == null || relation.getTag() == null) {
+                    iterator.remove();
+                    relation.setImage(null);
+                }
+            }
+            Map<Long, com.tamakara.bakabooru.module.tag.entity.ImageTagRelation> existingAi = new HashMap<>();
+            Set<Long> existingTagIds = image.getTagRelations().stream()
+                    .filter(relation -> relation.getTag() != null && relation.getTag().getId() != null)
+                    .peek(relation -> {
+                        if ("AI".equals(relation.getSourceType())) {
+                            existingAi.put(relation.getTag().getId(), relation);
+                        }
+                    })
+                    .map(relation -> relation.getTag().getId())
+                    .collect(Collectors.toSet());
             for (Map.Entry<String, Double> entry : response.getTags().entrySet()) {
-                try { Tag tag = tagService.getTagByName(entry.getKey()); if (existingTagIds.add(tag.getId())) image.getTagRelations().add(new com.tamakara.bakabooru.module.tag.entity.ImageTagRelation(image, tag, entry.getValue(), "AI")); }
+                try {
+                    Tag tag = tagService.getTagByName(entry.getKey());
+                    var relation = existingAi.remove(tag.getId());
+                    if (relation != null) {
+                        relation.setScore(entry.getValue());
+                    } else if (existingTagIds.add(tag.getId())) {
+                        image.getTagRelations().add(new com.tamakara.bakabooru.module.tag.entity.ImageTagRelation(image, tag, entry.getValue(), "AI"));
+                    }
+                }
                 catch (RuntimeException ignored) { log.debug("Unable to persist generated tag {}", entry.getKey()); }
+            }
+            // Remove generated tags no longer returned by the model while
+            // keeping both sides of the relationship synchronized.
+            for (var iterator = image.getTagRelations().iterator(); iterator.hasNext();) {
+                var relation = iterator.next();
+                if (existingAi.containsValue(relation)) {
+                    iterator.remove();
+                    relation.setImage(null);
+                }
             }
         }
         Instant now = Instant.now(); job.setStatus(AiJobStatus.COMPLETED); job.setErrorMessage(null); job.setLockedBy(null); job.setLockedUntil(null); job.setUpdatedAt(now); job.setCompletedAt(now);

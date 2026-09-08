@@ -624,8 +624,8 @@ async function handleBatchDownload() {
   }
 }
 
-async function handleBatchTags() {
-  if (!selectedIds.value.size || !batchTagModelId.value || batchAiLoading.value) return
+async function handleBatchTags(): Promise<boolean> {
+  if (!selectedIds.value.size || !batchTagModelId.value || batchAiLoading.value) return false
   batchAiLoading.value = true
   try {
     await galleryApi.generateTagsBatch(Array.from(selectedIds.value), batchTagModelId.value)
@@ -633,15 +633,17 @@ async function handleBatchTags() {
     showBatchTagModal.value = false
     clearSelection()
     await refetch()
+    return false
   } catch {
     message.error('提交批量标签任务失败')
+    return false
   } finally {
     batchAiLoading.value = false
   }
 }
 
-async function handleBatchVectors() {
-  if (!selectedIds.value.size || !batchVectorModelIds.value.length || batchAiLoading.value) return
+async function handleBatchVectors(): Promise<boolean> {
+  if (!selectedIds.value.size || !batchVectorModelIds.value.length || batchAiLoading.value) return false
   batchAiLoading.value = true
   try {
     await galleryApi.generateVectorsBatch(Array.from(selectedIds.value), batchVectorModelIds.value)
@@ -649,8 +651,10 @@ async function handleBatchVectors() {
     showBatchVectorModal.value = false
     clearSelection()
     await refetch()
+    return false
   } catch {
     message.error('提交批量索引向量任务失败')
+    return false
   } finally {
     batchAiLoading.value = false
   }
@@ -921,7 +925,7 @@ async function handleBatchVectors() {
               @contextmenu="handleContextMenu($event, image)"
           >
             <img
-                v-if="image.status !== 'ERROR' && image.status !== 'MISSING' && !failedThumbnailIds.has(image.id)"
+                v-if="!failedThumbnailIds.has(image.id)"
                 :src="image.thumbnailUrl"
                 :alt="image.title || 'image'"
                 class="w-full h-full object-cover transition-transform duration-300 transform select-none"
@@ -1000,10 +1004,10 @@ async function handleBatchVectors() {
     />
 
     <n-modal v-model:show="showBatchTagModal" preset="dialog" title="批量生成标签" positive-text="开始生成" negative-text="取消" :positive-button-props="{ loading: batchAiLoading, disabled: !batchTagModelId }" @positive-click="handleBatchTags">
-      <n-select v-model:value="batchTagModelId" :options="tagModelOptions" placeholder="选择已下载的标签模型" />
+      <div class="w-full"><n-select v-model:value="batchTagModelId" :options="tagModelOptions" placeholder="选择已下载的标签模型" /></div>
     </n-modal>
     <n-modal v-model:show="showBatchVectorModal" preset="dialog" title="批量计算索引向量" positive-text="开始计算" negative-text="取消" :positive-button-props="{ loading: batchAiLoading, disabled: !batchVectorModelIds.length }" @positive-click="handleBatchVectors">
-      <n-select v-model:value="batchVectorModelIds" multiple :options="vectorModelOptions" placeholder="选择一个或多个已下载的 CLIP 模型" />
+      <div class="w-full"><n-select v-model:value="batchVectorModelIds" multiple :options="vectorModelOptions" placeholder="选择一个或多个已下载的 CLIP 模型" /></div>
     </n-modal>
   </n-layout>
 </template>
