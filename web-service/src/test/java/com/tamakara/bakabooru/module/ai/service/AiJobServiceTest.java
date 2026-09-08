@@ -32,7 +32,8 @@ class AiJobServiceTest {
 
     void enqueueCreatesOnePendingJob() {
         Image image = image(1L, "PROCESSING");
-        when(aiJobRepository.findByImageId(1L)).thenReturn(Optional.empty());
+        when(aiJobRepository.findFirstByImageIdAndCapabilityOrderByUpdatedAtDesc(1L, "VECTORS"))
+                .thenReturn(Optional.empty());
         when(aiJobRepository.save(any(AiJob.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         AiJob job = service.enqueue(image);
@@ -45,7 +46,7 @@ class AiJobServiceTest {
 
     void retryResetsFailedJob() {
         Image image = image(1L, "AVAILABLE");
-        image.setAiError("failed");
+        image.setAnalysisError("failed");
         AiJob job = new AiJob();
         job.setImage(image);
         job.setStatus(AiJobStatus.FAILED);
@@ -53,13 +54,13 @@ class AiJobServiceTest {
         job.setLockedBy("old-worker");
         job.setLockedUntil(Instant.now());
         when(imageRepository.findById(1L)).thenReturn(Optional.of(image));
-        when(aiJobRepository.findByImageId(1L)).thenReturn(Optional.of(job));
+        when(aiJobRepository.findFirstByImageIdOrderByCreatedAtDesc(1L)).thenReturn(Optional.of(job));
         when(imageRepository.save(image)).thenReturn(image);
 
         Image result = service.retry(1L);
 
         assertThat(result.getStatus()).isEqualTo("PROCESSING");
-        assertThat(result.getAiError()).isNull();
+        assertThat(result.getAnalysisError()).isNull();
         assertThat(job.getStatus()).isEqualTo(AiJobStatus.PENDING);
         assertThat(job.getAttempts()).isZero();
         assertThat(job.getLockedBy()).isNull();

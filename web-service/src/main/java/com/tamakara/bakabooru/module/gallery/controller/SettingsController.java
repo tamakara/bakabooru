@@ -47,7 +47,7 @@ public class SettingsController {
                 aiServiceClient.updateRuntimeSettings(Map.of(
                         "device_mode", settings.getOrDefault("ai.device-mode", systemSettingService.getOptionalSetting("ai.device-mode", "auto")),
                         "cache_dir", settings.getOrDefault("ai.model-cache-dir", systemSettingService.getOptionalSetting("ai.model-cache-dir", "/model_cache")),
-                        "inference_concurrency", Integer.parseInt(settings.getOrDefault("ai.inference-concurrency", systemSettingService.getOptionalSetting("ai.inference-concurrency", "1"))));
+                        "inference_concurrency", Integer.parseInt(settings.getOrDefault("ai.inference-concurrency", systemSettingService.getOptionalSetting("ai.inference-concurrency", "1")))));
             } catch (RuntimeException ignored) {
                 // Settings remain persisted while AI Service is offline; it receives them on its next reload.
             }

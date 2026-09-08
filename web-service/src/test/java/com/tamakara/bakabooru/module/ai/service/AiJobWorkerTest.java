@@ -84,7 +84,7 @@ class AiJobWorkerTest {
 
         assertThat(job.getStatus()).isEqualTo(AiJobStatus.FAILED);
         assertThat(job.getImage().getStatus()).isEqualTo("AVAILABLE");
-        assertThat(job.getImage().getAiError()).isEqualTo("inference failed");
+        assertThat(job.getImage().getAnalysisError()).isEqualTo("inference failed");
     }
 
     @Test
