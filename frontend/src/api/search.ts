@@ -5,7 +5,7 @@ export interface SearchRequestDto {
   tags?: string
   keyword?: string
   semanticQuery?: string  // 语义描述搜索
-  status?: 'AVAILABLE' | 'PROCESSING' | 'MISSING'
+  status?: 'NORMAL' | 'ANALYZING' | 'ERROR' | 'MISSING'
   randomSeed?: string
   widthMin?: number
   widthMax?: number
@@ -17,7 +17,7 @@ export interface SearchRequestDto {
   size?: number
   sort?: string
   vectorModelIds?: string[]
-  tagModelId?: string
+  vectorModelId?: string
 }
 
 export const searchApi = {
@@ -35,11 +35,11 @@ export const searchApi = {
     return response.data
   },
 
-  searchByImage: async (file: File, threshold: number, page: number, size: number, vectorModelIds?: string[], tagModelId?: string) => {
+  searchByImage: async (file: File, threshold: number, page: number, size: number, vectorModelIds?: string[], vectorModelId?: string) => {
     const formData = new FormData()
     formData.append('file', file)
     const response = await apiClient.post<SearchResult<ImageThumbnailDto>>('/search/image', formData, {
-      params: { threshold, page, size, vectorModelIds, tagModelId },
+      params: { threshold, page, size, vectorModelIds, vectorModelId },
       headers: {
         'Content-Type': 'multipart/form-data'
       }

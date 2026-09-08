@@ -1,5 +1,6 @@
 ﻿<script setup lang="ts">
 import {computed, onMounted, onUnmounted, ref, watch} from 'vue'
+import {useQuery} from '@tanstack/vue-query'
 import {
   NButton,
   NDivider,
@@ -35,6 +36,7 @@ import {
   TrashOutline
 } from '@vicons/ionicons5'
 import {galleryApi, type ImageDto, type ImageTagDto} from '../../api/gallery.ts'
+import {aiModelApi} from '../../api/system'
 import {tagsApi} from '../../api/tags.ts'
 import {useDateFormat} from '@vueuse/core'
 
@@ -55,6 +57,7 @@ const emit = defineEmits<{
 }>()
 
 const message = useMessage()
+const {data: aiModels} = useQuery({queryKey: ['aiModels'], queryFn: aiModelApi.list})
 const editingName = ref(false)
 const newName = ref('')
 const newTagName = ref('')
@@ -63,11 +66,18 @@ const isEditingTags = ref(false)
 const addingTag = ref(false)
 const retryingAi = ref(false)
 const recomputing = ref(false)
+const selectedVectorModelIds = ref<string[]>([])
+const selectedTagModelId = ref<string | null>(null)
+const clipModels = computed(() => (aiModels.value || []).filter(model => model.type === 'CLIP'))
+const tagModels = computed(() => (aiModels.value || []).filter(model => model.type === 'TAGGER' && model.artifactState === 'READY'))
+const vectorStatus = (modelId: string) => props.image?.indexVectors?.find(vector => vector.modelId === modelId)?.status || 'NOT_COMPUTED'
 
 // 当image变化时更新编辑表单
 watch(() => props.image, (newImage) => {
   if (newImage) {
     newName.value = newImage.title
+    selectedVectorModelIds.value = (newImage.indexVectors || []).filter(vector => vector.status === 'READY').map(vector => vector.modelId)
+    if (!selectedTagModelId.value) selectedTagModelId.value = tagModels.value[0]?.id || null
   }
 }, {immediate: true})
 
@@ -253,29 +263,38 @@ const handleDownload = () => {
 
 const statusText = computed(() => {
   if (!props.image) return ''
-  if (props.image.status === 'AVAILABLE') return '正常'
-  if (props.image.status === 'PROCESSING') return '计算中'
-  if (props.image.status === 'MISSING') return '文件异常'
+  if (props.image.status === 'NORMAL') return '正常'
+  if (props.image.status === 'ANALYZING') return '分析中'
+  if (props.image.status === 'ERROR') return '异常'
+  if (props.image.status === 'MISSING') return '文件缺失'
   return '正常'
 })
 
 const statusType = computed<'default' | 'success' | 'info' | 'warning' | 'error'>(() => {
   if (!props.image) return 'default'
-  if (props.image.status === 'AVAILABLE') return 'success'
-  if (props.image.status === 'PROCESSING') return 'info'
+  if (props.image.status === 'NORMAL') return 'success'
+  if (props.image.status === 'ANALYZING') return 'info'
+  if (props.image.status === 'ERROR') return 'warning'
   if (props.image.status === 'MISSING') return 'error'
   return 'default'
 })
 
+const retryCapability = computed<'TAGS' | 'VECTORS' | 'TAGS_AND_VECTORS' | undefined>(() => {
+  if (props.image?.analysisStage === 'TAGS') return 'TAGS'
+  if (props.image?.analysisStage === 'VECTORS') return 'VECTORS'
+  if (props.image?.analysisStage === 'TAGS_AND_VECTORS') return 'TAGS_AND_VECTORS'
+  return undefined
+})
+
 const canRetryAi = computed(() => {
-  return false
+  return props.image?.status === 'ERROR' && !!retryCapability.value
 })
 
 const handleRetryAi = async () => {
   if (!props.image || retryingAi.value) return
   retryingAi.value = true
   try {
-    const updated = await galleryApi.retryAiProcessing(props.image.id)
+    const updated = await galleryApi.retryAiProcessing(props.image.id, retryCapability.value)
     emit('update:image', updated)
     emit('refresh')
     message.success('已开始 AI 处理')
@@ -287,10 +306,11 @@ const handleRetryAi = async () => {
 }
 
 const handleRecomputeTags = async () => {
-  if (!props.image?.tagModelId || recomputing.value) return
+  if (!props.image || recomputing.value) return
   recomputing.value = true
   try {
-    const updated = await galleryApi.generateTags(props.image.id, props.image.tagModelId)
+    if (!selectedTagModelId.value) { message.warning('请先下载并选择标签模型'); return }
+    const updated = await galleryApi.generateTags(props.image.id, selectedTagModelId.value)
     emit('update:image', updated)
     emit('refresh')
     message.success('标签重算任务已提交')
@@ -302,10 +322,10 @@ const handleRecomputeTags = async () => {
 }
 
 const handleRecomputeVectors = async () => {
-  if (!props.image?.indexVectors?.length || recomputing.value) return
+  if (!props.image || !selectedVectorModelIds.value.length || recomputing.value) return
   recomputing.value = true
   try {
-    const updated = await galleryApi.generateVectors(props.image.id, props.image.indexVectors.map(v => v.modelId))
+    const updated = await galleryApi.generateVectors(props.image.id, selectedVectorModelIds.value)
     emit('update:image', updated)
     emit('refresh')
     message.success('向量重算任务已提交')
@@ -542,10 +562,10 @@ const getTagColor = (type: string) => {
                       useDateFormat(props.image.createdAt, 'YYYY-MM-DD').value
                     }}</span>
                 </div>
-                <!-- AI Status -->
+                <!-- Image Status -->
                 <div class="flex flex-col gap-1">
                       <span class="text-gray-500 text-xs flex items-center gap-1">
-                         <n-icon :component="HardwareChipOutline"/> AI 状态
+                         <n-icon :component="HardwareChipOutline"/> 图片状态
                       </span>
                   <div class="flex items-center gap-2">
                     <n-tag size="small" :type="statusType" :bordered="false">
@@ -562,35 +582,37 @@ const getTagColor = (type: string) => {
                       <template #icon>
                         <n-icon :component="RefreshOutline"/>
                       </template>
-                      重试
+                      {{ retryCapability === 'TAGS' ? '重试标签' : retryCapability === 'VECTORS' ? '重试索引' : '重试分析' }}
                     </n-button>
                   </div>
                 </div>
               </div>
 
-              <div v-if="props.image.aiError" class="text-xs text-amber-300 bg-amber-950/40 border border-amber-900/60 rounded p-2 break-words">
-                {{ props.image.aiError }}
+              <div v-if="props.image.status === 'ERROR' && props.image.analysisError" class="text-xs text-amber-300 bg-amber-950/40 border border-amber-900/60 rounded p-2 break-words">
+                {{ props.image.analysisError }}
               </div>
 
               <div class="grid grid-cols-1 gap-2 text-sm">
                 <div>
                   <div class="flex items-center justify-between">
                     <span class="text-gray-500 text-xs">索引向量</span>
-                    <n-button v-if="props.image.indexVectors?.length" size="tiny" text :loading="recomputing" @click="handleRecomputeVectors">重新计算</n-button>
+                    <n-button v-if="selectedVectorModelIds.length" size="tiny" text :loading="recomputing" @click="handleRecomputeVectors">重新计算</n-button>
                   </div>
+                  <n-select v-if="clipModels.length" v-model:value="selectedVectorModelIds" :options="clipModels.filter(model => model.artifactState === 'READY').map(model => ({label: model.name, value: model.id}))" multiple size="small" class="mt-1" />
                   <div class="flex flex-wrap gap-1 mt-1">
-                    <n-tag v-for="vector in props.image.indexVectors || []" :key="`${vector.modelId}-${vector.modelRevision}`" size="small" :bordered="false">
-                      {{ vector.modelId }} / {{ vector.status }}
+                    <n-tag v-for="model in clipModels" :key="model.id" size="small" :bordered="false">
+                      {{ model.name }} / {{ vectorStatus(model.id) }}
                     </n-tag>
                     <span v-if="!props.image.indexVectors?.length" class="text-gray-500 text-xs">未计算</span>
                   </div>
                 </div>
                 <div>
                   <div class="flex items-center justify-between">
-                    <span class="text-gray-500 text-xs">标签生成模型</span>
-                    <n-button v-if="props.image.tagModelId" size="tiny" text :loading="recomputing" @click="handleRecomputeTags">重新生成</n-button>
+                    <span class="text-gray-500 text-xs">标签结果</span>
+                    <n-select v-model:value="selectedTagModelId" :options="tagModels.map(model => ({label: model.name, value: model.id}))" size="small" class="max-w-48" placeholder="选择标签模型" />
+                    <n-button size="tiny" text :loading="recomputing" :disabled="!selectedTagModelId" @click="handleRecomputeTags">重新生成</n-button>
                   </div>
-                  <div class="text-gray-200 mt-1">{{ props.image.tagModelId || '未使用' }}</div>
+                  <div class="text-gray-200 mt-1">{{ props.image.tags?.length ? `${props.image.tags.length} 个标签` : '尚未生成标签' }}</div>
                 </div>
               </div>
 

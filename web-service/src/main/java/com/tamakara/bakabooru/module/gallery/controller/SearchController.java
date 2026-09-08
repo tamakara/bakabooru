@@ -39,8 +39,8 @@ public class SearchController {
             @RequestParam(required = false, defaultValue = "0") Integer page,
             @RequestParam(required = false, defaultValue = "20") Integer size,
             @RequestParam(required = false) List<String> vectorModelIds,
-            @RequestParam(required = false) String tagModelId
+            @RequestParam(required = false) String vectorModelId
     ) {
-        return searchService.searchByImage(file, threshold, page, size, vectorModelIds, tagModelId);
+        return searchService.searchByImage(file, threshold, page, size, vectorModelIds, vectorModelId);
     }
 }

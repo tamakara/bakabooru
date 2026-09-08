@@ -22,6 +22,8 @@ public class AiModel {
     private String name;
     @Column(nullable = false)
     private String capability;
+    @Column(name = "model_type")
+    private String modelType;
     @Column(nullable = false)
     private String version;
     private Integer dimension;

@@ -1,6 +1,5 @@
 package com.tamakara.bakabooru.module.image.entity;
 
-import com.tamakara.bakabooru.config.VectorConverter;
 import com.tamakara.bakabooru.module.image.dto.ImageTagDto;
 import com.tamakara.bakabooru.module.tag.entity.ImageTagRelation;
 import com.tamakara.bakabooru.module.tag.entity.Tag;
@@ -50,24 +49,19 @@ public class Image {
     private String hash;
 
     @Column(name = "image_status", nullable = false)
-    private String status = "AVAILABLE";
+    private String status = "NORMAL";
 
     @Column(nullable = false)
     private Long viewCount = 0L;
 
-    @Column(name = "tag_model_id")
-    private String tagModelId;
-
-    private String aiError;
-
-    private Instant aiAttemptedAt;
-
-    private Instant aiCompletedAt;
-
-    @Convert(converter = VectorConverter.class)
-    @Column(columnDefinition = "vector(512)")
-    @ColumnTransformer(write = "?::vector")
-    private double[] embedding;
+    @Column(name = "analysis_stage")
+    private String analysisStage;
+    @Column(name = "analysis_error")
+    private String analysisError;
+    @Column(name = "analysis_started_at")
+    private Instant analysisStartedAt;
+    @Column(name = "analysis_completed_at")
+    private Instant analysisCompletedAt;
 
     @OneToMany(mappedBy = "image", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ImageEmbedding> indexVectors = new HashSet<>();
@@ -88,14 +82,14 @@ public class Image {
         for (ImageTagRelation relation : tagRelations) {
             Tag tag = relation.getTag();
             tags.add(new ImageTagDto(tag.getId(), tag.getName(), tag.getType(), relation.getScore(),
-                    relation.getSourceType(), relation.getSourceModelId()));
+                    relation.getSourceType()));
         }
         tags.sort(Comparator.comparing(ImageTagDto::getScore));
         return tags;
     }
 
     public void addTag(Tag tag, Double score) {
-        ImageTagRelation relation = new ImageTagRelation(this, tag, score, "MANUAL", null);
+        ImageTagRelation relation = new ImageTagRelation(this, tag, score, "MANUAL");
         this.tagRelations.add(relation);
     }
 

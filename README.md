@@ -1,5 +1,7 @@
 # BaKaBooru
 
+Current AI workflow: image status is `NORMAL`, `ANALYZING`, `ERROR`, or `MISSING`; vectors are stored per CLIP model in `image_embeddings`; and model artifacts are managed explicitly from Settings instead of being downloaded at startup. See [docs/ai-workflow-v14.md](docs/ai-workflow-v14.md).
+
 ![Java](https://img.shields.io/badge/Java-21-b07219?style=flat-square&logo=openjdk)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5-6db33f?style=flat-square&logo=springboot)
 ![Python](https://img.shields.io/badge/Python-3.12-3776ab?style=flat-square&logo=python)
@@ -14,7 +16,7 @@
 - **多模态检索**：CLIP 文本/视觉向量配合 pgvector，实现自然语言搜图与以图搜图。
 - **自动化入库**：上传后自动计算 SHA-256、查重、解析尺寸、归档原图并生成缩略图。
 - **AI 自动标注**：Camie Tagger 识别标签，推理失败可追踪、可手动重试。
-- **组合筛选**：按标签、关键字、AI 状态、宽高、文件大小和排序条件检索。
+- **组合筛选**：按标签、关键字、图片状态、向量模型、宽高、文件大小和排序条件检索。
 - **自托管部署**：PostgreSQL、MinIO 和模型推理统一由 Docker Compose 编排。
 
 ## 架构概览
@@ -82,7 +84,7 @@ bakabooru/
 | --- | --- |
 | [文档导航](docs/README.md) | 推荐阅读路径与术语约定 |
 | [系统架构](docs/architecture.md) | 服务边界、上传/检索数据流与可用性 |
-| [Web Service](docs/backend-web-service.md) | Java 模块、API、上传队列、AI 状态机 |
+| [Web Service](docs/backend-web-service.md) | Java 模块、API、上传队列、图片状态机 |
 | [AI Service](docs/ai-service.md) | 模型、推理接口、加载生命周期和数据边界 |
 | [前端](docs/frontend.md) | 页面、路由、状态管理与交互流程 |
 | [数据模型](docs/data-model.md) | ER 图、向量字段、对象映射与索引 |

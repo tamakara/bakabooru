@@ -23,16 +23,6 @@ public class AiModelController {
         return service.markDownloadStarted(id);
     }
 
-    @PostMapping("/{id}/enable")
-    public AiModelDto enable(@PathVariable String id) {
-        return service.setEnabled(id, true);
-    }
-
-    @PostMapping("/{id}/disable")
-    public AiModelDto disable(@PathVariable String id) {
-        return service.setEnabled(id, false);
-    }
-
     @DeleteMapping("/{id}/artifact")
     public AiModelDto uninstall(@PathVariable String id) {
         return service.uninstall(id);

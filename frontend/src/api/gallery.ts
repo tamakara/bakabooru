@@ -12,9 +12,8 @@ export interface ImageThumbnailDto {
   thumbnailUrl: string
   /** 原图访问URL，用于缩略图缺失时兜底 */
   imageUrl: string
-  status: 'AVAILABLE' | 'PROCESSING' | 'MISSING'
+  status: 'NORMAL' | 'ANALYZING' | 'ERROR' | 'MISSING'
   indexVectorModelIds: string[]
-  tagModelId?: string
 }
 
 export interface ImageVectorDto {
@@ -45,10 +44,11 @@ export interface ImageDto {
   hash: string
   /** 查看次数 */
   viewCount: number
-  status: 'AVAILABLE' | 'PROCESSING' | 'MISSING'
-  aiError?: string
-  aiAttemptedAt?: string
-  aiCompletedAt?: string
+  status: 'NORMAL' | 'ANALYZING' | 'ERROR' | 'MISSING'
+  analysisStage?: 'TAGS' | 'VECTORS' | 'TAGS_AND_VECTORS'
+  analysisError?: string
+  analysisStartedAt?: string
+  analysisCompletedAt?: string
   createdAt: string
   updatedAt: string
   /** 原始图片访问URL */
@@ -58,7 +58,6 @@ export interface ImageDto {
   /** 关联标签列表 */
   tags: ImageTagDto[]
   indexVectors: ImageVectorDto[]
-  tagModelId?: string
 }
 
 /**
@@ -73,7 +72,6 @@ export interface ImageTagDto {
   /** AI标签置信度分数 */
   score?: number
   sourceType?: 'MANUAL' | 'AI' | 'LEGACY' | string
-  sourceModelId?: string
 }
 
 /**
@@ -143,8 +141,10 @@ export const galleryApi = {
     return response.data
   },
 
-  retryAiProcessing: async (id: number) => {
-    const response = await apiClient.post<ImageDto>(`/images/${id}/ai/retry`)
+  retryAiProcessing: async (id: number, capability?: 'TAGS' | 'VECTORS' | 'TAGS_AND_VECTORS') => {
+    const response = await apiClient.post<ImageDto>(`/images/${id}/ai/retry`, undefined, {
+      params: capability ? {capability} : undefined
+    })
     return response.data
   },
 

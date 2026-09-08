@@ -148,7 +148,7 @@ public class UploadJobWorker {
         image.setHash(hash);
         boolean hasAiSelection = (snapshot.getTagModelId() != null && !snapshot.getTagModelId().isBlank())
                 || (snapshot.getVectorModelIds() != null && !snapshot.getVectorModelIds().isBlank());
-        image.setStatus("AVAILABLE");
+        image.setStatus("NORMAL");
         Image savedImage = imageService.addImage(image);
         if (hasAiSelection) {
             aiJobService.enqueue(savedImage, snapshot.getTagModelId(), snapshot.getVectorModelIds());

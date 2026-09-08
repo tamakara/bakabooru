@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, h, ref} from 'vue'
+import {computed, h, ref, watch} from 'vue'
 import {useMutation, useQuery, useQueryClient} from '@tanstack/vue-query'
 import {uploadApi, type UploadTask} from '../api/upload'
 import {aiModelApi} from '../api/system'
@@ -30,13 +30,15 @@ const queryClient = useQueryClient()
 const queueStore = useQueueStore()
 
 const {data: aiModels} = useQuery({queryKey: ['aiModels'], queryFn: aiModelApi.list})
-const selectedTagModelId = ref<string | null>(null)
-const selectedVectorModelIds = ref<string[]>([])
+const selectedTagModelId = ref<string | null>(localStorage.getItem('bakabooru.tagModelId'))
+const selectedVectorModelIds = ref<string[]>(JSON.parse(localStorage.getItem('bakabooru.vectorModelIds') || '[]'))
+watch(selectedTagModelId, value => value ? localStorage.setItem('bakabooru.tagModelId', value) : localStorage.removeItem('bakabooru.tagModelId'))
+watch(selectedVectorModelIds, value => localStorage.setItem('bakabooru.vectorModelIds', JSON.stringify(value)))
 const tagModelOptions = computed(() => (aiModels.value || [])
-  .filter(model => model.capability === 'TAGGING' && model.status !== 'DISABLED')
+  .filter(model => model.type === 'TAGGER' && model.artifactState === 'READY')
   .map(model => ({label: model.name, value: model.id})))
 const vectorModelOptions = computed(() => (aiModels.value || [])
-  .filter(model => model.capability === 'TEXT_TO_IMAGE' || model.capability === 'IMAGE_TO_IMAGE')
+  .filter(model => model.type === 'CLIP' && model.artifactState === 'READY')
   .map(model => ({label: model.name, value: model.id})))
 
 // ===== 上传区域 =====

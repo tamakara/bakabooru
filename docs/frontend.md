@@ -42,7 +42,7 @@ flowchart LR
 
 ## 搜索与分页
 
-搜索请求可组合标签、关键字、语义描述、AI 状态、宽高、文件大小、排序与随机种子。响应统一为：
+搜索请求可组合标签、关键字、语义描述、图片状态、向量模型、宽高、文件大小、排序与随机种子。响应统一为：
 
 ```ts
 interface SearchResult<T> {
@@ -78,7 +78,7 @@ sequenceDiagram
 
 浏览器端上传完成只表示后端已将文件写入 MinIO staging 并创建 PostgreSQL 任务，不表示原图归档或 AI 处理已经完成。页面通过任务轮询展示后端入库阶段的进度。
 
-## AI 状态展示
+## 图片状态展示
 
 - `PENDING`：等待首次处理或自动退避重试。
 - `PROCESSING`：Web Service Worker 已领取持久化 AI Job。

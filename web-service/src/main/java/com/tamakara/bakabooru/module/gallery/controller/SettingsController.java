@@ -1,6 +1,7 @@
 package com.tamakara.bakabooru.module.gallery.controller;
 
 import com.tamakara.bakabooru.module.system.service.SystemSettingService;
+import com.tamakara.bakabooru.module.ai.client.AiServiceClient;
 import com.tamakara.bakabooru.module.system.dto.SettingDefinitionDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,6 +25,7 @@ import java.util.List;
 public class SettingsController {
 
     private final SystemSettingService systemSettingService;
+    private final AiServiceClient aiServiceClient;
 
     @GetMapping
     @Operation(summary = "operation")
@@ -33,7 +35,7 @@ public class SettingsController {
 
     @GetMapping("/metadata")
     public List<SettingDefinitionDto> getMetadata() {
-        return systemSettingService.getDefinitions();
+        return systemSettingService.getDefinitionsWithCurrentValues();
     }
 
     @PostMapping
@@ -41,6 +43,14 @@ public class SettingsController {
     public void updateSettings(@RequestBody Map<String, String> settings) {
         try {
             systemSettingService.updateEditableSettings(settings);
+            try {
+                aiServiceClient.updateRuntimeSettings(Map.of(
+                        "device_mode", settings.getOrDefault("ai.device-mode", systemSettingService.getOptionalSetting("ai.device-mode", "auto")),
+                        "cache_dir", settings.getOrDefault("ai.model-cache-dir", systemSettingService.getOptionalSetting("ai.model-cache-dir", "/model_cache")),
+                        "inference_concurrency", Integer.parseInt(settings.getOrDefault("ai.inference-concurrency", systemSettingService.getOptionalSetting("ai.inference-concurrency", "1"))));
+            } catch (RuntimeException ignored) {
+                // Settings remain persisted while AI Service is offline; it receives them on its next reload.
+            }
         } catch (IllegalArgumentException error) {
             throw new ResponseStatusException(BAD_REQUEST, error.getMessage(), error);
         }

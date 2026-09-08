@@ -7,4 +7,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SemanticSearchRequestDto {
     private String query;
+    @com.fasterxml.jackson.annotation.JsonProperty("model_id")
+    private String modelId;
 }

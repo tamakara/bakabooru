@@ -22,6 +22,8 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -31,10 +33,6 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 public class AiJobWorker {
-
-    private static final String DEFAULT_VECTOR_MODEL = "clip-vit-base-patch32";
-    private static final String DEFAULT_TAG_MODEL = "camie-tagger-v2";
-
     private final AiJobRepository aiJobRepository;
     private final ImageRepository imageRepository;
     private final AiServiceClient aiServiceClient;
@@ -43,195 +41,140 @@ public class AiJobWorker {
     private final AiJobProperties properties;
     private final TransactionTemplate transactionTemplate;
     private final StorageService storageService;
-
     private final String workerId = UUID.randomUUID().toString();
 
-    @Scheduled(
-            fixedDelayString = "${app.ai-job.poll-interval-ms:1000}",
-            initialDelayString = "${app.ai-job.initial-delay-ms:2000}"
-    )
-    public void processAvailableJobs() {
-        Long jobId;
-        while ((jobId = claimNextJob()) != null) {
-            processJob(jobId);
-        }
-    }
+    @Scheduled(fixedDelayString = "${app.ai-job.poll-interval-ms:1000}", initialDelayString = "${app.ai-job.initial-delay-ms:2000}")
+    public void processAvailableJobs() { Long jobId; while ((jobId = claimNextJob()) != null) processJob(jobId); }
 
     @Scheduled(fixedRateString = "${app.ai-job.heartbeat-interval-ms:30000}")
     public void extendActiveLocks() {
         Instant now = Instant.now();
-        transactionTemplate.executeWithoutResult(status -> aiJobRepository.extendWorkerLocks(
-                workerId,
-                AiJobStatus.RUNNING,
-                now.plus(properties.getLockDuration()),
-                now
-        ));
+        transactionTemplate.executeWithoutResult(status -> aiJobRepository.extendWorkerLocks(workerId, AiJobStatus.RUNNING, now.plus(properties.getLockDuration()), now));
     }
 
     Long claimNextJob() {
-        return transactionTemplate.execute(status -> {
+        return transactionTemplate.execute(status -> aiJobRepository.findNextClaimable(Instant.now()).map(job -> {
             Instant now = Instant.now();
-            return aiJobRepository.findNextClaimable(now)
-                    .map(job -> {
-                        job.setStatus(AiJobStatus.RUNNING);
-                        job.setAttempts(job.getAttempts() + 1);
-                        job.setLockedBy(workerId);
-                        job.setLockedUntil(now.plus(properties.getLockDuration()));
-                        job.setUpdatedAt(now);
-
-                        Image image = job.getImage();
-                        image.setStatus("PROCESSING");
-                        image.setAiError(null);
-                        image.setAiAttemptedAt(now);
-                        image.setAiCompletedAt(null);
-                        imageRepository.save(image);
-                        aiJobRepository.saveAndFlush(job);
-                        return job.getId();
-                    })
-                    .orElse(null);
-        });
+            job.setStatus(AiJobStatus.RUNNING); job.setAttempts(job.getAttempts() + 1); job.setLockedBy(workerId);
+            job.setLockedUntil(now.plus(properties.getLockDuration())); job.setUpdatedAt(now);
+            aiJobRepository.saveAndFlush(job);
+            Image image = job.getImage(); image.setStatus("ANALYZING"); image.setAnalysisStage(activeStage(image.getId()));
+            image.setAnalysisError(null); image.setAnalysisStartedAt(now); image.setAnalysisCompletedAt(null);
+            if (job.getVectorModelIds() != null) for (String modelId : job.getVectorModelIds().split(",")) image.getIndexVectors().stream().filter(vector -> modelId.trim().equals(vector.getModelId())).forEach(vector -> vector.setStatus("PROCESSING"));
+            imageRepository.save(image); return job.getId();
+        }).orElse(null));
     }
 
     void processJob(Long jobId) {
         try {
             ProcessingInput input = transactionTemplate.execute(status -> aiJobRepository.findById(jobId)
-                    .map(job -> new ProcessingInput(job.getImage().getHash(), job.getTagModelId(), job.getVectorModelIds()))
+                    .map(job -> new ProcessingInput(job.getImage().getHash(), job.getTagModelId(), job.getVectorModelIds(), job.getCapability()))
                     .orElseThrow(() -> new IllegalStateException("AI job not found: " + jobId)));
-            double threshold = systemSettingService.getDoubleSetting("tag.threshold");
             if (!storageService.existFile("original/" + input.hash())) {
-                transactionTemplate.executeWithoutResult(tx -> aiJobRepository.findById(jobId).ifPresent(job -> { job.getImage().setStatus("MISSING"); imageRepository.save(job.getImage()); }));
+                transactionTemplate.executeWithoutResult(tx -> aiJobRepository.findById(jobId).ifPresent(job -> {
+                    job.setStatus(AiJobStatus.FAILED);
+                    job.setErrorMessage("Source file is missing");
+                    job.setCompletedAt(Instant.now());
+                    job.setLockedBy(null);
+                    job.setLockedUntil(null);
+                    job.getImage().setStatus("MISSING");
+                    aiJobRepository.save(job);
+                }));
                 return;
             }
-            AnalyzeImageResponseDto response = aiServiceClient.analyzeImage(
-                    new AnalyzeImageRequestDto("original/" + input.hash(), threshold)
-            );
-            validateResponse(response);
+            double threshold = systemSettingService.getDoubleSetting(SystemSettingService.TAG_THRESHOLD);
+            List<String> models = input.vectorModelIds() == null || input.vectorModelIds().isBlank() ? null : Arrays.stream(input.vectorModelIds().split(",")).map(String::trim).toList();
+            AnalyzeImageRequestDto request = new AnalyzeImageRequestDto("original/" + input.hash(), threshold, input.tagModelId(), models);
+            AnalyzeImageResponseDto response = switch (input.capability()) {
+                case "TAGS" -> aiServiceClient.analyzeTags(request);
+                case "VECTORS" -> aiServiceClient.analyzeVectors(request);
+                default -> aiServiceClient.analyzeImage(request);
+            };
+            validateResponse(response, input.capability());
             transactionTemplate.executeWithoutResult(status -> completeJob(jobId, response));
-        } catch (Exception error) {
-            markFailure(jobId, error);
-        }
+        } catch (Exception error) { markFailure(jobId, error); }
     }
 
     void completeJob(Long jobId, AnalyzeImageResponseDto response) {
-        AiJob job = aiJobRepository.findById(jobId).orElse(null);
-        if (!owns(job)) {
-            log.warn("闂傚倸顭崑鍕洪妸鈺佺柧妞ゆ劧绠戝Ч鏌ユ煙闁箑澧婚柛鐔锋嚇閺岀喓绱掑Ο铏诡伝婵炲瓨绮岄妶鎼佸蓟濞戞鐔煎垂椤斿吋鍎俊鐐€ら崑渚€宕愬Δ鍛剦妞ゅ繐鐗婇弲婊堟煟閹伴潧澧伴柡?AI 婵犵數鍋涢顓熸叏妤ｅ喚鏁嬬憸搴ㄥ箞閵娾晜鍋勯柧蹇撴贡閿涙粓姊虹憴鍕姢妞ゆ洦鍘界粋?jobId={}", jobId);
-            return;
-        }
-
-        Image image = job.getImage();
-        image.setEmbedding(response.getEmbedding().stream().mapToDouble(Double::doubleValue).toArray());
-        ImageEmbedding vector = new ImageEmbedding();
-        vector.setImage(image);
-        String selectedVectors = job.getVectorModelIds();
-        String[] vectorModels = selectedVectors == null || selectedVectors.isBlank()
-                ? new String[]{DEFAULT_VECTOR_MODEL}
-                : selectedVectors.split(",");
-        vector.setModelId(vectorModels[0].trim());
-        vector.setModelRevision("1");
-        vector.setEmbedding(image.getEmbedding());
-        vector.setStatus("READY");
-        vector.setComputedAt(Instant.now());
-        image.getIndexVectors().removeIf(existing -> java.util.Arrays.asList(vectorModels).contains(existing.getModelId()));
-        image.getIndexVectors().add(vector);
-        for (int i = 1; i < vectorModels.length; i++) {
-            ImageEmbedding extra = new ImageEmbedding();
-            extra.setImage(image);
-            extra.setModelId(vectorModels[i].trim());
-            extra.setModelRevision("1");
-            extra.setEmbedding(image.getEmbedding());
-            extra.setStatus("READY");
-            extra.setComputedAt(Instant.now());
-            image.getIndexVectors().add(extra);
-        }
-        String tagModel = job.getTagModelId() == null || job.getTagModelId().isBlank()
-                ? DEFAULT_TAG_MODEL : job.getTagModelId().trim();
-        image.setTagModelId(tagModel);
-        image.getTagRelations().removeIf(relation -> "AI".equals(relation.getSourceType()));
-        Set<Long> existingTagIds = image.getTagRelations().stream()
-                .map(relation -> relation.getTag().getId())
-                .collect(Collectors.toSet());
-        for (Map.Entry<String, Double> entry : response.getTags().entrySet()) {
-            try {
-                Tag tag = tagService.getTagByName(entry.getKey());
-                if (existingTagIds.add(tag.getId())) {
-                    image.getTagRelations().add(new com.tamakara.bakabooru.module.tag.entity.ImageTagRelation(
-                            image, tag, entry.getValue(), "AI", tagModel));
+        AiJob job = aiJobRepository.findById(jobId).orElse(null); if (!owns(job)) return;
+        Image image = job.getImage(); String selectedVectors = job.getVectorModelIds();
+        if (selectedVectors != null && !selectedVectors.isBlank()) {
+            Map<String, List<Double>> embeddings = response.getEmbeddings();
+            for (String rawId : selectedVectors.split(",")) {
+                String modelId = rawId.trim();
+                List<Double> values = embeddings == null ? null : embeddings.get(modelId);
+                if (values == null && response.getEmbedding() != null && modelId.equals(firstModelId(selectedVectors))) {
+                    values = response.getEmbedding();
                 }
-            } catch (RuntimeException ignored) {
-                log.debug("闂備浇宕垫慨鎾箹椤愶附鍋柛銉㈡櫆瀹曟煡鏌涢幇闈涙灈閻庢艾顦伴妵鍕疀閹炬惌妫ら梺鍛婄憿閸嬫捇姊绘担鍛婃儓缂佸娼欑叅闁靛ň鏅╅弫? {}", entry.getKey());
+                if (values == null) throw new IllegalStateException("AI vector response missing model " + modelId);
+                double[] embedding = values.stream().mapToDouble(Double::doubleValue).toArray();
+                image.getIndexVectors().removeIf(existing -> modelId.equals(existing.getModelId()));
+                ImageEmbedding vector = new ImageEmbedding(); vector.setImage(image); vector.setModelId(modelId); vector.setModelRevision("1");
+                vector.setEmbedding(embedding); vector.setStatus("READY"); vector.setComputedAt(Instant.now()); image.getIndexVectors().add(vector);
             }
         }
-
-        Instant now = Instant.now();
-        image.setStatus("AVAILABLE");
-        image.setAiError(null);
-        image.setAiCompletedAt(now);
-        job.setStatus(AiJobStatus.COMPLETED);
-        job.setErrorMessage(null);
-        job.setLockedBy(null);
-        job.setLockedUntil(null);
-        job.setUpdatedAt(now);
-        job.setCompletedAt(now);
-        imageRepository.save(image);
-        aiJobRepository.save(job);
+        boolean includesTags = "TAGS".equals(job.getCapability()) || "TAGS_AND_VECTORS".equals(job.getCapability());
+        if (includesTags && response.getTags() != null) {
+            image.getTagRelations().removeIf(relation -> "AI".equals(relation.getSourceType()));
+            Set<Long> existingTagIds = image.getTagRelations().stream().map(relation -> relation.getTag().getId()).collect(Collectors.toSet());
+            for (Map.Entry<String, Double> entry : response.getTags().entrySet()) {
+                try { Tag tag = tagService.getTagByName(entry.getKey()); if (existingTagIds.add(tag.getId())) image.getTagRelations().add(new com.tamakara.bakabooru.module.tag.entity.ImageTagRelation(image, tag, entry.getValue(), "AI")); }
+                catch (RuntimeException ignored) { log.debug("Unable to persist generated tag {}", entry.getKey()); }
+            }
+        }
+        Instant now = Instant.now(); job.setStatus(AiJobStatus.COMPLETED); job.setErrorMessage(null); job.setLockedBy(null); job.setLockedUntil(null); job.setUpdatedAt(now); job.setCompletedAt(now);
+        aiJobRepository.save(job); refreshImageStatus(image, now);
     }
 
     void markFailure(Long jobId, Exception error) {
-        log.warn("AI 婵犵數鍋涢顓熸叏妤ｅ喚鏁嬬憸搴ㄥ箞閵娾晜鍋勭紒瀣硶缁愮偤姊洪崨濠冨闁告ü绮欏畷鎰版倷瀹割喚鍞甸梺璇″灡婢瑰棛鑺遍崸妤佸仭?jobId={}: {}", jobId, error.getMessage());
         transactionTemplate.executeWithoutResult(status -> {
-            AiJob job = aiJobRepository.findById(jobId).orElse(null);
-            if (!owns(job)) return;
-
-            Instant now = Instant.now();
-            Image image = job.getImage();
-            String message = error.getMessage() == null ? error.getClass().getSimpleName() : error.getMessage();
-            job.setErrorMessage(message);
-            job.setLockedBy(null);
-            job.setLockedUntil(null);
-            job.setUpdatedAt(now);
-
-            if (job.getAttempts() >= systemSettingService.getAiMaxAttempts()) {
-                job.setStatus(AiJobStatus.FAILED);
-                job.setCompletedAt(now);
-                image.setStatus("AVAILABLE");
-                image.setAiError(message);
-                image.setAiCompletedAt(now);
-            } else {
-                job.setStatus(AiJobStatus.PENDING);
-                job.setNextRetryAt(now.plus(retryDelay(job.getAttempts())));
-                image.setStatus("PROCESSING");
-                image.setAiError(null);
-                image.setAiCompletedAt(null);
-            }
-            imageRepository.save(image);
-            aiJobRepository.save(job);
+            AiJob job = aiJobRepository.findById(jobId).orElse(null); if (!owns(job)) return;
+            Instant now = Instant.now(); String message = error.getMessage() == null ? error.getClass().getSimpleName() : error.getMessage();
+            job.setErrorMessage(message); job.setLockedBy(null); job.setLockedUntil(null); job.setUpdatedAt(now);
+            if (job.getAttempts() >= systemSettingService.getAiMaxAttempts()) { job.setStatus(AiJobStatus.FAILED); job.setCompletedAt(now); }
+            else { job.setStatus(AiJobStatus.PENDING); job.setNextRetryAt(now.plus(retryDelay(job.getAttempts()))); }
+            aiJobRepository.save(job); Image image = job.getImage(); image.setAnalysisError(message); image.setAnalysisCompletedAt(job.getStatus() == AiJobStatus.FAILED ? now : null);
+            if (job.getStatus() == AiJobStatus.FAILED && job.getVectorModelIds() != null) for (String modelId : job.getVectorModelIds().split(",")) image.getIndexVectors().stream().filter(vector -> modelId.trim().equals(vector.getModelId())).forEach(vector -> { vector.setStatus("FAILED"); vector.setErrorMessage(message); });
+            refreshImageStatus(image, now);
         });
     }
 
-    private boolean owns(AiJob job) {
-        return job != null
-                && job.getStatus() == AiJobStatus.RUNNING
-                && workerId.equals(job.getLockedBy());
-    }
-
-    Duration retryDelay(int attempts) {
-        long multiplier = 1L << Math.min(Math.max(attempts - 1, 0), 20);
-        Duration baseDelay = Duration.ofSeconds(systemSettingService.getAiRetryBaseDelaySeconds());
-        Duration maxDelay = Duration.ofSeconds(systemSettingService.getAiRetryMaxDelaySeconds());
-        Duration delay = baseDelay.multipliedBy(multiplier);
-        return delay.compareTo(maxDelay) > 0 ? maxDelay : delay;
-    }
-
-    private void validateResponse(AnalyzeImageResponseDto response) {
-        if (response == null || response.getEmbedding() == null || response.getEmbedding().size() != 512) {
-            throw new IllegalStateException("AI response invalid");
+    private void refreshImageStatus(Image image, Instant now) {
+        if (!storageService.existFile("original/" + image.getHash())) image.setStatus("MISSING");
+        else if (aiJobRepository.existsByImageIdAndStatusIn(image.getId(), List.of(AiJobStatus.PENDING, AiJobStatus.RUNNING))) { image.setStatus("ANALYZING"); image.setAnalysisStage(activeStage(image.getId())); image.setAnalysisCompletedAt(null); }
+        else {
+            AiJob latest = aiJobRepository.findFirstByImageIdOrderByUpdatedAtDesc(image.getId()).orElse(null);
+            boolean failed = latest != null && latest.getStatus() == AiJobStatus.FAILED;
+            image.setStatus(failed ? "ERROR" : "NORMAL");
+            image.setAnalysisStage(failed && latest != null ? latest.getCapability() : null);
+            if (!failed) { image.setAnalysisError(null); image.setAnalysisCompletedAt(now); }
         }
-        if (response.getTags() == null) {
-            throw new IllegalStateException("AI response invalid");
-        }
+        imageRepository.save(image);
     }
 
-    private record ProcessingInput(String hash, String tagModelId, String vectorModelIds) {
+    private boolean owns(AiJob job) { return job != null && job.getStatus() == AiJobStatus.RUNNING && workerId.equals(job.getLockedBy()); }
+    Duration retryDelay(int attempts) { long multiplier = 1L << Math.min(Math.max(attempts - 1, 0), 20); Duration delay = Duration.ofSeconds(systemSettingService.getAiRetryBaseDelaySeconds()).multipliedBy(multiplier); Duration max = Duration.ofSeconds(systemSettingService.getAiRetryMaxDelaySeconds()); return delay.compareTo(max) > 0 ? max : delay; }
+    private void validateResponse(AnalyzeImageResponseDto response, String capability) {
+        if (response == null) throw new IllegalStateException("AI response invalid");
+        if (!"TAGS".equals(capability) && response.getEmbedding() == null && (response.getEmbeddings() == null || response.getEmbeddings().isEmpty())) {
+            throw new IllegalStateException("AI vector response invalid");
+        }
+        if (!"VECTORS".equals(capability) && response.getTags() == null) throw new IllegalStateException("AI tag response invalid");
     }
+
+    private String firstModelId(String modelIds) {
+        return modelIds.split(",")[0].trim();
+    }
+
+    private String activeStage(Long imageId) {
+        boolean tags = false;
+        boolean vectors = false;
+        for (AiJob job : aiJobRepository.findAllByImageId(imageId)) {
+            if (job.getStatus() != AiJobStatus.PENDING && job.getStatus() != AiJobStatus.RUNNING) continue;
+            tags |= "TAGS".equals(job.getCapability()) || "TAGS_AND_VECTORS".equals(job.getCapability());
+            vectors |= "VECTORS".equals(job.getCapability()) || "TAGS_AND_VECTORS".equals(job.getCapability());
+        }
+        return tags && vectors ? "TAGS_AND_VECTORS" : tags ? "TAGS" : "VECTORS";
+    }
+    private record ProcessingInput(String hash, String tagModelId, String vectorModelIds, String capability) {}
 }

@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 public class ImageSearchService {
 
     private static final int MAX_PAGE_SIZE = 100;
-    private static final Set<String> IMAGE_STATUSES = Set.of("AVAILABLE", "PROCESSING", "MISSING");
+    private static final Set<String> IMAGE_STATUSES = Set.of("NORMAL", "ANALYZING", "ERROR", "MISSING");
     private static final Map<String, String> SORT_COLUMNS = new HashMap<>();
 
     static {
@@ -67,7 +67,7 @@ public class ImageSearchService {
         applyModelFilters(searchDto, predicates, params);
 
         String sql = """
-                SELECT i.id, i.title, i.hash, i.extension, i.image_status, i.tag_model_id,
+                SELECT i.id, i.title, i.hash, i.extension, i.image_status,
                        COALESCE((SELECT array_agg(DISTINCT e.model_id)
                                  FROM image_embeddings e
                                  WHERE e.image_id = i.id AND e.status = 'READY'), ARRAY[]::text[]) AS index_vector_model_ids
@@ -97,7 +97,6 @@ public class ImageSearchService {
             dto.setThumbnailUrl(imageUrlService.getThumbnailUrl(hash));
             dto.setImageUrl(imageUrlService.getImageUrl(hash, dto.getId(), dto.getTitle(), rs.getString("extension")));
             dto.setStatus(rs.getString("image_status"));
-            dto.setTagModelId(rs.getString("tag_model_id"));
             try {
                 java.sql.Array array = rs.getArray("index_vector_model_ids");
                 if (array != null) dto.setIndexVectorModelIds(Arrays.asList((String[]) array.getArray()));
@@ -181,10 +180,15 @@ public class ImageSearchService {
 
     private void applyVector(SearchDto searchDto, List<String> predicates, MapSqlParameterSource params) {
         if (searchDto.getEmbedding() == null || searchDto.getEmbedding().isEmpty()) return;
-        predicates.add("i.embedding IS NOT NULL");
+        if (!StringUtils.hasText(searchDto.getVectorModelId())) {
+            throw new IllegalArgumentException("vectorModelId is required for vector search");
+        }
+        String modelId = searchDto.getVectorModelId().trim();
+        predicates.add("EXISTS (SELECT 1 FROM image_embeddings ev WHERE ev.image_id = i.id AND ev.model_id = :embeddingModelId AND ev.status = 'READY')");
+        params.addValue("embeddingModelId", modelId);
         params.addValue("embedding", toVectorLiteral(searchDto.getEmbedding()));
         if (searchDto.getDistanceThreshold() != null) {
-            predicates.add("(i.embedding <=> CAST(:embedding AS vector)) <= :distanceThreshold");
+            predicates.add("(SELECT ev.embedding <=> CAST(:embedding AS vector) FROM image_embeddings ev WHERE ev.image_id = i.id AND ev.model_id = :embeddingModelId AND ev.status = 'READY' LIMIT 1) <= :distanceThreshold");
             params.addValue("distanceThreshold", searchDto.getDistanceThreshold());
         }
     }
@@ -201,18 +205,20 @@ public class ImageSearchService {
     private void applyModelFilters(SearchDto searchDto, List<String> predicates, MapSqlParameterSource params) {
         if (searchDto.getVectorModelIds() != null && !searchDto.getVectorModelIds().isEmpty()) {
             predicates.add("EXISTS (SELECT 1 FROM image_embeddings ef WHERE ef.image_id = i.id "
-                    + "AND ef.status = 'READY' AND ef.model_id IN (:vectorModelIds))");
+                    + "AND ef.status = 'READY' AND ef.model_id IN (:vectorModelIds) "
+                    + "GROUP BY ef.image_id HAVING COUNT(DISTINCT ef.model_id) = :vectorModelCount)");
             params.addValue("vectorModelIds", searchDto.getVectorModelIds());
-        }
-        if (StringUtils.hasText(searchDto.getTagModelId())) {
-            predicates.add("i.tag_model_id = :tagModelId");
-            params.addValue("tagModelId", searchDto.getTagModelId().trim());
+            params.addValue("vectorModelCount", searchDto.getVectorModelIds().stream().distinct().count());
         }
     }
 
     private String buildOrderBy(SearchDto searchDto) {
         if (searchDto.getEmbedding() != null && !searchDto.getEmbedding().isEmpty()) {
-            return "ORDER BY i.embedding <=> CAST(:embedding AS vector), i.id ASC";
+            if (!StringUtils.hasText(searchDto.getVectorModelId())) {
+                throw new IllegalArgumentException("vectorModelId is required for vector search");
+            }
+            String modelId = searchDto.getVectorModelId().trim();
+            return "ORDER BY (SELECT ev.embedding <=> CAST(:embedding AS vector) FROM image_embeddings ev WHERE ev.image_id = i.id AND ev.model_id = '" + modelId.replace("'", "''") + "' AND ev.status = 'READY' LIMIT 1), i.id ASC";
         }
         if ("random".equalsIgnoreCase(searchDto.getSortProperty()) && StringUtils.hasText(searchDto.getRandomSeed())) {
             int seed = searchDto.getRandomSeed().hashCode();

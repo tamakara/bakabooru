@@ -72,7 +72,6 @@ public class ImageService {
                 .findFirst()
                 .ifPresentOrElse(relation -> {
                     relation.setSourceType("MANUAL");
-                    relation.setSourceModelId(null);
                     relation.setScore(1.0);
                 }, () -> image.addTag(tag, 1.0));
         return imageMapper.toDto(imageRepository.save(image));
@@ -82,15 +81,19 @@ public class ImageService {
     public ImageDto removeTag(Long id, Long tagId) {
         Image image = imageRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Image not found: " + id));
-
-        image.getTags().removeIf(tag -> tag.getId().equals(tagId));
+        Tag tag = tagService.getTagById(tagId);
+        image.deleteTag(tag);
         image.setUpdatedAt(Instant.now());
 
         return imageMapper.toDto(imageRepository.save(image));
     }
 
     public ImageDto retryAiProcessing(Long id) {
-        Image image = aiJobService.retry(id);
+        return retryAiProcessing(id, null);
+    }
+
+    public ImageDto retryAiProcessing(Long id, String capability) {
+        Image image = aiJobService.retry(id, capability);
         return imageMapper.toDto(image);
     }
 

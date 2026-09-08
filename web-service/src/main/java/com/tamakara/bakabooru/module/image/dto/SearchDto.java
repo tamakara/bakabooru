@@ -25,5 +25,5 @@ public class SearchDto {
     private Set<String> negativeTags;
     private List<Float> embedding;  // CLIP 閸氭垿鍣洪悽銊ょ艾鐠囶厺绠熼幖婊呭偍
     private List<String> vectorModelIds;
-    private String tagModelId;
+    private String vectorModelId;
 }

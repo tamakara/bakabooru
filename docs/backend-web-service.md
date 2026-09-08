@@ -94,7 +94,7 @@ stateDiagram-v2
 
 `SearchService` 负责选择检索路径，`ImageSearchService` 使用 JdbcTemplate/native SQL 完成过滤和排序。
 
-- 条件检索支持标签、关键字、AI 状态、宽高、文件大小、排序和随机种子。
+- 条件检索支持标签、关键字、图片状态、向量模型、宽高、文件大小、排序和随机种子。
 - `semanticQuery` 先调用 AI Service 生成 CLIP 文本向量，再用 pgvector 距离排序。
 - 以图搜图把 multipart 文件直接转发给 AI Service 生成视觉向量，不创建临时 MinIO 对象。
 - 查询使用 `LIMIT size + 1` 计算 `hasNext`，响应不包含精确总数。

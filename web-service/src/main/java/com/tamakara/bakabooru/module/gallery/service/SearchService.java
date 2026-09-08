@@ -47,7 +47,7 @@ public class SearchService {
         searchDto.setSizeMin(request.getSizeMin());
         searchDto.setSizeMax(request.getSizeMax());
         searchDto.setVectorModelIds(request.getVectorModelIds());
-        searchDto.setTagModelId(request.getTagModelId());
+        searchDto.setVectorModelId(request.getVectorModelId());
         applySort(request, searchDto);
 
         Set<String> positiveTags = new HashSet<>();
@@ -57,7 +57,10 @@ public class SearchService {
         searchDto.setNegativeTags(negativeTags);
 
         if (StringUtils.hasText(request.getSemanticQuery())) {
-            EmbeddingResponseDto embeddingResult = parseQueryService.generateEmbedding(request.getSemanticQuery());
+            if (!StringUtils.hasText(request.getVectorModelId())) {
+                throw new IllegalArgumentException("vectorModelId is required for semantic search");
+            }
+            EmbeddingResponseDto embeddingResult = parseQueryService.generateEmbedding(request.getSemanticQuery(), request.getVectorModelId());
             if (embeddingResult.getEmbedding() != null) {
                 searchDto.setEmbedding(embeddingResult.getEmbedding().stream()
                         .map(Double::floatValue)
@@ -69,20 +72,24 @@ public class SearchService {
     }
 
     public SearchResultDto<ImageThumbnailDto> searchByImage(MultipartFile file, Double threshold, Integer page, Integer size,
-                                                            java.util.List<String> vectorModelIds, String tagModelId) {
-        return doSearchByImage(file, threshold, page, size, vectorModelIds, tagModelId);
+                                                            java.util.List<String> vectorModelIds, String vectorModelId) {
+        return doSearchByImage(file, threshold, page, size, vectorModelIds, vectorModelId);
     }
 
     private SearchResultDto<ImageThumbnailDto> doSearchByImage(MultipartFile file, Double threshold, Integer page, Integer size,
-                                                               java.util.List<String> vectorModelIds, String tagModelId) {
-        double[] embedding = embeddingService.generateImageEmbedding(file);
+                                                               java.util.List<String> vectorModelIds, String vectorModelId) {
+        if (!StringUtils.hasText(vectorModelId) && (vectorModelIds == null || vectorModelIds.size() != 1)) {
+            throw new IllegalArgumentException("vectorModelId is required for image search");
+        }
+        String selectedModel = StringUtils.hasText(vectorModelId) ? vectorModelId : vectorModelIds.get(0);
+        double[] embedding = embeddingService.generateImageEmbedding(file, selectedModel);
 
         SearchDto searchDto = new SearchDto();
         searchDto.setPage(page == null ? 0 : page);
         searchDto.setSize(size == null ? 20 : size);
         searchDto.setEmbedding(DoubleStream.of(embedding).mapToObj(d -> (float) d).toList());
         searchDto.setVectorModelIds(vectorModelIds);
-        searchDto.setTagModelId(tagModelId);
+        searchDto.setVectorModelId(selectedModel);
         searchDto.setSortProperty("similarity");
         searchDto.setSortDirection("DESC");
 

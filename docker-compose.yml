@@ -65,7 +65,6 @@ services:
     build: ./ai-service
     container_name: bakabooru-ai-service
     restart: always
-    gpus: all
     environment:
       MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-bakabooru}
       MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-change-me}

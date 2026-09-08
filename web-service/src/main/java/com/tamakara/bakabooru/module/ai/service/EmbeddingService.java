@@ -14,9 +14,9 @@ public class EmbeddingService {
 
     private final AiServiceClient aiServiceClient;
 
-    public double[] generateImageEmbedding(MultipartFile file) {
+    public double[] generateImageEmbedding(MultipartFile file, String modelId) {
         try {
-            return toArray(aiServiceClient.imageEmbedding(file));
+            return toArray(aiServiceClient.imageEmbedding(file, modelId));
         } catch (Exception e) {
             throw new RuntimeException("Embedding generation failed: " + e.getMessage(), e);
         }

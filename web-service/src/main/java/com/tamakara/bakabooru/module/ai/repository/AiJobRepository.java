@@ -9,12 +9,21 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.Instant;
 import java.util.Optional;
+import java.util.List;
 
 public interface AiJobRepository extends JpaRepository<AiJob, Long> {
 
     long countByStatus(AiJobStatus status);
 
-    Optional<AiJob> findByImageId(Long imageId);
+    List<AiJob> findAllByImageId(Long imageId);
+
+    Optional<AiJob> findFirstByImageIdAndCapabilityOrderByUpdatedAtDesc(Long imageId, String capability);
+
+    Optional<AiJob> findFirstByImageIdOrderByCreatedAtDesc(Long imageId);
+
+    Optional<AiJob> findFirstByImageIdOrderByUpdatedAtDesc(Long imageId);
+
+    boolean existsByImageIdAndStatusIn(Long imageId, List<AiJobStatus> statuses);
 
     @Query(value = """
             SELECT *

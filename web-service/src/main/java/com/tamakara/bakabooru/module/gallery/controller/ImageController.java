@@ -57,8 +57,8 @@ public class ImageController {
 
     @PostMapping("/{id}/ai/retry")
     @Operation(summary = "operation")
-    public ImageDto retryAiProcessing(@PathVariable Long id) {
-        return imageService.retryAiProcessing(id);
+    public ImageDto retryAiProcessing(@PathVariable Long id, @RequestParam(required = false) String capability) {
+        return imageService.retryAiProcessing(id, capability);
     }
 
     @PostMapping("/{id}/ai/tags")

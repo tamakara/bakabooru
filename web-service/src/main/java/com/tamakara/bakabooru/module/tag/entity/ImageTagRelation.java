@@ -34,18 +34,14 @@ public class ImageTagRelation {
     @Column(name = "source_type", nullable = false)
     private String sourceType = "LEGACY";
 
-    @Column(name = "source_model_id")
-    private String sourceModelId;
-
     public ImageTagRelation(Image image, Tag tag, Double score) {
         this.image = image;
         this.tag = tag;
         this.score = score;
     }
 
-    public ImageTagRelation(Image image, Tag tag, Double score, String sourceType, String sourceModelId) {
+    public ImageTagRelation(Image image, Tag tag, Double score, String sourceType) {
         this(image, tag, score);
         this.sourceType = sourceType;
-        this.sourceModelId = sourceModelId;
     }
 }

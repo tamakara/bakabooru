@@ -21,5 +21,5 @@ public class SearchRequestDto {
     private Integer size;
     private String sort;
     private List<String> vectorModelIds;
-    private String tagModelId;
+    private String vectorModelId;
 }

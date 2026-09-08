@@ -18,11 +18,11 @@ public class ImageDto {
     private String hash;
     private String status;
     private Long viewCount;
-    private String aiError;
-    private Instant aiAttemptedAt;
-    private Instant aiCompletedAt;
+    private String analysisStage;
+    private String analysisError;
+    private Instant analysisStartedAt;
+    private Instant analysisCompletedAt;
     private List<ImageVectorDto> indexVectors;
-    private String tagModelId;
     private Instant createdAt;
     private Instant updatedAt;
     private List<ImageTagDto> tags;

@@ -16,6 +16,5 @@ public class ImageThumbnailDto {
     private String imageUrl;
     private String status;
     private List<String> indexVectorModelIds;
-    private String tagModelId;
 }
 

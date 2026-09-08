@@ -38,7 +38,7 @@ docker compose logs --tail 200 ai-service
 
 Compose 的 AI 健康检查只要求 `/health` 可访问。判断模型是否真正就绪时，应查看响应体是否为 `{"status":"ok"}` 或检查 AI Service 日志中的“所有模型预加载完成”。
 
-## AI 状态与恢复
+## 图片状态与分析任务恢复
 
 ```mermaid
 stateDiagram-v2

@@ -2,6 +2,7 @@
 import {useQuery} from '@tanstack/vue-query'
 import {searchApi} from '../api/search'
 import {galleryApi, type ImageDto, type ImageThumbnailDto} from '../api/gallery'
+import {aiModelApi} from '../api/system'
 import {computed, h, nextTick, reactive, ref, shallowRef, watch} from 'vue'
 import {
   NButton,
@@ -48,13 +49,17 @@ import {v4 as uuidv4} from 'uuid';
 
 // 搜索模式
 const searchMode = ref<'TEXT' | 'IMAGE'>('TEXT')
+const {data: aiModels} = useQuery({queryKey: ['aiModels'], queryFn: aiModelApi.list})
+const vectorModelOptions = computed(() => (aiModels.value || []).filter(model => model.type === 'CLIP' && model.artifactState === 'READY').map(model => ({label: model.name, value: model.id})))
 
 // 表单状态
 const formState = reactive({
   keyword: '',
   tags: '',
   semanticQuery: '',  // 语义描述搜索
-  status: null as 'AVAILABLE' | 'PROCESSING' | 'MISSING' | null,
+  vectorModelId: null as string | null,
+  vectorModelIds: [] as string[],
+  status: null as 'NORMAL' | 'ANALYZING' | 'ERROR' | 'MISSING' | null,
   sortBy: 'createdAt',
   sortDirection: 'DESC',
   widthMin: null as number | null,
@@ -68,8 +73,18 @@ const formState = reactive({
 // 以图搜图状态
 const imageSearchState = reactive({
   file: undefined as File | undefined,
-  threshold: 0.7
+  threshold: 0.7,
+  vectorModelId: null as string | null
 })
+watch(vectorModelOptions, options => {
+  if (options.length === 1) {
+    const first = options[0]
+    if (first) {
+      if (!formState.vectorModelId) formState.vectorModelId = first.value
+      if (!imageSearchState.vectorModelId) imageSearchState.vectorModelId = first.value
+    }
+  }
+}, {immediate: true})
 
 // 图搜上传
 const fileList = ref<any[]>([])
@@ -110,20 +125,23 @@ const pageSizeOptions = [
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const statusOptions: any[] = [
   {label: '全部', value: null},
-  {label: '正常', value: 'AVAILABLE'},
-  {label: '处理中', value: 'PROCESSING'},
-  {label: '文件异常', value: 'MISSING'}
+  {label: '正常', value: 'NORMAL'},
+  {label: '分析中', value: 'ANALYZING'},
+  {label: '异常', value: 'ERROR'},
+  {label: '文件缺失', value: 'MISSING'}
 ]
 
 function statusLabel(status?: string) {
-  if (status === 'PROCESSING') return '计算中'
-  if (status === 'MISSING') return '文件异常'
+  if (status === 'ANALYZING') return '分析中'
+  if (status === 'ERROR') return '异常'
+  if (status === 'MISSING') return '文件缺失'
   return '正常'
 }
 
 function statusClass(status?: string) {
-  if (status === 'AVAILABLE') return 'bg-emerald-500/90 text-white'
-  if (status === 'PROCESSING') return 'bg-sky-500/90 text-white'
+  if (status === 'NORMAL') return 'bg-emerald-500/90 text-white'
+  if (status === 'ANALYZING') return 'bg-sky-500/90 text-white'
+  if (status === 'ERROR') return 'bg-amber-500/90 text-black'
   if (status === 'MISSING') return 'bg-red-600/90 text-white'
   return 'bg-amber-500/90 text-black'
 }
@@ -133,6 +151,10 @@ function handleSearch() {
   page.value = 1
 
   if (searchMode.value === 'TEXT') {
+    if (formState.semanticQuery.trim() && vectorModelOptions.value.length > 1 && !formState.vectorModelId) {
+      message.warning('Select a CLIP model for semantic search')
+      return
+    }
     activeSearchState.value = {
       mode: 'TEXT',
       ...formState,
@@ -143,10 +165,15 @@ function handleSearch() {
       message.warning('请先上传图片')
       return
     }
+    if (!imageSearchState.vectorModelId) {
+      message.warning('Select a CLIP model for image search')
+      return
+    }
     activeSearchState.value = {
       mode: 'IMAGE',
       file: imageSearchState.file,
       threshold: imageSearchState.threshold,
+      vectorModelId: imageSearchState.vectorModelId,
       // 这里的 randomSeed 主要用于触发 useQuery 更新
       randomSeed: uuidv4()
     }
@@ -178,6 +205,7 @@ function handleReset() {
     fileList.value = []
     imageSearchState.file = undefined
     imageSearchState.threshold = 0.7
+    imageSearchState.vectorModelId = vectorModelOptions.value.length === 1 ? vectorModelOptions.value[0]?.value || null : null
   }
 }
 
@@ -216,6 +244,8 @@ const {
           tags: currentState.tags,
           semanticQuery: currentState.semanticQuery || undefined,
           status: currentState.status ?? undefined,
+           vectorModelId: currentState.vectorModelId ?? undefined,
+           vectorModelIds: currentState.vectorModelIds?.length ? currentState.vectorModelIds : undefined,
           randomSeed: currentState.randomSeed,
           widthMin: currentState.widthMin ?? undefined,
           widthMax: currentState.widthMax ?? undefined,
@@ -245,6 +275,7 @@ const {
             currentState.threshold,
             page.value - 1,
             pageSize.value
+            , undefined, currentState.vectorModelId || undefined
         )
 
         const elapsed = (performance.now() - startTime).toFixed(2)
@@ -616,13 +647,21 @@ async function handleBatchDownload() {
                     />
                   </n-form-item>
 
-                  <n-form-item label="AI 状态">
+                  <n-form-item label="图片状态">
                     <n-select
                         v-model:value="formState.status"
                         :options="statusOptions"
                         clearable
                         size="small"
                     />
+                  </n-form-item>
+
+                  <n-form-item label="CLIP model">
+                    <n-select v-model:value="formState.vectorModelId" :options="vectorModelOptions" clearable placeholder="Select a downloaded model" size="small" />
+                  </n-form-item>
+
+                  <n-form-item label="已计算向量模型">
+                    <n-select v-model:value="formState.vectorModelIds" :options="vectorModelOptions" multiple clearable placeholder="筛选已计算这些模型的图片" size="small" />
                   </n-form-item>
 
                   <n-form-item label="关键字">
@@ -727,6 +766,9 @@ async function handleBatchDownload() {
                          <span>100%</span>
                        </div>
                     </div>
+                  </n-form-item>
+                  <n-form-item label="CLIP model">
+                    <n-select v-model:value="imageSearchState.vectorModelId" :options="vectorModelOptions" placeholder="Select a downloaded model" size="small" />
                   </n-form-item>
                 </div>
               </n-form>

@@ -19,15 +19,19 @@ public class SystemSettingService {
     public static final String AI_RETRY_BASE_DELAY_SECONDS = "ai-job.retry-base-delay-seconds";
     public static final String AI_RETRY_MAX_DELAY_SECONDS = "ai-job.retry-max-delay-seconds";
     public static final String UPLOAD_COMPLETED_RETENTION_DAYS = "upload.completed-retention-days";
-    public static final String AI_DEFAULT_VECTOR_MODELS = "ai.default-vector-models";
     public static final String BOOTSTRAP_DATABASE_URL = "bootstrap.database-url";
     public static final String BOOTSTRAP_STORAGE_ENDPOINT = "bootstrap.storage-endpoint";
 
     private static final Set<String> EDITABLE_KEYS = Set.of(
+            TAG_THRESHOLD,
             AI_MAX_ATTEMPTS,
             AI_RETRY_BASE_DELAY_SECONDS,
+            AI_RETRY_MAX_DELAY_SECONDS,
             UPLOAD_COMPLETED_RETENTION_DAYS,
-            AI_DEFAULT_VECTOR_MODELS
+            "ai.service-url",
+            "ai.inference-concurrency",
+            "ai.device-mode",
+            "ai.model-cache-dir"
     );
 
     private final SystemSettingRepository systemSettingRepository;
@@ -39,18 +43,36 @@ public class SystemSettingService {
                 new SettingDefinitionDto(AI_RETRY_BASE_DELAY_SECONDS, "AI retry base delay", "integer", "30", "HOT", false, "Base retry delay seconds"),
                 new SettingDefinitionDto(AI_RETRY_MAX_DELAY_SECONDS, "AI retry max delay", "integer", "1800", "HOT", false, "Maximum retry delay seconds"),
                 new SettingDefinitionDto(UPLOAD_COMPLETED_RETENTION_DAYS, "Upload retention", "integer", "7", "HOT", false, "Completed upload retention days"),
-                new SettingDefinitionDto(AI_DEFAULT_VECTOR_MODELS, "Default vector models", "text", "clip-vit-base-patch32", "HOT", false, "Default vector model IDs"),
+                new SettingDefinitionDto("ai.service-url", "AI service URL", "text", "http://ai-service:8000", "HOT", false, "Runtime AI service endpoint"),
+                new SettingDefinitionDto("ai.inference-concurrency", "Inference concurrency", "integer", "1", "HOT", false, "Maximum concurrent inference requests"),
+                new SettingDefinitionDto("ai.device-mode", "Device mode", "text", "auto", "RELOAD", false, "Inference device such as auto, cpu, or cuda"),
+                new SettingDefinitionDto("ai.model-cache-dir", "Model cache directory", "text", "/model_cache", "RELOAD", false, "AI model artifact cache directory"),
                 new SettingDefinitionDto(BOOTSTRAP_DATABASE_URL, "Database URL", "text", "jdbc:postgresql://postgres:5432/bakabooru", "BOOTSTRAP", false, "Database connection URL"),
                 new SettingDefinitionDto(BOOTSTRAP_STORAGE_ENDPOINT, "Storage endpoint", "text", "http://minio:9000", "BOOTSTRAP", false, "Storage service endpoint")
         );
+    }
+
+    @Transactional(readOnly = true)
+    public List<SettingDefinitionDto> getDefinitionsWithCurrentValues() {
+        List<SettingDefinitionDto> definitions = new ArrayList<>(getDefinitions());
+        Map<String, String> persisted = systemSettingRepository.findAll().stream()
+                .collect(Collectors.toMap(SystemSetting::getKey, SystemSetting::getValue));
+        definitions.forEach(definition -> {
+            definition.setCurrentValue(persisted.getOrDefault(definition.getKey(), definition.getDefaultValue()));
+            definition.setRequiresRestart("BOOTSTRAP".equals(definition.getScope()));
+        });
+        return definitions;
     }
 
     /**
      * 闂傚倷绀侀崥瀣磿閹惰棄搴婇柤鑹扮堪娴滃綊鏌涢妷顔煎缂佺姰鍎甸弻宥堫檨闁告挾鍠庨锝夊垂椤愩垻绐為梺褰掑亰閸撴瑧鎸х€ｎ剛纾介柛灞捐壘閺嬨倝鏌涢悩铏磳闁糕斁鍋?     */
     @Transactional(readOnly = true)
     public Map<String, String> getEditableSettings() {
-        return systemSettingRepository.findAllById(EDITABLE_KEYS).stream()
-                .collect(Collectors.toMap(SystemSetting::getKey, SystemSetting::getValue));
+        Map<String, String> values = getDefinitions().stream()
+                .filter(definition -> EDITABLE_KEYS.contains(definition.getKey()))
+                .collect(Collectors.toMap(SettingDefinitionDto::getKey, SettingDefinitionDto::getDefaultValue));
+        systemSettingRepository.findAllById(EDITABLE_KEYS).forEach(setting -> values.put(setting.getKey(), setting.getValue()));
+        return values;
     }
 
     @Transactional(readOnly = true)
@@ -58,6 +80,11 @@ public class SystemSettingService {
         return systemSettingRepository.findById(key)
                 .map(SystemSetting::getValue)
                 .orElseThrow(() -> new RuntimeException("Setting with key: " + key + " not found"));
+    }
+
+    public String getOptionalSetting(String key, String defaultValue) {
+        return systemSettingRepository.findById(key).map(SystemSetting::getValue)
+                .filter(value -> value != null && !value.isBlank()).orElse(defaultValue);
     }
 
     // --- 缂傚倸鍊风欢锟犲磻婢舵劦鏁嬬憸鏃堝箖濡ゅ懏鐓ラ悗锝庡亜椤€愁渻閵堝棗绗傜紒鈧担瑙勫劅濠电姴娲ょ痪褔鏌涢锝囩畺闁革絿鎳撻埞鎴︻敋閸涱剟鍋楅悗娈垮櫘閸撴盯骞夐幘顔肩妞ゆ挻澹曢崑?---
@@ -126,18 +153,23 @@ public class SystemSettingService {
         long retryBaseDelay = parseLong(settings, AI_RETRY_BASE_DELAY_SECONDS);
         long retryMaxDelay = parseLong(settings, AI_RETRY_MAX_DELAY_SECONDS);
         long retentionDays = parseLong(settings, UPLOAD_COMPLETED_RETENTION_DAYS);
-        String defaultModels = settings.get(AI_DEFAULT_VECTOR_MODELS);
+        int inferenceConcurrency = parseInt(settings, "ai.inference-concurrency");
 
+        requireRange(TAG_THRESHOLD, threshold, 0, 1);
         requireRange(AI_MAX_ATTEMPTS, maxAttempts, 1, 20);
         requireRange(AI_RETRY_BASE_DELAY_SECONDS, retryBaseDelay, 1, 3600);
         requireRange(UPLOAD_COMPLETED_RETENTION_DAYS, retentionDays, 1, 365);
+        requireRange("ai.inference-concurrency", inferenceConcurrency, 1, 64);
         if (retryMaxDelay < retryBaseDelay) {
             throw new IllegalArgumentException(AI_RETRY_MAX_DELAY_SECONDS
                     + " must be greater than or equal to " + AI_RETRY_BASE_DELAY_SECONDS);
         }
-        if (defaultModels != null && defaultModels.isBlank()) {
-            throw new IllegalArgumentException(AI_DEFAULT_VECTOR_MODELS + " is required");
+        String deviceMode = requireValue(settings, "ai.device-mode").toLowerCase(Locale.ROOT);
+        if (!Set.of("auto", "cpu", "cuda").contains(deviceMode)) {
+            throw new IllegalArgumentException("ai.device-mode must be auto, cpu, or cuda");
         }
+        requireValue(settings, "ai.service-url");
+        requireValue(settings, "ai.model-cache-dir");
     }
 
     private int parseInt(Map<String, String> settings, String key) {

@@ -18,3 +18,6 @@ Desktop.ini
 # Docker Compose runtime data
 /data/
 .uv-cache/
+
+# Node.js
+.pnpm-store/

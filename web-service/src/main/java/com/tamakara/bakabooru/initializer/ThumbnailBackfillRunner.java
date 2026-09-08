@@ -43,12 +43,12 @@ public class ThumbnailBackfillRunner implements ApplicationRunner {
                     continue;
                 }
                 if (storageService.existFile(thumbnailObject)) {
-                    jdbcTemplate.update("UPDATE images SET image_status = 'AVAILABLE' WHERE hash = ?", hash);
+                    jdbcTemplate.update("UPDATE images SET image_status = CASE WHEN image_status IN ('MISSING', 'ANALYZING', 'ERROR') THEN image_status ELSE 'NORMAL' END WHERE hash = ?", hash);
                     continue;
                 }
                 original = storageService.getFile("original/" + hash);
                 thumbnailService.generateAndUploadThumbnail(original, hash);
-                jdbcTemplate.update("UPDATE images SET image_status = 'AVAILABLE' WHERE hash = ?", hash);
+                jdbcTemplate.update("UPDATE images SET image_status = CASE WHEN image_status IN ('MISSING', 'ANALYZING', 'ERROR') THEN image_status ELSE 'NORMAL' END WHERE hash = ?", hash);
                 created++;
             } catch (Exception e) {
                 log.warn("闁告ê妫楄ぐ鍓佺磽閳哄啯娈ｉ柛銉ュ⒔閺佹捇骞嬮幇顑句杭閻?hash={}: {}", hash, e.getMessage());

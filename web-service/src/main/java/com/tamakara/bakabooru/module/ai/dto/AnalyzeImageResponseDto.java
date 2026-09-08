@@ -11,4 +11,5 @@ import java.util.Map;
 public class AnalyzeImageResponseDto {
     private Map<String, Double> tags;
     private List<Double> embedding;
+    private Map<String, List<Double>> embeddings;
 }

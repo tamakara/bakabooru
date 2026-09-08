@@ -11,5 +11,4 @@ public class ImageTagDto {
     private String type;
     private Double score;
     private String sourceType;
-    private String sourceModelId;
 }

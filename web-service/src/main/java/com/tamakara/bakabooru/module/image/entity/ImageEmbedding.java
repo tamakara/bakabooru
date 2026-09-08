@@ -38,7 +38,7 @@ public class ImageEmbedding {
     private String modelRevision;
 
     @Convert(converter = VectorConverter.class)
-    @Column(columnDefinition = "vector", nullable = false)
+    @Column(columnDefinition = "vector")
     @ColumnTransformer(write = "?::vector")
     private double[] embedding;
 
