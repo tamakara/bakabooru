@@ -56,9 +56,12 @@ class SystemSettingServiceTest {
                 SystemSettingService.AI_MAX_ATTEMPTS,
                 SystemSettingService.AI_RETRY_BASE_DELAY_SECONDS,
                 SystemSettingService.AI_RETRY_MAX_DELAY_SECONDS,
-                SystemSettingService.UPLOAD_COMPLETED_RETENTION_DAYS
+                SystemSettingService.UPLOAD_COMPLETED_RETENTION_DAYS,
+                "ai.service-url",
+                "ai.inference-concurrency"
         );
         assertThat(result).doesNotContainKey("system.auth-password");
+        assertThat(result).doesNotContainKeys("ai.device-mode", "ai.model-cache-dir");
     }
 
     @Test

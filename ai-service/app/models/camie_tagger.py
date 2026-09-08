@@ -22,7 +22,7 @@ class CamieTagger:
     def __init__(self, device: str = "cuda", cache_dir: Optional[Path] = None, local_only: bool = False):
         """
         初始化打标器。
-        :param device: 推理设备，可选 "cpu" 或 "cuda"
+        :param device: 推理设备，固定为 "cuda"
         :param cache_dir: 模型缓存目录
         :param local_only: 是否只从本地读取，不连接 HuggingFace
         """
@@ -79,12 +79,11 @@ class CamieTagger:
 
     def _init_session(self, model_path, device):
         """配置并启动 ONNX Runtime"""
-        providers = []
-        if device.lower() == 'cuda':
-            providers.append('CUDAExecutionProvider')
-        elif device.lower() != 'cpu':
-            raise ValueError(f"不支持的设备类型: {device}. 可选 'cpu' 或 'cuda'.")
-        providers.append('CPUExecutionProvider')
+        if device.lower() != 'cuda':
+            raise ValueError('CamieTagger 仅支持 CUDA 推理')
+        if 'CUDAExecutionProvider' not in ort.get_available_providers():
+            raise RuntimeError('CUDAExecutionProvider 不可用，无法初始化 CamieTagger')
+        providers = ['CUDAExecutionProvider']
 
         try:
             self.session = ort.InferenceSession(model_path, providers=providers)

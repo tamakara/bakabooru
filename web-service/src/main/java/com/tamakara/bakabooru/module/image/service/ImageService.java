@@ -2,6 +2,8 @@ package com.tamakara.bakabooru.module.image.service;
 
 import com.tamakara.bakabooru.module.ai.service.AiJobService;
 import com.tamakara.bakabooru.module.image.dto.ImageDto;
+import com.tamakara.bakabooru.module.image.dto.BatchAiTagsRequest;
+import com.tamakara.bakabooru.module.image.dto.BatchAiVectorsRequest;
 import com.tamakara.bakabooru.module.image.entity.Image;
 import com.tamakara.bakabooru.module.image.mapper.ImageMapper;
 import com.tamakara.bakabooru.module.image.repository.ImageRepository;
@@ -16,12 +18,16 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 @Service
 @RequiredArgsConstructor
 public class ImageService {
+
+    private static final String CAMIE_TAGGER_MODEL_ID = "camie-tagger-v2";
+    private static final Set<String> CLIP_MODEL_IDS = Set.of("clip-vit-base-patch32");
 
     private final ImageRepository imageRepository;
     private final ImageMapper imageMapper;
@@ -34,7 +40,7 @@ public class ImageService {
         Image image = imageRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Image not found: " + id));
 
-        // 濠电姭鎷冮崨顓濈捕婵犳鍠氶崑銈咁嚕婵犳艾唯鐟滃海绮诲▎鎰闁糕€崇箰婢ф煡鏌?
+        // 查看详情时记录访问次数。
         image.setViewCount(image.getViewCount() + 1);
         imageRepository.save(image);
 
@@ -105,8 +111,60 @@ public class ImageService {
                 && (vectorModelIds == null || vectorModelIds.isBlank())) {
             throw new IllegalArgumentException("At least one AI model is required");
         }
+        if (tagModelId != null && !tagModelId.isBlank() && !CAMIE_TAGGER_MODEL_ID.equals(tagModelId.trim())) {
+            throw new IllegalArgumentException("未知的标签模型: " + tagModelId);
+        }
+        if (vectorModelIds != null && !vectorModelIds.isBlank()) {
+            for (String modelId : vectorModelIds.split(",")) {
+                if (!CLIP_MODEL_IDS.contains(modelId.trim())) {
+                    throw new IllegalArgumentException("未知的向量模型: " + modelId);
+                }
+            }
+        }
         aiJobService.enqueue(image, tagModelId, vectorModelIds);
         return imageMapper.toDto(image);
+    }
+
+    @Transactional
+    public List<ImageDto> enqueueBatchTags(BatchAiTagsRequest request) {
+        if (request == null || request.ids() == null || request.ids().isEmpty()
+                || request.modelId() == null || request.modelId().isBlank()) {
+            throw new IllegalArgumentException("图片列表和标签模型不能为空");
+        }
+        validateImageIds(request.ids());
+        return request.ids().stream()
+                .distinct()
+                .map(id -> enqueueAi(id, request.modelId(), null))
+                .toList();
+    }
+
+    @Transactional
+    public List<ImageDto> enqueueBatchVectors(BatchAiVectorsRequest request) {
+        if (request == null || request.ids() == null || request.ids().isEmpty()
+                || request.modelIds() == null || request.modelIds().stream().allMatch(id -> id == null || id.isBlank())) {
+            throw new IllegalArgumentException("图片列表和向量模型不能为空");
+        }
+        validateImageIds(request.ids());
+        String modelIds = request.modelIds().stream()
+                .filter(id -> id != null && !id.isBlank())
+                .map(String::trim)
+                .distinct()
+                .reduce((left, right) -> left + "," + right)
+                .orElseThrow(() -> new IllegalArgumentException("至少选择一个向量模型"));
+        return request.ids().stream()
+                .distinct()
+                .map(id -> enqueueAi(id, null, modelIds))
+                .toList();
+    }
+
+    private void validateImageIds(List<Long> ids) {
+        if (ids.stream().anyMatch(id -> id == null || id <= 0)) {
+            throw new IllegalArgumentException("图片 ID 必须为正数");
+        }
+        List<Long> existingIds = imageRepository.findAllById(ids).stream().map(Image::getId).toList();
+        if (existingIds.size() != ids.stream().distinct().count()) {
+            throw new IllegalArgumentException("部分图片不存在");
+        }
     }
 
     @Transactional
@@ -127,7 +185,7 @@ public class ImageService {
             try {
                 deleteImage(id);
             } catch (Exception e) {
-                throw new RuntimeException("闂備礁鎲＄敮鐐寸箾閳ь剚绻涢崨顓㈠弰鐎规洖鐖煎畷婊嗩槻妞わ綀顕ч…鍧楀箚閹殿喚缈遍柣?(ID: " + id + "): " + e.getMessage(), e);
+                throw new RuntimeException("删除图片失败 (ID: " + id + "): " + e.getMessage(), e);
             }
         });
     }
@@ -156,7 +214,7 @@ public class ImageService {
                 String objectName = "original/" + image.getHash();
                 File file = storageService.getFile(objectName);
                 if (file.exists()) {
-                    // 濠电偠鎻紞鈧繛澶嬫礋瀵?ID_闂備礁鎼粔鏉懨洪顫偓?闂備礁婀遍。浠嬪疾濞戙垺鍎撶€广儱顦憴?闂備礁鎼粔鍫曞储瑜忓Σ鎰版晸閻樻枼鎸€闂佸憡鐟ラˇ浠嬪礈妤ｅ啯鐓涢柛灞剧閻绻涢崱鎰伈鐎规洏鍎遍濂稿川椤撶喐鐦ｇ紓?
+                    // 使用图片 ID 前缀避免归档中同名文件冲突。
                     String fileName = String.format("%d_%s.%s", image.getId(), image.getTitle(), image.getExtension());
                     zos.putNextEntry(new ZipEntry(fileName));
                     Files.copy(file.toPath(), zos);
@@ -164,7 +222,7 @@ public class ImageService {
                 }
             }
         } catch (Exception e) {
-            throw new RuntimeException("闂備胶鎳撻悘姘跺箰閸濄儮鍋撻崹顐嗘垹绮欐径灞稿亾閿濆骸骞楃紒浣规緲椤潡骞嗛幍顔剧勘闁? " + e.getMessage(), e);
+            throw new RuntimeException("打包下载图片失败: " + e.getMessage(), e);
         }
     }
 }

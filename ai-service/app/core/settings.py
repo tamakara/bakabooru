@@ -4,19 +4,8 @@ from pydantic_settings import BaseSettings
 
 
 def get_default_device() -> str:
-    """自动检测可用设备，优先使用 CUDA"""
-    try:
-        import onnxruntime as ort
-        providers = ort.get_available_providers()
-        print(f"ONNX Runtime 版本: {ort.__version__}")
-        print(f"ONNX Runtime 可用 Providers: {providers}")
-        if "CUDAExecutionProvider" in providers:
-            return "cuda"
-    except ImportError:
-        print("ONNX Runtime 未安装，回退到 CPU")
-    except Exception as e:
-        print(f"检测 ONNX Runtime Provider 失败: {e}")
-    return "cpu"
+    """Return the only supported inference device."""
+    return "cuda"
 
 
 class Settings(BaseSettings):
@@ -32,7 +21,7 @@ class Settings(BaseSettings):
     MINIO_SECRET_KEY: str = "change-me"
     MINIO_BUCKET_NAME: str = "images"
 
-    # 设备配置 (auto 表示自动检测)
+    # 固定使用 CUDA，不在运行时回退到 CPU。
     DEVICE: str = "cuda"
 
 

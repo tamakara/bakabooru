@@ -27,7 +27,10 @@ public class AiModelDto {
         dto.version = model.getVersion();
         dto.dimension = model.getDimension();
         dto.status = model.getStatus();
-        dto.artifactState = "READY".equals(model.getStatus()) ? "READY" : "DOWNLOADING".equals(model.getStatus()) ? "DOWNLOADING" : "FAILED".equals(model.getStatus()) ? "FAILED" : "NOT_INSTALLED";
+        dto.artifactState = "READY".equals(model.getStatus()) ? "READY"
+                : "RESTART_REQUIRED".equals(model.getStatus()) ? "RESTART_REQUIRED"
+                : "DOWNLOADING".equals(model.getStatus()) ? "DOWNLOADING"
+                : "FAILED".equals(model.getStatus()) ? "FAILED" : "NOT_INSTALLED";
         dto.capabilities = "TAGGER".equals(dto.type)
                 ? java.util.List.of("TAGS")
                 : java.util.List.of("IMAGE_EMBEDDING", "TEXT_EMBEDDING");

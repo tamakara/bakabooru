@@ -24,7 +24,7 @@ export interface AiModelDto {
   version: string
   dimension?: number
   status?: string
-  artifactState: 'NOT_INSTALLED' | 'DOWNLOADING' | 'READY' | 'FAILED'
+  artifactState: 'NOT_INSTALLED' | 'DOWNLOADING' | 'RESTART_REQUIRED' | 'READY' | 'FAILED'
   capabilities: string[]
   errorMessage?: string
 }

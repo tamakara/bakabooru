@@ -35,7 +35,7 @@ public class StorageService {
                             .build()
             );
         } catch (Exception e) {
-            throw new RuntimeException("閺傚洣娆㈡稉濠佺炊婢惰精瑙? " + e.getMessage(), e);
+            throw new RuntimeException("上传对象失败: " + e.getMessage(), e);
         }
     }
 
@@ -54,13 +54,11 @@ public class StorageService {
                             .build()
             );
         } catch (Exception e) {
-            throw new RuntimeException("閺傚洣娆㈡稉濠佺炊婢惰精瑙? + e.getMessage()", e);
+            throw new RuntimeException("上传文件失败: " + e.getMessage(), e);
         }
     }
 
-    /**
-     * 閺嶈宓侀弬鍥︽閸氬秵澧跨仦鏇炴倳閹恒劍鏌?Content-Type
-     */
+    /** 根据文件名推断 Content-Type。 */
     private String detectContentType(String fileName) {
         if (fileName == null) {
             return "application/octet-stream";
@@ -101,7 +99,7 @@ public class StorageService {
             );
 
         } catch (Exception e) {
-            throw new RuntimeException("閺傚洣娆㈡径宥呭煑婢惰精瑙?[" + sourceObject + " -> " + targetObject + "]: " + e.getMessage(), e);
+            throw new RuntimeException("复制对象失败 [" + sourceObject + " -> " + targetObject + "]: " + e.getMessage(), e);
         }
     }
 
@@ -116,7 +114,7 @@ public class StorageService {
                             .build()
             );
         } catch (Exception e) {
-            throw new RuntimeException("閺傚洣娆㈤崚鐘绘珟婢惰精瑙?[ " + objectName + "]: " + e.getMessage());
+            throw new RuntimeException("删除对象失败 [" + objectName + "]: " + e.getMessage());
         }
     }
 
@@ -134,9 +132,9 @@ public class StorageService {
             if (e.errorResponse().code().equals("NoSuchKey")) {
                 return false;
             }
-            throw new RuntimeException("濡偓閺屻儲鏋冩禒璺虹摠閸︺劌銇戠拹?[ " + objectName + "]: " + e.getMessage());
+            throw new RuntimeException("检查对象是否存在失败 [" + objectName + "]: " + e.getMessage());
         } catch (Exception e) {
-            throw new RuntimeException("濡偓閺屻儲鏋冩禒璺虹摠閸︺劌銇戠拹?[ " + objectName + "]: " + e.getMessage());
+            throw new RuntimeException("检查对象是否存在失败 [" + objectName + "]: " + e.getMessage());
         }
     }
 
@@ -154,7 +152,7 @@ public class StorageService {
             }
             return tempFile;
         } catch (Exception e) {
-            throw new RuntimeException("閼惧嘲褰囬弬鍥︽婢惰精瑙?[ " + objectName + "]: " + e.getMessage());
+            throw new RuntimeException("下载对象失败 [" + objectName + "]: " + e.getMessage());
         }
     }
 
@@ -179,7 +177,7 @@ public class StorageService {
             String externalUrl = internalUrl.replace(minioConfig.getEndpoint(), "/oss");
             return externalUrl;
         } catch (Exception e) {
-            throw new RuntimeException("閼惧嘲褰囬弬鍥︽URL婢惰精瑙? " + e.getMessage());
+            throw new RuntimeException("生成对象访问地址失败: " + e.getMessage());
         }
     }
 }

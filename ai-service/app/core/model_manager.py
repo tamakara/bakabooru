@@ -5,7 +5,7 @@ from typing import Any, Optional
 
 import numpy as np
 
-from app.core.settings import get_default_device, settings
+from app.core.settings import settings
 
 # HuggingFace CLIP 模型名称
 CLIP_MODEL_NAME = "openai/clip-vit-base-patch32"
@@ -52,6 +52,8 @@ class ModelManager:
         self._device = settings.DEVICE
         self._ort_providers = []
         self._ready = False
+        self._initialization_error: str | None = None
+        self._initialization_attempted = False
         self._lock = threading.Lock()
         self._download_states: dict[str, str] = {}
         self._download_errors: dict[str, str] = {}
@@ -63,6 +65,10 @@ class ModelManager:
     @property
     def ready(self) -> bool:
         return self._ready
+
+    @property
+    def initialization_error(self) -> str | None:
+        return self._initialization_error
 
     def ensure_model(self, model_id: str) -> None:
         """Ensure the requested model was loaded during startup."""
@@ -84,13 +90,21 @@ class ModelManager:
         for model_id, definition in MODEL_CATALOG.items():
             state = self._download_states.get(model_id)
             if state is None:
-                state = "READY" if self.artifact_ready(model_id) else "NOT_INSTALLED"
+                state = "READY" if self._is_initialized(model_id) else (
+                    "RESTART_REQUIRED" if self.artifact_ready(model_id) else "NOT_INSTALLED"
+                )
             item = {"id": model_id, **{k: v for k, v in definition.items() if k not in ("repo", "files")},
                     "artifactState": state}
             if model_id in self._download_errors:
                 item["errorMessage"] = self._download_errors[model_id]
             result.append(item)
         return result
+
+    def _is_initialized(self, model_id: str) -> bool:
+        definition = MODEL_CATALOG[model_id]
+        if definition["type"] == "TAGGER":
+            return self._camie_tagger is not None
+        return self._clip_text_session is not None and self._clip_vision_session is not None
 
     def artifact_ready(self, model_id: str) -> bool:
         definition = MODEL_CATALOG.get(model_id)
@@ -111,7 +125,7 @@ class ModelManager:
         if model_id not in MODEL_CATALOG:
             raise ValueError(f"Unknown model: {model_id}")
         if self.artifact_ready(model_id):
-            self._download_states[model_id] = "READY"
+            self._download_states[model_id] = "READY" if self._is_initialized(model_id) else "RESTART_REQUIRED"
             return next(item for item in self.catalog() if item["id"] == model_id)
         if self._download_states.get(model_id) == "DOWNLOADING":
             return next(item for item in self.catalog() if item["id"] == model_id)
@@ -127,7 +141,7 @@ class ModelManager:
             for filename in definition["files"]:
                 hf_hub_download(repo_id=definition["repo"], filename=filename,
                                  cache_dir=str(settings.MODEL_CACHE_DIR))
-            self._download_states[model_id] = "READY"
+            self._download_states[model_id] = "RESTART_REQUIRED"
             self._download_errors.pop(model_id, None)
         except Exception as error:
             self._download_states[model_id] = "FAILED"
@@ -136,8 +150,9 @@ class ModelManager:
     def load_all(self):
         """启动时预加载所有模型，加载完成后设置 ready 标志"""
         with self._lock:
-            if self._ready:
+            if self._initialization_attempted:
                 return
+            self._initialization_attempted = True
             start = time.time()
             print("开始预加载所有模型...")
             try:
@@ -149,17 +164,19 @@ class ModelManager:
                     self._load_camie_tagger(local_only=True)
                 if self.artifact_ready("clip-vit-base-patch32"):
                     self._load_clip(local_only=True)
-                if self._camie_tagger is None:
-                    raise RuntimeError("CamieTagger model is not installed in the model cache")
                 self._ready = True
                 elapsed = time.time() - start
-                print(f"所有模型预加载完成，耗时 {elapsed:.1f}s")
+                initialized = [item["id"] for item in self.catalog() if item["artifactState"] == "READY"]
+                if initialized:
+                    print(f"模型预加载完成，耗时 {elapsed:.1f}s: {', '.join(initialized)}")
+                else:
+                    print(f"CUDA 已就绪，未发现已下载模型（耗时 {elapsed:.1f}s）")
             except Exception as e:
                 elapsed = time.time() - start
                 print(f"模型预加载失败（耗时 {elapsed:.1f}s）: {e}")
                 import traceback
+                self._initialization_error = str(e)
                 traceback.print_exc()
-                raise
 
     def _get_ort_providers(self) -> list:
         """获取 ONNX Runtime 的执行提供器列表"""
@@ -172,7 +189,7 @@ class ModelManager:
             if "CUDAExecutionProvider" in available:
                 providers.append("CUDAExecutionProvider")
             else:
-                print("警告: CUDA 不可用，回退到 CPU")
+                print("错误: CUDA 不可用，无法初始化 GPU 推理")
         if "CUDAExecutionProvider" not in providers:
             raise RuntimeError("CUDAExecutionProvider is required but unavailable")
         return providers
@@ -240,7 +257,7 @@ class ModelManager:
                 cache_dir=cache_dir, local_files_only=local_only,
             )
         except Exception:
-            # 回退到 PyTorch repo
+            # 处理器文件可能只存在于 PyTorch 对应仓库，仍然只从本地缓存读取。
             print(f"从 {CLIP_ONNX_REPO} 加载 processor 失败，尝试 {CLIP_MODEL_NAME}...")
             self._clip_processor = CLIPProcessor.from_pretrained(
                 CLIP_MODEL_NAME,

@@ -5,9 +5,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-/**
- * CLIP Embedding 閸濆秴绨?DTO
- */
+/** CLIP 文本向量响应。 */
 @Data
 @NoArgsConstructor
 public class EmbeddingResponseDto {

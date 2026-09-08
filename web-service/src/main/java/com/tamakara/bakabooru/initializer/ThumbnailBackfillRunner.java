@@ -39,7 +39,7 @@ public class ThumbnailBackfillRunner implements ApplicationRunner {
                 String thumbnailObject = imageUrlService.getThumbnailObjectName(hash);
                 if (!storageService.existFile("original/" + hash)) {
                     jdbcTemplate.update("UPDATE images SET image_status = 'MISSING' WHERE hash = ?", hash);
-                    log.warn("闁告鍠庡ù妯肩磽閸濆嫨浜奸柨娑樿嫰閸戯繝寮介崶顏嶅敹濞?MISSING hash={}", hash);
+                    log.warn("原图缺失，已标记为 MISSING，hash={}", hash);
                     continue;
                 }
                 if (storageService.existFile(thumbnailObject)) {
@@ -51,7 +51,7 @@ public class ThumbnailBackfillRunner implements ApplicationRunner {
                 jdbcTemplate.update("UPDATE images SET image_status = CASE WHEN image_status IN ('MISSING', 'ANALYZING', 'ERROR') THEN image_status ELSE 'NORMAL' END WHERE hash = ?", hash);
                 created++;
             } catch (Exception e) {
-                log.warn("闁告ê妫楄ぐ鍓佺磽閳哄啯娈ｉ柛銉ュ⒔閺佹捇骞嬮幇顑句杭閻?hash={}: {}", hash, e.getMessage());
+                log.warn("补生成缩略图失败，hash={}: {}", hash, e.getMessage());
             } finally {
                 if (original != null && original.exists()) {
                     original.delete();
@@ -59,7 +59,7 @@ public class ThumbnailBackfillRunner implements ApplicationRunner {
             }
         }
         if (created > 0) {
-            log.info("闁告ê妫楄ぐ鍓佺磽閳哄啯娈ｉ柛銉﹀礃钘熷缁樺姇閻ｎ剟骞嬮幇鍓佺闁哄倹婢橀·?{} 濞?, created");
+            log.info("缩略图补全完成，共生成 {} 张", created);
         }
     }
 }

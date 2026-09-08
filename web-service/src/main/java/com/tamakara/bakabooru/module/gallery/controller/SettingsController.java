@@ -14,10 +14,7 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import java.util.Map;
 import java.util.List;
 
-/**
- * 缁崵绮虹拋鍓х枂閹貉冨煑閸?
- * 缁狅紕鎮婇崗銊ョ湰闁板秶鐤嗛崣鍌涙殶
- */
+/** 运行时系统设置接口。 */
 @RestController
 @RequestMapping("/api/system/settings")
 @RequiredArgsConstructor
@@ -45,8 +42,6 @@ public class SettingsController {
             systemSettingService.updateEditableSettings(settings);
             try {
                 aiServiceClient.updateRuntimeSettings(Map.of(
-                        "device_mode", settings.getOrDefault("ai.device-mode", systemSettingService.getOptionalSetting("ai.device-mode", "auto")),
-                        "cache_dir", settings.getOrDefault("ai.model-cache-dir", systemSettingService.getOptionalSetting("ai.model-cache-dir", "/model_cache")),
                         "inference_concurrency", Integer.parseInt(settings.getOrDefault("ai.inference-concurrency", systemSettingService.getOptionalSetting("ai.inference-concurrency", "1")))));
             } catch (RuntimeException ignored) {
                 // Settings remain persisted while AI Service is offline; it receives them on its next reload.

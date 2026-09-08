@@ -83,7 +83,7 @@ public class ImageSearchService {
             rows = rows.subList(0, size);
         }
 
-        log.info("闁瑰吋绮庨崒銊р偓鐟版湰閸?- 闁肩増顨嗗? {}ms, 濡? {}, 闁轰椒鍗抽崳? {}, hasNext: {}",
+        log.info("图片搜索完成 - 耗时 {}ms, 页码 {}, 返回 {}, hasNext: {}",
                 System.currentTimeMillis() - startTime, page, rows.size(), hasNext);
         return new SearchResultDto<>(rows, page, size, hasNext);
     }

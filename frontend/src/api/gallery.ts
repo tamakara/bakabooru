@@ -158,6 +158,16 @@ export const galleryApi = {
     return response.data
   },
 
+  generateTagsBatch: async (ids: number[], modelId: string) => {
+    const response = await apiClient.post<ImageDto[]>('/images/batch/ai/tags', { ids, modelId })
+    return response.data
+  },
+
+  generateVectorsBatch: async (ids: number[], modelIds: string[]) => {
+    const response = await apiClient.post<ImageDto[]>('/images/batch/ai/vectors', { ids, modelIds })
+    return response.data
+  },
+
   /**
    * 批量删除图片
    * @param ids 图片ID数组

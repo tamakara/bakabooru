@@ -10,7 +10,6 @@ import java.io.File;
 @Service
 @RequiredArgsConstructor
 public class ThumbnailService {
-
     private final StorageService storageService;
     private final ImageUrlService imageUrlService;
     private final ThumbnailProperties thumbnailProperties;
@@ -19,19 +18,13 @@ public class ThumbnailService {
         File thumbnailFile = null;
         try {
             thumbnailFile = File.createTempFile(hash + "-thumb-", "." + thumbnailProperties.getFormat());
-            Thumbnails.of(sourceFile)
-                    .size(thumbnailProperties.getMaxSize(), thumbnailProperties.getMaxSize())
-                    .outputFormat(thumbnailProperties.getFormat())
-                    .outputQuality(thumbnailProperties.getQuality())
-                    .toFile(thumbnailFile);
-
+            Thumbnails.of(sourceFile).size(thumbnailProperties.getMaxSize(), thumbnailProperties.getMaxSize())
+                    .outputFormat(thumbnailProperties.getFormat()).outputQuality(thumbnailProperties.getQuality()).toFile(thumbnailFile);
             storageService.uploadFile(imageUrlService.getThumbnailObjectName(hash), thumbnailFile);
         } catch (Exception e) {
-            throw new RuntimeException("閻㈢喐鍨氱紓鈺冩殣閸ユ儳銇戠拹? " + e.getMessage(), e);
+            throw new RuntimeException("生成缩略图失败: " + e.getMessage(), e);
         } finally {
-            if (thumbnailFile != null && thumbnailFile.exists()) {
-                thumbnailFile.delete();
-            }
+            if (thumbnailFile != null && thumbnailFile.exists()) thumbnailFile.delete();
         }
     }
 }

@@ -31,6 +31,8 @@ import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -60,6 +62,7 @@ class AiJobWorkerTest {
         when(systemSettingService.getAiMaxAttempts()).thenReturn(5);
         when(systemSettingService.getAiRetryBaseDelaySeconds()).thenReturn(30L);
         when(systemSettingService.getAiRetryMaxDelaySeconds()).thenReturn(1800L);
+        when(storageService.existFile(any())).thenReturn(true);
         when(transactionTemplate.execute(any())).thenAnswer(invocation ->
                 ((TransactionCallback<Object>) invocation.getArgument(0)).doInTransaction(null));
         doAnswer(invocation -> {
@@ -79,11 +82,13 @@ class AiJobWorkerTest {
     void finalFailureMarksJobAndImageFailed() {
         AiJob job = runningJob(5, workerId());
         when(aiJobRepository.findById(1L)).thenReturn(Optional.of(job));
+        when(aiJobRepository.existsByImageIdAndStatusIn(anyLong(), anyList())).thenReturn(false);
+        when(aiJobRepository.findFirstByImageIdOrderByUpdatedAtDesc(10L)).thenReturn(Optional.of(job));
 
         worker.markFailure(1L, new RuntimeException("inference failed"));
 
         assertThat(job.getStatus()).isEqualTo(AiJobStatus.FAILED);
-        assertThat(job.getImage().getStatus()).isEqualTo("AVAILABLE");
+        assertThat(job.getImage().getStatus()).isEqualTo("ERROR");
         assertThat(job.getImage().getAnalysisError()).isEqualTo("inference failed");
     }
 
@@ -91,12 +96,13 @@ class AiJobWorkerTest {
     void transientFailureReturnsJobToPending() {
         AiJob job = runningJob(2, workerId());
         when(aiJobRepository.findById(1L)).thenReturn(Optional.of(job));
+        when(aiJobRepository.existsByImageIdAndStatusIn(anyLong(), anyList())).thenReturn(true);
 
         worker.markFailure(1L, new RuntimeException("temporary"));
 
         assertThat(job.getStatus()).isEqualTo(AiJobStatus.PENDING);
         assertThat(job.getNextRetryAt()).isAfter(Instant.now());
-        assertThat(job.getImage().getStatus()).isEqualTo("PROCESSING");
+        assertThat(job.getImage().getStatus()).isEqualTo("ANALYZING");
     }
 
     @Test

@@ -3,20 +3,22 @@ package com.tamakara.bakabooru.module.gallery.controller;
 import com.tamakara.bakabooru.module.image.dto.ImageDto;
 import com.tamakara.bakabooru.module.image.dto.AiTagsRequest;
 import com.tamakara.bakabooru.module.image.dto.AiVectorsRequest;
+import com.tamakara.bakabooru.module.image.dto.BatchAiTagsRequest;
+import com.tamakara.bakabooru.module.image.dto.BatchAiVectorsRequest;
 import com.tamakara.bakabooru.module.image.service.ImageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-/**
- * 闁搞儱澧芥晶鏍不閿涘嫭鍊為柟璨夊啫鐓戦柛?
- * 濠㈣泛瀚幃濠囧炊閸撗冾暬闁汇劌瀚·鍐礆閻樿櫕鏆柡灞诲劘閳ь兛鐒﹂悥锝囩驳閸撗屽悁闁荤偛妫楀鐑藉箥瑜版帒娅ら柟鍨С缂?
- */
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+
+/** 图片详情、标签和 AI 任务接口。 */
 @RestController
 @RequestMapping("/api/images")
 @RequiredArgsConstructor
@@ -76,6 +78,24 @@ public class ImageController {
     @Operation(summary = "operation")
     public void deleteImages(@RequestBody List<Long> ids) {
         imageService.deleteImages(ids);
+    }
+
+    @PostMapping("/batch/ai/tags")
+    public List<ImageDto> generateTagsBatch(@RequestBody BatchAiTagsRequest request) {
+        try {
+            return imageService.enqueueBatchTags(request);
+        } catch (IllegalArgumentException error) {
+            throw new ResponseStatusException(BAD_REQUEST, error.getMessage(), error);
+        }
+    }
+
+    @PostMapping("/batch/ai/vectors")
+    public List<ImageDto> generateVectorsBatch(@RequestBody BatchAiVectorsRequest request) {
+        try {
+            return imageService.enqueueBatchVectors(request);
+        } catch (IllegalArgumentException error) {
+            throw new ResponseStatusException(BAD_REQUEST, error.getMessage(), error);
+        }
     }
 
     @PostMapping("/batch/delete-missing")

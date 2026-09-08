@@ -8,7 +8,7 @@ import java.util.List;
 public class SearchRequestDto {
     private String tags;
     private String keyword;
-    private String semanticQuery;  // 鐠囶厺绠熼幓蹇氬牚閹兼粎鍌?
+    private String semanticQuery;  // Semantic search query.
     private String status;
     private String randomSeed;
     private Integer widthMin;

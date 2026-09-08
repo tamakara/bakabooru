@@ -17,6 +17,7 @@ import {
   NLayoutContent,
   NLayoutFooter,
   NLayoutSider,
+  NModal,
   NRadioButton,
   NRadioGroup,
   NSelect,
@@ -41,6 +42,8 @@ import {
   DownloadOutline,
   EyeOutline,
   FilterOutline,
+  HardwareChipOutline,
+  PricetagOutline,
   SquareOutline,
   TrashOutline
 } from '@vicons/ionicons5'
@@ -51,6 +54,7 @@ import {v4 as uuidv4} from 'uuid';
 const searchMode = ref<'TEXT' | 'IMAGE'>('TEXT')
 const {data: aiModels} = useQuery({queryKey: ['aiModels'], queryFn: aiModelApi.list})
 const vectorModelOptions = computed(() => (aiModels.value || []).filter(model => model.type === 'CLIP' && model.artifactState === 'READY').map(model => ({label: model.name, value: model.id})))
+const tagModelOptions = computed(() => (aiModels.value || []).filter(model => model.type === 'TAGGER' && model.artifactState === 'READY').map(model => ({label: model.name, value: model.id})))
 
 // 表单状态
 const formState = reactive({
@@ -406,6 +410,11 @@ watch(() => formState.semanticQuery, (value) => {
 // 选中状态管理
 const selectedIds = ref<Set<number>>(new Set())
 const isSelectionMode = computed(() => selectedIds.value.size > 0)
+const showBatchTagModal = ref(false)
+const showBatchVectorModal = ref(false)
+const batchTagModelId = ref<string | null>(null)
+const batchVectorModelIds = ref<string[]>([])
+const batchAiLoading = ref(false)
 
 function toggleSelection(id: number) {
   if (selectedIds.value.has(id)) {
@@ -615,6 +624,38 @@ async function handleBatchDownload() {
   }
 }
 
+async function handleBatchTags() {
+  if (!selectedIds.value.size || !batchTagModelId.value || batchAiLoading.value) return
+  batchAiLoading.value = true
+  try {
+    await galleryApi.generateTagsBatch(Array.from(selectedIds.value), batchTagModelId.value)
+    message.success('批量标签生成任务已提交')
+    showBatchTagModal.value = false
+    clearSelection()
+    await refetch()
+  } catch {
+    message.error('提交批量标签任务失败')
+  } finally {
+    batchAiLoading.value = false
+  }
+}
+
+async function handleBatchVectors() {
+  if (!selectedIds.value.size || !batchVectorModelIds.value.length || batchAiLoading.value) return
+  batchAiLoading.value = true
+  try {
+    await galleryApi.generateVectorsBatch(Array.from(selectedIds.value), batchVectorModelIds.value)
+    message.success('批量索引向量任务已提交')
+    showBatchVectorModal.value = false
+    clearSelection()
+    await refetch()
+  } catch {
+    message.error('提交批量索引向量任务失败')
+  } finally {
+    batchAiLoading.value = false
+  }
+}
+
 </script>
 
 <template>
@@ -658,8 +699,8 @@ async function handleBatchDownload() {
                     />
                   </n-form-item>
 
-                  <n-form-item label="CLIP model">
-                    <n-select v-model:value="formState.vectorModelId" :options="vectorModelOptions" clearable placeholder="Select a downloaded model" size="small" />
+                  <n-form-item label="CLIP 模型">
+                    <n-select v-model:value="formState.vectorModelId" :options="vectorModelOptions" clearable placeholder="选择已下载的模型" size="small" />
                   </n-form-item>
 
                   <n-form-item label="已计算向量模型">
@@ -769,8 +810,8 @@ async function handleBatchDownload() {
                        </div>
                     </div>
                   </n-form-item>
-                  <n-form-item label="CLIP model">
-                    <n-select v-model:value="imageSearchState.vectorModelId" :options="vectorModelOptions" placeholder="Select a downloaded model" size="small" />
+                  <n-form-item label="CLIP 模型">
+                    <n-select v-model:value="imageSearchState.vectorModelId" :options="vectorModelOptions" placeholder="选择已下载的模型" size="small" />
                   </n-form-item>
                 </div>
               </n-form>
@@ -826,7 +867,7 @@ async function handleBatchDownload() {
             </template>
           </n-button>
         </div>
-        <div class="flex gap-2">
+        <div class="flex flex-wrap justify-end gap-2">
           <n-button secondary @click="toggleSelectAll">
             {{ isAllSelected ? '取消全选' : '全选' }}
           </n-button>
@@ -837,6 +878,14 @@ async function handleBatchDownload() {
               </n-icon>
             </template>
             下载
+          </n-button>
+          <n-button type="primary" secondary @click="showBatchTagModal = true" :disabled="!isSelectionMode || !tagModelOptions.length">
+            <template #icon><n-icon><PricetagOutline /></n-icon></template>
+            批量生成标签
+          </n-button>
+          <n-button type="primary" secondary @click="showBatchVectorModal = true" :disabled="!isSelectionMode || !vectorModelOptions.length">
+            <template #icon><n-icon><HardwareChipOutline /></n-icon></template>
+            批量计算向量
           </n-button>
           <n-button type="error" secondary @click="handleBatchDelete" :disabled="!isSelectionMode">
             <template #icon>
@@ -872,7 +921,7 @@ async function handleBatchDownload() {
               @contextmenu="handleContextMenu($event, image)"
           >
             <img
-                v-if="!failedThumbnailIds.has(image.id)"
+                v-if="image.status !== 'ERROR' && image.status !== 'MISSING' && !failedThumbnailIds.has(image.id)"
                 :src="image.thumbnailUrl"
                 :alt="image.title || 'image'"
                 class="w-full h-full object-cover transition-transform duration-300 transform select-none"
@@ -949,6 +998,13 @@ async function handleBatchDownload() {
         :on-clickoutside="handleClickoutside"
         @select="handleSelect"
     />
+
+    <n-modal v-model:show="showBatchTagModal" preset="dialog" title="批量生成标签" positive-text="开始生成" negative-text="取消" :positive-button-props="{ loading: batchAiLoading, disabled: !batchTagModelId }" @positive-click="handleBatchTags">
+      <n-select v-model:value="batchTagModelId" :options="tagModelOptions" placeholder="选择已下载的标签模型" />
+    </n-modal>
+    <n-modal v-model:show="showBatchVectorModal" preset="dialog" title="批量计算索引向量" positive-text="开始计算" negative-text="取消" :positive-button-props="{ loading: batchAiLoading, disabled: !batchVectorModelIds.length }" @positive-click="handleBatchVectors">
+      <n-select v-model:value="batchVectorModelIds" multiple :options="vectorModelOptions" placeholder="选择一个或多个已下载的 CLIP 模型" />
+    </n-modal>
   </n-layout>
 </template>
 

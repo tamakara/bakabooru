@@ -9,10 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * 閺嶅洨顒风粻锛勬倞閹貉冨煑閸?
- * 婢跺嫮鎮婇弽鍥╊劮閻ㄥ嫭顥呯槐?
- */
+/** 标签查询接口。 */
 @RestController
 @RequestMapping("/api/tags")
 @RequiredArgsConstructor

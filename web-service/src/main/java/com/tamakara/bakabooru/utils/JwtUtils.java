@@ -11,7 +11,7 @@ import java.util.Date;
 
 public class JwtUtils {
 
-    // 閻㈢喐鍨?SecretKey
+    // 从密码派生签名密钥。
     public static SecretKey generateSecretKey(String password) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -22,7 +22,7 @@ public class JwtUtils {
         }
     }
 
-    // 閻㈢喐鍨?Token
+    // 创建 JWT。
     public static String createToken(SecretKey secretKey, long expirationTime) {
         return Jwts.builder()
                 .header().add("typ", "JWT").add("alg", "HS256").and()
@@ -32,22 +32,22 @@ public class JwtUtils {
                 .compact();
     }
 
-    // 鐟欙絾鐎介獮鑸电墡妤?Token
+    // 解析并验证 JWT。
     public static Claims parseToken(String token, SecretKey secretKey) {
         return Jwts.parser()
-                .verifyWith(secretKey) // 妤犲矁鐦夌粵鎯ф倳
+                .verifyWith(secretKey)
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
     }
 
-    // 閸掋倖鏌?Token 閺勵垰鎯佹潻鍥ㄦ埂
+    // 判断 JWT 是否已过期或无效。
     public static boolean isTokenExpired(String token, SecretKey secretKey) {
         try {
             Claims claims = parseToken(token, secretKey);
             return claims.getExpiration().before(new Date());
         } catch (Exception e) {
-            return true; // 鐟欙絾鐎芥径杈Е閸楀疇顫嬫稉楦跨箖閺堢喐鍨ㄩ弮鐘虫櫏
+            return true;
         }
     }
 }

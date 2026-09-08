@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 
 from app.api import embeddings_router, images_router, models_router
 from app.api.runtime import router as runtime_router
@@ -25,4 +26,20 @@ app.include_router(runtime_router)
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "modelsReady": model_manager.ready}
+    if not model_manager.ready:
+        return JSONResponse(
+            status_code=503,
+            content={
+                "status": "unhealthy",
+                "modelsReady": False,
+                "device": model_manager.device,
+                "error": model_manager.initialization_error or "模型尚未初始化",
+            },
+        )
+    initialized_models = [model["id"] for model in model_manager.catalog() if model["artifactState"] == "READY"]
+    return {
+        "status": "ok",
+        "modelsReady": bool(initialized_models),
+        "initializedModels": initialized_models,
+        "device": model_manager.device,
+    }

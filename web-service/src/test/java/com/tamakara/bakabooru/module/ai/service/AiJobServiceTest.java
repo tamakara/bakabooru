@@ -30,6 +30,7 @@ class AiJobServiceTest {
     @InjectMocks
     private AiJobService service;
 
+    @Test
     void enqueueCreatesOnePendingJob() {
         Image image = image(1L, "PROCESSING");
         when(aiJobRepository.findFirstByImageIdAndCapabilityOrderByUpdatedAtDesc(1L, "VECTORS"))
@@ -44,6 +45,7 @@ class AiJobServiceTest {
         verify(aiJobRepository).save(job);
     }
 
+    @Test
     void retryResetsFailedJob() {
         Image image = image(1L, "AVAILABLE");
         image.setAnalysisError("failed");
@@ -59,7 +61,7 @@ class AiJobServiceTest {
 
         Image result = service.retry(1L);
 
-        assertThat(result.getStatus()).isEqualTo("PROCESSING");
+        assertThat(result.getStatus()).isEqualTo("ANALYZING");
         assertThat(result.getAnalysisError()).isNull();
         assertThat(job.getStatus()).isEqualTo(AiJobStatus.PENDING);
         assertThat(job.getAttempts()).isZero();
