@@ -65,37 +65,19 @@ class ModelManager:
         return self._ready
 
     def ensure_model(self, model_id: str) -> None:
-        """Load one explicitly selected, already-installed model on demand."""
+        """Ensure the requested model was loaded during startup."""
         definition = MODEL_CATALOG.get(model_id)
         if definition is None:
             raise ValueError(f"Unknown model: {model_id}")
-        if not self.artifact_ready(model_id):
-            raise RuntimeError(f"Model {model_id} is not installed")
-        with self._lock:
-            if definition["type"] == "TAGGER" and self._camie_tagger is None:
-                self._device = self._device if self._device != "auto" else get_default_device()
-                self._load_camie_tagger(local_only=True)
-            elif definition["type"] == "CLIP" and (self._clip_text_session is None or self._clip_vision_session is None):
-                self._device = self._device if self._device != "auto" else get_default_device()
-                self._ort_providers = self._get_ort_providers()
-                self._load_clip(local_only=True)
-            self._ready = True
+        loaded = self._camie_tagger is not None if definition["type"] == "TAGGER" else (
+            self._clip_text_session is not None and self._clip_vision_session is not None
+        )
+        if not loaded:
+            raise RuntimeError(f"Model {model_id} was not initialized at startup")
 
     def configure(self, device_mode: str | None = None, cache_dir: str | None = None) -> None:
-        with self._lock:
-            changed = False
-            if device_mode and device_mode != self._device:
-                self._device = device_mode
-                changed = True
-            if cache_dir and str(settings.MODEL_CACHE_DIR) != cache_dir:
-                settings.MODEL_CACHE_DIR = type(settings.MODEL_CACHE_DIR)(cache_dir)
-                changed = True
-            if changed:
-                self._clip_text_session = None
-                self._clip_vision_session = None
-                self._clip_processor = None
-                self._camie_tagger = None
-                self._ready = False
+        if device_mode and device_mode != "cuda":
+            raise ValueError("AI service is fixed to CUDA")
 
     def catalog(self) -> list[dict[str, Any]]:
         result = []
@@ -160,13 +142,15 @@ class ModelManager:
             print("开始预加载所有模型...")
             try:
                 settings.MODEL_CACHE_DIR.mkdir(parents=True, exist_ok=True)
-                if self._device == "auto":
-                    self._device = get_default_device()
+                if self._device != "cuda":
+                    raise RuntimeError("AI service requires CUDA")
                 self._ort_providers = self._get_ort_providers()
                 if self.artifact_ready("camie-tagger-v2"):
                     self._load_camie_tagger(local_only=True)
                 if self.artifact_ready("clip-vit-base-patch32"):
                     self._load_clip(local_only=True)
+                if self._camie_tagger is None:
+                    raise RuntimeError("CamieTagger model is not installed in the model cache")
                 self._ready = True
                 elapsed = time.time() - start
                 print(f"所有模型预加载完成，耗时 {elapsed:.1f}s")
@@ -175,6 +159,7 @@ class ModelManager:
                 print(f"模型预加载失败（耗时 {elapsed:.1f}s）: {e}")
                 import traceback
                 traceback.print_exc()
+                raise
 
     def _get_ort_providers(self) -> list:
         """获取 ONNX Runtime 的执行提供器列表"""
@@ -188,7 +173,8 @@ class ModelManager:
                 providers.append("CUDAExecutionProvider")
             else:
                 print("警告: CUDA 不可用，回退到 CPU")
-        providers.append("CPUExecutionProvider")
+        if "CUDAExecutionProvider" not in providers:
+            raise RuntimeError("CUDAExecutionProvider is required but unavailable")
         return providers
 
     @property

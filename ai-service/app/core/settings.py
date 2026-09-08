@@ -33,7 +33,7 @@ class Settings(BaseSettings):
     MINIO_BUCKET_NAME: str = "images"
 
     # 设备配置 (auto 表示自动检测)
-    DEVICE: str = "auto"
+    DEVICE: str = "cuda"
 
 
     model_config = {

@@ -7,6 +7,7 @@ from app.api.runtime import router as runtime_router
 from app.core.model_manager import model_manager
 @asynccontextmanager
 async def lifespan(_: FastAPI):
+    model_manager.load_all()
     yield
 
 

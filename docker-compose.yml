@@ -68,6 +68,8 @@ services:
     environment:
       MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-bakabooru}
       MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-change-me}
+      DEVICE: cuda
+    gpus: all
     volumes:
       - ./data/model_cache:/model_cache
     networks: [bakabooru-net]

@@ -115,6 +115,7 @@ const activeSearchState = shallowRef<any>({
 })
 const page = ref(1)
 const pageSize = ref(20)
+const failedThumbnailIds = ref(new Set<number>())
 const pageSizeOptions = [
   {label: '10 / 页', value: 10},
   {label: '20 / 页', value: 20},
@@ -464,11 +465,12 @@ function handleImageClick(image: any) {
   }
 }
 
-function handleThumbnailError(event: Event, image: ImageThumbnailDto) {
-  const target = event.target as HTMLImageElement
-  if (image.imageUrl && target.src !== image.imageUrl) {
-    target.src = image.imageUrl
-  }
+function handleThumbnailError(image: ImageThumbnailDto) {
+  // A missing thumbnail is terminal for this card. Do not fall back to the
+  // original image, which may be unavailable for the same reason.
+  const failed = new Set(failedThumbnailIds.value)
+  failed.add(image.id)
+  failedThumbnailIds.value = failed
 }
 
 // 右键菜单
@@ -870,14 +872,18 @@ async function handleBatchDownload() {
               @contextmenu="handleContextMenu($event, image)"
           >
             <img
+                v-if="!failedThumbnailIds.has(image.id)"
                 :src="image.thumbnailUrl"
                 :alt="image.title || 'image'"
                 class="w-full h-full object-cover transition-transform duration-300 transform select-none"
                 :class="{ 'scale-90': selectedIds.has(image.id) }"
-                @error="handleThumbnailError($event, image)"
+                @error="handleThumbnailError(image)"
                 loading="lazy"
                 draggable="false"
             />
+            <div v-else class="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-500">
+              <n-icon size="34"><CloseCircleOutline /></n-icon>
+            </div>
 
             <!-- 选中遮罩 -->
             <div v-if="selectedIds.has(image.id)" class="absolute inset-0 bg-primary-500/20 pointer-events-none"></div>
