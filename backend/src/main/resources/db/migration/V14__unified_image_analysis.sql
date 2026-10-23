@@ -155,7 +155,7 @@ ALTER TABLE ai_models DROP CONSTRAINT IF EXISTS chk_ai_models_model_type;
 ALTER TABLE ai_models ADD CONSTRAINT chk_ai_models_model_type CHECK (model_type IN ('TAGGER', 'CLIP'));
 DELETE FROM system_settings WHERE setting_key = 'ai.default-vector-models';
 INSERT INTO system_settings (setting_key, setting_value)
-VALUES ('ai.service-url', 'http://model-manager:8000'),
+VALUES ('ai.service-url', 'http://ai-service:8000'),
        ('ai.inference-concurrency', '1'),
        ('ai.device-mode', 'auto'),
        ('ai.model-cache-dir', '/model_cache')
