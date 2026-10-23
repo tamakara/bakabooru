@@ -1,103 +1,68 @@
-# 系统架构
+# 架构设计
 
-BaKaBooru 采用 Docker Compose 自托管、业务与推理解耦的服务架构。浏览器只访问 Nginx；Nginx 提供前端资源并代理 `/api/*` 与 `/oss/*`。Web Service 是业务数据与任务的唯一写入入口，AI Service 是无数据库状态的推理服务。
+本文描述系统边界、请求路径和异步处理原则，不列出全部接口或部署参数。接口见[功能与 API](features-api.md)，启动配置见[部署说明](deployment.md)。
 
-## 容器与依赖
+## 系统边界
 
 ```mermaid
 flowchart LR
-    User(("用户")) -->|"HTTP :80"| Nginx
-
-    subgraph App["应用层"]
-        Nginx["Frontend<br/>Nginx + Vue 3"]
-        Web["Web Service<br/>Spring Boot 3 / Java 21"]
-        AI["AI Service<br/>FastAPI + ONNX Runtime"]
-    end
-
-    subgraph Data["数据层"]
-        PG[("PostgreSQL 16<br/>pgvector")]
-        MinIO[("MinIO<br/>original + thumbnail")]
-        Cache[("模型缓存<br/>data/model_cache")]
-    end
-
-    Nginx -->|"/api/*"| Web
-    Nginx -->|"/oss/*"| MinIO
-    Web -->|"JPA / SQL / Flyway"| PG
-    Web -->|"S3 API"| MinIO
-    Web -->|"内部 HTTP"| AI
-    AI -->|"读取原图"| MinIO
-    AI -->|"加载模型"| Cache
+    User[浏览器] -->|HTTP :80| Frontend[Frontend<br/>Vue 3 + Nginx]
+    Frontend -->|/api/*| Backend[Backend<br/>Spring Boot]
+    Frontend -->|/oss/*| MinIO[(MinIO)]
+    Backend -->|业务数据与任务| PostgreSQL[(PostgreSQL + pgvector)]
+    Backend -->|对象读写| MinIO
+    Backend -->|推理请求| Manager[Model Manager<br/>FastAPI + ONNX Runtime]
+    Manager -->|读取原图| MinIO
+    Manager -->|模型工件| Cache[(模型缓存)]
 ```
 
-## 服务边界
+| 组件 | 职责与数据所有权 |
+| --- | --- |
+| Frontend | 页面与交互；经 Nginx 访问 Backend 和 MinIO 图片代理 |
+| Backend | 唯一业务写入入口；拥有鉴权、事务、图片元数据、标签和持久化任务 |
+| Model Manager | 无业务数据库的推理进程；读取 MinIO 原图并返回标签/向量 |
+| PostgreSQL | 元数据、设置、上传任务、AI 任务和 CLIP 向量的事实来源 |
+| MinIO | 上传暂存对象、原图和缩略图 |
 
-| 组件 | 负责 | 不负责 |
-| --- | --- | --- |
-| Frontend | 页面、交互、查询缓存、上传进度、令牌携带 | 直接访问数据库或推理服务 |
-| Web Service | 鉴权、业务 API、事务、元数据、对象路径、上传任务调度、AI 调度 | 执行模型推理 |
-| AI Service | Camie Tagger、CLIP 文本/图像向量、MinIO 原图只读 | 数据库、图片业务状态、任务、鉴权 |
-| PostgreSQL | 图片、标签、关系、设置、上传/AI 任务、图片向量与索引 | 图片二进制文件 |
-| MinIO | staging 暂存文件、原图与固定规格缩略图 | 图片元数据与状态 |
+## 核心数据流
 
-## 上传与 AI 后处理
-
-上传与 AI 后处理都由 PostgreSQL 持久化任务驱动。两阶段分离，因此图片可以先出现在图库中，再异步转为 `READY`，进程退出也不会丢失工作。
+上传请求将文件写入 MinIO staging 并创建 PostgreSQL 上传任务后即返回。Backend 上传 Worker 归档原图和缩略图、创建图片记录及 AI 任务；AI Worker 再调用 Model Manager，成功后保存分析结果。这两个阶段均由持久化任务驱动。
 
 ```mermaid
 sequenceDiagram
-    autonumber
-    actor U as 用户
-    participant F as Frontend
-    participant W as Web Service
-    participant M as MinIO
-    participant P as PostgreSQL
-    participant A as AI Service
-
-    U->>F: 选择图片
-    F->>W: POST /api/upload
-    W->>M: 写 staging/{jobId}
-    W->>P: 插入 upload_jobs=PENDING
-    W-->>F: 上传请求完成
-
-    W->>P: FOR UPDATE SKIP LOCKED 领取任务
-    M-->>W: 读取 staging/{jobId}
-    W->>W: SHA-256、查重、解析尺寸
-    W->>M: 写 original/{hash}
-    W->>M: 写 thumbnail/{size}/{hash}.{format}
-    W->>P: 同一事务插入图片、ai_job 并完成 upload_job
-    W->>M: 删除 staging/{jobId}
-    W->>P: SKIP LOCKED 领取 ai_job + 租约
-    W->>A: POST /v1/images/analyze
-    A->>M: 只读取一次 original/{hash}
-    A-->>W: 标签分数 + vector(512)
-    W->>P: 同一事务写结果、READY、COMPLETED
+    actor User as 用户
+    participant UI as Frontend
+    participant API as Backend
+    participant Store as MinIO
+    participant DB as PostgreSQL
+    participant Model as Model Manager
+    User->>UI: 选择文件
+    UI->>API: POST /api/upload
+    API->>Store: 写 staging 对象
+    API->>DB: 创建上传任务
+    API-->>UI: 返回已接收
+    Note over API,DB: Backend 上传 Worker 异步执行
+    API->>Store: 归档原图和缩略图
+    API->>DB: 创建图片和 AI 任务
+    Note over API,Model: Backend AI Worker 异步执行
+    API->>Model: 请求标签/向量
+    Model->>Store: 读取原图
+    Model-->>API: 分析结果
+    API->>DB: 保存标签和向量
 ```
 
-文件入库失败会保留 PostgreSQL 任务记录和 MinIO staging 对象，可从上传页重试。两个 Worker 都使用锁租约和心跳。AI 推理失败会指数退避自动重试，五次失败后转为 `FAILED` 并可从详情页手动重试。
+数据库租约与 `FOR UPDATE SKIP LOCKED` 支持任务崩溃恢复。AI 暂不可用时，任务留在数据库并按退避策略重试，不会阻止普通图库和非语义搜索。
 
-## 检索路径
+## 搜索路径
 
-```mermaid
-flowchart TD
-    Request["POST /api/search"] --> Mode{"检索模式"}
-    Mode -->|"标签 / 关键字 / 元数据"| SQL["动态 SQL 过滤与排序"]
-    Mode -->|"semanticQuery"| Text["AI Service<br/>CLIP 文本向量"]
-    Mode -->|"POST /api/search/image"| Vision["AI Service<br/>CLIP 图片向量"]
-    Text --> Vector["pgvector 余弦距离排序"]
-    Vision --> Vector
-    SQL --> Page["LIMIT size + 1"]
-    Vector --> Page
-    Page --> DTO["轻量 ImageThumbnailDto<br/>content + page + size + hasNext"]
-    DTO --> Frontend["缩略图展示<br/>失败时回退原图"]
-```
+- 标签、关键词和元数据筛选由 Backend 查询 PostgreSQL。
+- 语义搜索先向 Model Manager 请求文本向量，再由 pgvector 排序。
+- 以图搜图先取得图片向量，再由 pgvector 排序。
+- 向量按模型存于 `image_embeddings`；数据库结构见[数据模型](data-model.md)。
 
-- 普通筛选不依赖 AI Service。
-- 语义搜索和以图搜图只检索 `embedding IS NOT NULL` 的图片。
-- 分页通过多取一条计算 `hasNext`，不执行精确总数统计。
-- 列表返回确定性的对象 URL，不逐条访问 MinIO 做存在性检查。
+## 一致性原则
 
-## 一致性与可用性
-
-- PostgreSQL 是图片元数据、标签关系、运行时设置和两类 Job 的事实来源。
-- AI Service 的 `/health` 表示进程可访问，并通过 `status=loading|ok` 暴露模型状态；推理接口在模型未就绪时返回 `503`。
-- Web Service 不依赖 AI Service 健康检查启动，因此 AI 模型加载期间仍可登录、浏览和进行非语义检索。
+- PostgreSQL 拥有业务状态；Model Manager 不写业务数据库。
+- MinIO 对象与数据库记录通过 Backend 的任务流程协调，不使用分布式事务。
+- 上传任务状态与图片分析状态分开管理，分别反映文件入库和 AI 分析。
+- 模型加载由 Model Manager 管理；其健康检查在初始化完成前失败，Compose 等待就绪。

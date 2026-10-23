@@ -36,7 +36,7 @@ const defaults = {
   'ai-job.retry-base-delay-seconds': 30,
   'ai-job.retry-max-delay-seconds': 1800,
   'upload.completed-retention-days': 7,
-  'ai.service-url': 'http://ai-service:8000',
+  'ai.service-url': 'http://model-manager:8000',
   'ai.inference-concurrency': 1
 } satisfies SettingsForm
 
@@ -231,7 +231,7 @@ function updatePassword() {
           <n-form :model="settingsForm" label-placement="top" size="medium">
             <div class="grid grid-cols-1 gap-x-5 sm:grid-cols-2">
               <n-form-item label="服务地址" path="ai.service-url">
-                <n-input v-model:value="settingsForm['ai.service-url']" placeholder="http://ai-service:8000" />
+                <n-input v-model:value="settingsForm['ai.service-url']" placeholder="http://model-manager:8000" />
               </n-form-item>
               <n-form-item label="推理并发数" path="ai.inference-concurrency">
                 <n-input-number v-model:value="settingsForm['ai.inference-concurrency']" :min="1" :max="64" :precision="0" class="w-full" placeholder="1" />

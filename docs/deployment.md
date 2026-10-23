@@ -1,99 +1,48 @@
-# 部署指南
+# 部署与配置
 
-根目录 `docker-compose.yml` 编排 6 个服务，其中 `minio-createbuckets` 是一次性初始化任务。默认部署面向带 NVIDIA GPU 的本机环境，业务数据与模型缓存都挂载到 `./data`。
+本文面向 Docker Compose 部署者，说明服务、环境变量、持久化目录和升级方式。首次运行见[快速开始](getting-started.md)，故障与恢复见[运维手册](operations.md)。
 
-## 服务拓扑与启动依赖
+## 服务拓扑
 
-```mermaid
-flowchart TD
-    DB["db<br/>PostgreSQL + pgvector"]
-    MinIO["minio<br/>对象存储"]
-    Init["minio-createbuckets<br/>创建 images bucket"]
-    AI["ai-service<br/>FastAPI :8000"]
-    Web["backend-web-service<br/>Spring Boot :8080"]
-    Front["frontend<br/>Nginx :80"]
+Compose 默认网络按服务名提供 DNS：`frontend` 调用 `backend`，应用连接 `postgres`、`minio` 和 `model-manager`。
 
-    MinIO -->|"healthy"| Init
-    MinIO -->|"healthy"| AI
-    DB -->|"healthy"| Web
-    MinIO -->|"healthy"| Web
-    Web -->|"healthy"| Front
-    AI -.->|"运行时调用，不阻塞 Web 启动"| Web
-```
+| 服务 | 作用 | 端口/数据 |
+| --- | --- | --- |
+| `frontend` | 页面和 `/api`、`/oss` 代理 | `80` |
+| `backend` | 业务 API、持久化任务 | 内部 `8080` |
+| `model-manager` | CUDA 推理和模型管理 | 内部 `8000`；`data/model_cache` |
+| `postgres` | PostgreSQL 16 + pgvector | 内部 `5432`；`data/postgres` |
+| `minio` | 图片对象存储 | `9000`、`9001`；`data/minio` |
+| `minio-createbuckets` | 创建 `images` bucket 并启用匿名读取 | 一次性初始化任务 |
 
-AI Service 不在 Web Service 的 Compose `depends_on` 中。模型下载或加载期间，前端与 Web Service 可以启动，普通图库操作仍可使用。
+模型服务需要 NVIDIA Driver、NVIDIA Container Toolkit 和可用 GPU。`model-manager` 不作为 `backend` 的启动依赖；非语义功能可在模型加载时使用。服务边界见[架构设计](architecture.md)。
 
-> 从 Redis 上传队列版本升级时，旧队列中的待处理/失败任务不会迁移：这些任务引用旧 Web 进程的本地临时文件，无法可靠恢复，请在升级后重新上传。已完成入库的图片不受影响。确认升级正常后，可自行归档或删除不再使用的 `data/redis`。
+## 配置
 
-## 快速启动
+Compose 未提供 `.env` 时会采用开发默认值。建议复制 `.env.example` 并替换默认凭据：
 
 ```bash
 cp .env.example .env
-# 编辑 .env 并设置本地凭据
-docker compose up -d --build
-docker compose ps
 ```
 
-访问入口：
-
-| 地址 | 用途 |
-| --- | --- |
-| `http://localhost` | BaKaBooru 前端 |
-| `http://localhost:9001` | MinIO 管理控制台 |
-| `http://localhost:9000` | MinIO S3 API（默认对宿主机暴露） |
-
-PostgreSQL、Web 与 AI 服务没有映射到宿主机端口，通过 Compose 网络互访。首次启动时 Flyway 会执行数据库迁移（包括标签字典与持久化任务表），AI Service 会下载模型；耗时取决于网络、磁盘和 GPU 环境。AI Service 不需要数据库账号。
-
-## 数据卷
-
-```mermaid
-flowchart LR
-    Data["项目 ./data"] --> PG["postgres<br/>数据库文件"]
-    Data --> M["minio<br/>原图与缩略图"]
-    Data --> C["model_cache<br/>模型权重与处理器"]
-```
-
-升级或重建容器不会自动删除这些目录。备份时至少应成对保留 PostgreSQL 与 MinIO 数据，避免元数据和对象内容失配。
-
-## 配置分层
-
-### 本地 `.env`
-
-Compose 启动前必须存在 `.env`。可复制 `.env.example` 后填写；`.env` 已被 Git 忽略。
-
-| 变量 | 说明 |
-| --- | --- |
-| `POSTGRES_USER` | PostgreSQL 管理及应用账号 |
-| `POSTGRES_PASSWORD` | PostgreSQL 密码 |
-| `POSTGRES_DB` | 应用数据库名 |
-| `MINIO_ROOT_USER` | MinIO root 账号；当前同时供应用使用 |
-| `MINIO_ROOT_PASSWORD` | MinIO root 密码 |
-
-Compose 使用必填变量表达式，缺少任何上述配置时会在创建容器前失败。不要提交包含真实凭据的 `.env`。
-
-### 应用默认配置
-
-Compose 内部默认使用 `db:5432/bakabooru`、`minio:9000/images` 和 `http://ai-service:8000`。模型缓存目录固定为 `/model_cache`，缩略图规格固定为 `1024 / 0.85 / jpg`。Worker 轮询、心跳、锁租期和清理 cron 属于启动配置，不在系统设置页动态修改。
-
-AI Service 的 `DEVICE` 未设置时默认为 `auto`，自动选择 CUDA 或 CPU。需要接入 Compose 外部服务时，可按 `application.yml` 中对应的变量名覆盖非敏感地址。
-
-### 运行时设置
-
-以下配置保存在 PostgreSQL，可在系统设置页修改，并作用于保存后的新任务或下一次清理：
-
-| 设置 | 默认值 | 范围 |
+| 变量 | 用途 | 默认值 |
 | --- | --- | --- |
-| 标签阈值 | `0.61` | `0.0-1.0` |
-| AI 最大尝试次数 | `5` | `1-20` |
-| AI 重试初始延迟 | `30` 秒 | `1-3600` 秒 |
-| AI 重试最大延迟 | `1800` 秒 | `1-86400` 秒，且不小于初始延迟 |
-| 已完成上传任务保留期 | `7` 天 | `1-365` 天 |
+| `POSTGRES_USER` | 数据库用户 | `bakabooru` |
+| `POSTGRES_PASSWORD` | 数据库密码 | `change-me` |
+| `POSTGRES_DB` | 数据库名 | `bakabooru` |
+| `MINIO_ROOT_USER` | MinIO root 用户及应用访问凭据 | `bakabooru` |
+| `MINIO_ROOT_PASSWORD` | MinIO root 密码及应用访问凭据 | `change-me` |
 
-认证密码、初始化标记和基础设施凭据不通过通用设置 API 返回或修改。当前 MinIO bucket 被初始化为匿名可读，以支持 `/oss/*` 图片展示；若要改为私有 bucket，需要同时改造 URL 签名/代理策略。
+`.env` 只用于 Compose 注入基础设施凭据，不应提交到版本库。应用地址和 Worker 默认值见 `backend/src/main/resources/application.yml` 与 `model-manager/app/core/settings.py`。可通过 `MODEL_MANAGER_URL` 覆盖 Backend 到模型服务的地址；标签阈值、重试策略等运行时设置由 UI 管理。
 
-## 配置变更影响
+MinIO bucket 当前配置为匿名可读，以支持浏览器图片代理。对外部署应在网络层限制 MinIO 管理入口；改为私有 bucket 需要同步实现鉴权图片代理或签名 URL。
 
-- 修改 `.env` 中的凭据后，需要同步依赖服务并重启容器；已有 PostgreSQL 或 MinIO 数据目录不会自动接受新的初始化凭据。
-- 修改运行时 AI 重试参数不会重写已完成或已失败任务，只影响后续失败判断和重试时间计算。
-- 更改模型缓存目录时应保留卷挂载，否则每次重建都可能重新下载模型。
-- CPU-only 环境需移除或调整 `gpus: all`，并确认所安装的 ONNX Runtime 与目标环境兼容。
+## 升级与持久化
+
+```bash
+docker compose up -d --build --wait
+```
+
+数据库 migration 会在 Backend 启动时应用。服务名已统一为 `backend` 和 `model-manager`；Compose 会按新服务配置重建容器，数据目录保持不变。凭据变更不会自动重写已有 PostgreSQL/MinIO 数据目录中的账号。
+
+`data/postgres`、`data/minio` 和 `data/model_cache` 是宿主持久化目录。数据库和 MinIO 对象应成对备份；模型缓存可重新下载。备份/恢复见[运维手册](operations.md)。

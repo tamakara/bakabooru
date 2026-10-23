@@ -1,31 +1,20 @@
 services:
-  # ===================================================
-  # 1. 基础设施：PostgreSQL (pgvector)
-  # ===================================================
   postgres:
     image: pgvector/pgvector:pg16
-    container_name: bakabooru-postgres
-    restart: always
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-bakabooru}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
       POSTGRES_DB: ${POSTGRES_DB:-bakabooru}
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
-    networks: [bakabooru-net]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 5
 
-  # ===================================================
-  # 2. 基础设施：MinIO
-  # ===================================================
   minio:
     image: minio/minio
-    container_name: bakabooru-minio
-    restart: always
     command: server /data --console-address ":9001"
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-bakabooru}
@@ -33,7 +22,6 @@ services:
     ports: ["9000:9000", "9001:9001"]
     volumes:
       - ./data/minio:/data
-    networks: [bakabooru-net]
     healthcheck:
       test:
         ["CMD-SHELL", "timeout 5s bash -c '</dev/tcp/localhost/9000' || exit 1"]
@@ -49,30 +37,22 @@ services:
     depends_on:
       minio:
         condition: service_healthy
-    networks: [bakabooru-net]
     entrypoint: >
       /bin/sh -c "
+      set -e;
       /usr/bin/mc alias set myminio http://minio:9000 $${MINIO_ROOT_USER} $${MINIO_ROOT_PASSWORD};
       /usr/bin/mc mb --ignore-existing myminio/images;
       /usr/bin/mc anonymous set public myminio/images;
-      exit 0;
       "
 
-  # ===================================================
-  # 3. AI计算：AI Service (Python FastAPI)
-  # ===================================================
-  ai-service:
-    build: ./ai-service
-    container_name: bakabooru-ai-service
-    restart: always
+  model-manager:
+    build: ./model-manager
     environment:
       MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-bakabooru}
       MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-change-me}
-      DEVICE: cuda
     gpus: all
     volumes:
       - ./data/model_cache:/model_cache
-    networks: [bakabooru-net]
     healthcheck:
       test:
         [
@@ -86,16 +66,11 @@ services:
       retries: 3
       start_period: 30s
     depends_on:
-      minio:
-        condition: service_healthy
+      minio-createbuckets:
+        condition: service_completed_successfully
 
-  # ===================================================
-  # 4. 核心业务：Web Service (Java Spring Boot)
-  # ===================================================
-  web-service:
-    build: ./web-service
-    container_name: bakabooru-web-service
-    restart: always
+  backend:
+    build: ./backend
     environment:
       # DB 配置
       DB_USER: ${POSTGRES_USER:-bakabooru}
@@ -104,7 +79,6 @@ services:
       # MinIO 配置
       MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-bakabooru}
       MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-change-me}
-    networks: [bakabooru-net]
     healthcheck:
       test:
         [
@@ -122,22 +96,12 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      minio:
-        condition: service_healthy
+      minio-createbuckets:
+        condition: service_completed_successfully
 
-  # ===================================================
-  # 5. 交互界面：Frontend (Nginx)
-  # ===================================================
   frontend:
     build: ./frontend
-    container_name: bakabooru-frontend
-    restart: always
     ports: ["80:80"]
-    networks: [bakabooru-net]
     depends_on:
-      web-service:
+      backend:
         condition: service_healthy
-
-networks:
-  bakabooru-net:
-    driver: bridge
