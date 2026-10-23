@@ -8,10 +8,7 @@ services:
     volumes:
       - ${DATA_DIR}/postgres:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}"]
 
   minio:
     image: minio/minio
@@ -23,11 +20,7 @@ services:
     volumes:
       - ${DATA_DIR}/minio:/data
     healthcheck:
-      test:
-        ["CMD-SHELL", "timeout 5s bash -c '</dev/tcp/localhost/9000' || exit 1"]
-      interval: 30s
-      timeout: 20s
-      retries: 3
+      test: ["CMD", "mc", "ready", "local"]
 
   model-manager:
     build: ./model-manager
