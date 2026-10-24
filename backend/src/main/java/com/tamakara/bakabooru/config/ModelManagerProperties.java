@@ -9,6 +9,6 @@ import org.springframework.stereotype.Component;
 @Setter
 @Component
 @ConfigurationProperties(prefix = "app.ai-service")
-public class AiServiceProperties {
+public class ModelManagerProperties {
     private String url;
 }

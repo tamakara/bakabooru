@@ -1,8 +1,8 @@
 package com.tamakara.bakabooru.module.search.service;
 
-import com.tamakara.bakabooru.module.ai.dto.EmbeddingResponseDto;
-import com.tamakara.bakabooru.module.ai.service.EmbeddingService;
-import com.tamakara.bakabooru.module.ai.service.ParseQueryService;
+import com.tamakara.bakabooru.module.model.dto.EmbeddingResponseDto;
+import com.tamakara.bakabooru.module.model.service.EmbeddingService;
+import com.tamakara.bakabooru.module.model.service.QueryParsingService;
 import com.tamakara.bakabooru.module.search.dto.SearchRequestDto;
 import com.tamakara.bakabooru.module.search.dto.SearchResultDto;
 import com.tamakara.bakabooru.module.image.dto.ImageThumbnailDto;
@@ -23,7 +23,7 @@ import java.util.stream.DoubleStream;
 public class SearchService {
 
     private final ImageSearchService imageSearchService;
-    private final ParseQueryService parseQueryService;
+    private final QueryParsingService queryParsingService;
     private final EmbeddingService embeddingService;
 
     @Transactional(readOnly = true)
@@ -60,7 +60,7 @@ public class SearchService {
             if (!StringUtils.hasText(request.getVectorModelId())) {
                 throw new IllegalArgumentException("vectorModelId is required for semantic search");
             }
-            EmbeddingResponseDto embeddingResult = parseQueryService.generateEmbedding(request.getSemanticQuery(), request.getVectorModelId());
+            EmbeddingResponseDto embeddingResult = queryParsingService.generateEmbedding(request.getSemanticQuery(), request.getVectorModelId());
             if (embeddingResult.getEmbedding() != null) {
                 searchDto.setEmbedding(embeddingResult.getEmbedding().stream()
                         .map(Double::floatValue)

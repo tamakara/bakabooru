@@ -1,7 +1,7 @@
 package com.tamakara.bakabooru.controller;
 
 import com.tamakara.bakabooru.module.system.service.SystemSettingService;
-import com.tamakara.bakabooru.module.ai.client.AiServiceClient;
+import com.tamakara.bakabooru.module.model.client.ModelManagerClient;
 import com.tamakara.bakabooru.module.system.dto.SettingDefinitionDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,7 +22,7 @@ import java.util.List;
 public class SettingsController {
 
     private final SystemSettingService systemSettingService;
-    private final AiServiceClient aiServiceClient;
+    private final ModelManagerClient modelManagerClient;
 
     @GetMapping
     @Operation(summary = "operation")
@@ -41,7 +41,7 @@ public class SettingsController {
         try {
             systemSettingService.updateEditableSettings(settings);
             try {
-                aiServiceClient.updateRuntimeSettings(Map.of(
+                modelManagerClient.updateRuntimeSettings(Map.of(
                         "inference_concurrency", Integer.parseInt(settings.getOrDefault("ai.inference-concurrency", systemSettingService.getOptionalSetting("ai.inference-concurrency", "1")))));
             } catch (RuntimeException ignored) {
                 // Settings remain persisted while Model Manager is offline; it receives them on its next reload.

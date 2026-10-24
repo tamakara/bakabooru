@@ -1,9 +1,9 @@
 package com.tamakara.bakabooru.module.image.service;
 
-import com.tamakara.bakabooru.module.ai.service.AiJobService;
+import com.tamakara.bakabooru.module.model.service.AnalysisJobService;
 import com.tamakara.bakabooru.module.image.dto.ImageDto;
-import com.tamakara.bakabooru.module.image.dto.BatchAiTagsRequest;
-import com.tamakara.bakabooru.module.image.dto.BatchAiVectorsRequest;
+import com.tamakara.bakabooru.module.image.dto.BatchTagsRequest;
+import com.tamakara.bakabooru.module.image.dto.BatchVectorsRequest;
 import com.tamakara.bakabooru.module.image.entity.Image;
 import com.tamakara.bakabooru.module.image.mapper.ImageMapper;
 import com.tamakara.bakabooru.module.image.repository.ImageRepository;
@@ -33,7 +33,7 @@ public class ImageService {
     private final ImageMapper imageMapper;
     private final StorageService storageService;
     private final TagService tagService;
-    private final AiJobService aiJobService;
+    private final AnalysisJobService analysisJobService;
 
     @Transactional
     public ImageDto getImage(Long id) {
@@ -94,12 +94,12 @@ public class ImageService {
         return imageMapper.toDto(imageRepository.save(image));
     }
 
-    public ImageDto retryAiProcessing(Long id) {
-        return retryAiProcessing(id, null);
+    public ImageDto retryAnalysis(Long id) {
+        return retryAnalysis(id, null);
     }
 
-    public ImageDto retryAiProcessing(Long id, String capability) {
-        Image image = aiJobService.retry(id, capability);
+    public ImageDto retryAnalysis(Long id, String capability) {
+        Image image = analysisJobService.retry(id, capability);
         return imageMapper.toDto(image);
     }
 
@@ -121,12 +121,12 @@ public class ImageService {
                 }
             }
         }
-        aiJobService.enqueue(image, tagModelId, vectorModelIds);
+        analysisJobService.enqueue(image, tagModelId, vectorModelIds);
         return imageMapper.toDto(image);
     }
 
     @Transactional
-    public List<ImageDto> enqueueBatchTags(BatchAiTagsRequest request) {
+    public List<ImageDto> enqueueBatchTags(BatchTagsRequest request) {
         if (request == null || request.ids() == null || request.ids().isEmpty()
                 || request.modelId() == null || request.modelId().isBlank()) {
             throw new IllegalArgumentException("图片列表和标签模型不能为空");
@@ -139,7 +139,7 @@ public class ImageService {
     }
 
     @Transactional
-    public List<ImageDto> enqueueBatchVectors(BatchAiVectorsRequest request) {
+    public List<ImageDto> enqueueBatchVectors(BatchVectorsRequest request) {
         if (request == null || request.ids() == null || request.ids().isEmpty()
                 || request.modelIds() == null || request.modelIds().stream().allMatch(id -> id == null || id.isBlank())) {
             throw new IllegalArgumentException("图片列表和向量模型不能为空");

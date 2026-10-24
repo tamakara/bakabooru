@@ -1,12 +1,12 @@
-package com.tamakara.bakabooru.module.ai.dto;
+package com.tamakara.bakabooru.module.model.dto;
 
-import com.tamakara.bakabooru.module.ai.entity.AiModel;
+import com.tamakara.bakabooru.module.model.entity.Model;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class AiModelDto {
+public class ModelDto {
     private String id;
     private String name;
     private String capability;
@@ -18,8 +18,8 @@ public class AiModelDto {
     private java.util.List<String> capabilities;
     private String errorMessage;
 
-    public static AiModelDto from(AiModel model) {
-        AiModelDto dto = new AiModelDto();
+    public static ModelDto from(Model model) {
+        ModelDto dto = new ModelDto();
         dto.id = model.getId();
         dto.name = model.getName();
         dto.capability = model.getCapability();
@@ -37,8 +37,8 @@ public class AiModelDto {
         return dto;
     }
 
-    public static AiModelDto fromRemote(java.util.Map<?, ?> model) {
-        AiModelDto dto = new AiModelDto();
+    public static ModelDto fromRemote(java.util.Map<?, ?> model) {
+        ModelDto dto = new ModelDto();
         dto.id = value(model, "id");
         dto.name = value(model, "name");
         dto.type = value(model, "type");

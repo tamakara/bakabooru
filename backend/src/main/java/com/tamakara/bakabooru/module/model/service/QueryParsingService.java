@@ -1,16 +1,16 @@
-package com.tamakara.bakabooru.module.ai.service;
+package com.tamakara.bakabooru.module.model.service;
 
-import com.tamakara.bakabooru.module.ai.client.AiServiceClient;
-import com.tamakara.bakabooru.module.ai.dto.EmbeddingResponseDto;
-import com.tamakara.bakabooru.module.ai.dto.SemanticSearchRequestDto;
+import com.tamakara.bakabooru.module.model.client.ModelManagerClient;
+import com.tamakara.bakabooru.module.model.dto.EmbeddingResponseDto;
+import com.tamakara.bakabooru.module.model.dto.SemanticSearchRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class ParseQueryService {
+public class QueryParsingService {
 
-    private final AiServiceClient aiServiceClient;
+    private final ModelManagerClient modelManagerClient;
 
     public EmbeddingResponseDto generateEmbedding(String query) {
         return generateEmbedding(query, null);
@@ -20,7 +20,7 @@ public class ParseQueryService {
         SemanticSearchRequestDto request = new SemanticSearchRequestDto();
         request.setQuery(query);
         request.setModelId(modelId);
-        EmbeddingResponseDto response = aiServiceClient.generateEmbedding(request);
+        EmbeddingResponseDto response = modelManagerClient.generateEmbedding(request);
         if (response == null || response.getEmbedding() == null || response.getEmbedding().size() != 512) {
             throw new IllegalStateException("AI text embedding response must contain 512 values");
         }

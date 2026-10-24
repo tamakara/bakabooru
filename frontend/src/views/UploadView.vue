@@ -2,7 +2,7 @@
 import {computed, h, ref, watch} from 'vue'
 import {useMutation, useQuery, useQueryClient} from '@tanstack/vue-query'
 import {uploadApi, type UploadTask} from '../api/upload'
-import {aiModelApi} from '../api/system'
+import {modelManagerApi} from '../api/system'
 import {useQueueStore} from '../stores/queue'
 import {
   type DataTableColumns,
@@ -29,15 +29,15 @@ const message = useMessage()
 const queryClient = useQueryClient()
 const queueStore = useQueueStore()
 
-const {data: aiModels} = useQuery({queryKey: ['aiModels'], queryFn: aiModelApi.list})
+const {data: models} = useQuery({queryKey: ['models'], queryFn: modelManagerApi.list})
 const selectedTagModelId = ref<string | null>(localStorage.getItem('bakabooru.tagModelId'))
 const selectedVectorModelIds = ref<string[]>(JSON.parse(localStorage.getItem('bakabooru.vectorModelIds') || '[]'))
 watch(selectedTagModelId, value => value ? localStorage.setItem('bakabooru.tagModelId', value) : localStorage.removeItem('bakabooru.tagModelId'))
 watch(selectedVectorModelIds, value => localStorage.setItem('bakabooru.vectorModelIds', JSON.stringify(value)))
-const tagModelOptions = computed(() => (aiModels.value || [])
+const tagModelOptions = computed(() => (models.value || [])
   .filter(model => model.type === 'TAGGER' && model.artifactState === 'READY')
   .map(model => ({label: model.name, value: model.id})))
-const vectorModelOptions = computed(() => (aiModels.value || [])
+const vectorModelOptions = computed(() => (models.value || [])
   .filter(model => model.type === 'CLIP' && model.artifactState === 'READY')
   .map(model => ({label: model.name, value: model.id})))
 

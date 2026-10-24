@@ -1,12 +1,12 @@
-package com.tamakara.bakabooru.module.ai.service;
+package com.tamakara.bakabooru.module.model.service;
 
-import com.tamakara.bakabooru.config.AiJobProperties;
-import com.tamakara.bakabooru.module.ai.client.AiServiceClient;
-import com.tamakara.bakabooru.module.ai.dto.AnalyzeImageRequestDto;
-import com.tamakara.bakabooru.module.ai.dto.AnalyzeImageResponseDto;
-import com.tamakara.bakabooru.module.ai.entity.AiJob;
-import com.tamakara.bakabooru.module.ai.entity.AiJobStatus;
-import com.tamakara.bakabooru.module.ai.repository.AiJobRepository;
+import com.tamakara.bakabooru.config.AnalysisJobProperties;
+import com.tamakara.bakabooru.module.model.client.ModelManagerClient;
+import com.tamakara.bakabooru.module.model.dto.ImageAnalysisRequestDto;
+import com.tamakara.bakabooru.module.model.dto.ImageAnalysisResponseDto;
+import com.tamakara.bakabooru.module.model.entity.AnalysisJob;
+import com.tamakara.bakabooru.module.model.entity.AnalysisJobStatus;
+import com.tamakara.bakabooru.module.model.repository.AnalysisJobRepository;
 import com.tamakara.bakabooru.module.image.entity.Image;
 import com.tamakara.bakabooru.module.image.entity.ImageEmbedding;
 import com.tamakara.bakabooru.module.image.repository.ImageRepository;
@@ -33,13 +33,13 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class AiJobWorker {
-    private final AiJobRepository aiJobRepository;
+public class AnalysisJobWorker {
+    private final AnalysisJobRepository analysisJobRepository;
     private final ImageRepository imageRepository;
-    private final AiServiceClient aiServiceClient;
+    private final ModelManagerClient modelManagerClient;
     private final TagService tagService;
     private final SystemSettingService systemSettingService;
-    private final AiJobProperties properties;
+    private final AnalysisJobProperties properties;
     private final TransactionTemplate transactionTemplate;
     private final StorageService storageService;
     private final String workerId = UUID.randomUUID().toString();
@@ -50,15 +50,15 @@ public class AiJobWorker {
     @Scheduled(fixedRateString = "${app.ai-job.heartbeat-interval-ms:30000}")
     public void extendActiveLocks() {
         Instant now = Instant.now();
-        transactionTemplate.executeWithoutResult(status -> aiJobRepository.extendWorkerLocks(workerId, AiJobStatus.RUNNING, now.plus(properties.getLockDuration()), now));
+        transactionTemplate.executeWithoutResult(status -> analysisJobRepository.extendWorkerLocks(workerId, AnalysisJobStatus.RUNNING, now.plus(properties.getLockDuration()), now));
     }
 
     Long claimNextJob() {
-        return transactionTemplate.execute(status -> aiJobRepository.findNextClaimable(Instant.now()).map(job -> {
+        return transactionTemplate.execute(status -> analysisJobRepository.findNextClaimable(Instant.now()).map(job -> {
             Instant now = Instant.now();
-            job.setStatus(AiJobStatus.RUNNING); job.setAttempts(job.getAttempts() + 1); job.setLockedBy(workerId);
+            job.setStatus(AnalysisJobStatus.RUNNING); job.setAttempts(job.getAttempts() + 1); job.setLockedBy(workerId);
             job.setLockedUntil(now.plus(properties.getLockDuration())); job.setUpdatedAt(now);
-            aiJobRepository.saveAndFlush(job);
+            analysisJobRepository.saveAndFlush(job);
             Image image = job.getImage(); image.setStatus("ANALYZING"); image.setAnalysisStage(activeStage(image.getId()));
             image.setAnalysisError(null); image.setAnalysisStartedAt(now); image.setAnalysisCompletedAt(null);
             if (job.getVectorModelIds() != null) for (String modelId : job.getVectorModelIds().split(",")) image.getIndexVectors().stream().filter(vector -> modelId.trim().equals(vector.getModelId())).forEach(vector -> vector.setStatus("PROCESSING"));
@@ -68,36 +68,36 @@ public class AiJobWorker {
 
     void processJob(Long jobId) {
         try {
-            ProcessingInput input = transactionTemplate.execute(status -> aiJobRepository.findById(jobId)
+            ProcessingInput input = transactionTemplate.execute(status -> analysisJobRepository.findById(jobId)
                     .map(job -> new ProcessingInput(job.getImage().getHash(), job.getTagModelId(), job.getVectorModelIds(), job.getCapability()))
                     .orElseThrow(() -> new IllegalStateException("AI job not found: " + jobId)));
             if (!storageService.existFile("original/" + input.hash())) {
-                transactionTemplate.executeWithoutResult(tx -> aiJobRepository.findById(jobId).ifPresent(job -> {
-                    job.setStatus(AiJobStatus.FAILED);
+                transactionTemplate.executeWithoutResult(tx -> analysisJobRepository.findById(jobId).ifPresent(job -> {
+                    job.setStatus(AnalysisJobStatus.FAILED);
                     job.setErrorMessage("Source file is missing");
                     job.setCompletedAt(Instant.now());
                     job.setLockedBy(null);
                     job.setLockedUntil(null);
                     job.getImage().setStatus("MISSING");
-                    aiJobRepository.save(job);
+                    analysisJobRepository.save(job);
                 }));
                 return;
             }
             double threshold = systemSettingService.getDoubleSetting(SystemSettingService.TAG_THRESHOLD);
             List<String> models = input.vectorModelIds() == null || input.vectorModelIds().isBlank() ? null : Arrays.stream(input.vectorModelIds().split(",")).map(String::trim).toList();
-            AnalyzeImageRequestDto request = new AnalyzeImageRequestDto("original/" + input.hash(), threshold, input.tagModelId(), models);
-            AnalyzeImageResponseDto response = switch (input.capability()) {
-                case "TAGS" -> aiServiceClient.analyzeTags(request);
-                case "VECTORS" -> aiServiceClient.analyzeVectors(request);
-                default -> aiServiceClient.analyzeImage(request);
+            ImageAnalysisRequestDto request = new ImageAnalysisRequestDto("original/" + input.hash(), threshold, input.tagModelId(), models);
+            ImageAnalysisResponseDto response = switch (input.capability()) {
+                case "TAGS" -> modelManagerClient.analyzeTags(request);
+                case "VECTORS" -> modelManagerClient.analyzeVectors(request);
+                default -> modelManagerClient.analyzeImage(request);
             };
             validateResponse(response, input.capability());
             transactionTemplate.executeWithoutResult(status -> completeJob(jobId, response));
         } catch (Exception error) { markFailure(jobId, error); }
     }
 
-    void completeJob(Long jobId, AnalyzeImageResponseDto response) {
-        AiJob job = aiJobRepository.findById(jobId).orElse(null); if (!owns(job)) return;
+    void completeJob(Long jobId, ImageAnalysisResponseDto response) {
+        AnalysisJob job = analysisJobRepository.findById(jobId).orElse(null); if (!owns(job)) return;
         Image image = job.getImage(); String selectedVectors = job.getVectorModelIds();
         if (selectedVectors != null && !selectedVectors.isBlank()) {
             Map<String, List<Double>> embeddings = response.getEmbeddings();
@@ -134,12 +134,12 @@ public class AiJobWorker {
                     relation.setImage(null);
                 }
             }
-            Map<Long, com.tamakara.bakabooru.module.tag.entity.ImageTagRelation> existingAi = new HashMap<>();
+            Map<Long, com.tamakara.bakabooru.module.tag.entity.ImageTagRelation> existingAnalysisRelations = new HashMap<>();
             Set<Long> existingTagIds = image.getTagRelations().stream()
                     .filter(relation -> relation.getTag() != null && relation.getTag().getId() != null)
                     .peek(relation -> {
                         if ("AI".equals(relation.getSourceType())) {
-                            existingAi.put(relation.getTag().getId(), relation);
+                            existingAnalysisRelations.put(relation.getTag().getId(), relation);
                         }
                     })
                     .map(relation -> relation.getTag().getId())
@@ -147,7 +147,7 @@ public class AiJobWorker {
             for (Map.Entry<String, Double> entry : response.getTags().entrySet()) {
                 try {
                     Tag tag = tagService.getTagByName(entry.getKey());
-                    var relation = existingAi.remove(tag.getId());
+                    var relation = existingAnalysisRelations.remove(tag.getId());
                     if (relation != null) {
                         relation.setScore(entry.getValue());
                     } else if (existingTagIds.add(tag.getId())) {
@@ -160,35 +160,35 @@ public class AiJobWorker {
             // keeping both sides of the relationship synchronized.
             for (var iterator = image.getTagRelations().iterator(); iterator.hasNext();) {
                 var relation = iterator.next();
-                if (existingAi.containsValue(relation)) {
+                if (existingAnalysisRelations.containsValue(relation)) {
                     iterator.remove();
                     relation.setImage(null);
                 }
             }
         }
-        Instant now = Instant.now(); job.setStatus(AiJobStatus.COMPLETED); job.setErrorMessage(null); job.setLockedBy(null); job.setLockedUntil(null); job.setUpdatedAt(now); job.setCompletedAt(now);
-        aiJobRepository.save(job); refreshImageStatus(image, now);
+        Instant now = Instant.now(); job.setStatus(AnalysisJobStatus.COMPLETED); job.setErrorMessage(null); job.setLockedBy(null); job.setLockedUntil(null); job.setUpdatedAt(now); job.setCompletedAt(now);
+        analysisJobRepository.save(job); refreshImageStatus(image, now);
     }
 
     void markFailure(Long jobId, Exception error) {
         transactionTemplate.executeWithoutResult(status -> {
-            AiJob job = aiJobRepository.findById(jobId).orElse(null); if (!owns(job)) return;
+            AnalysisJob job = analysisJobRepository.findById(jobId).orElse(null); if (!owns(job)) return;
             Instant now = Instant.now(); String message = error.getMessage() == null ? error.getClass().getSimpleName() : error.getMessage();
             job.setErrorMessage(message); job.setLockedBy(null); job.setLockedUntil(null); job.setUpdatedAt(now);
-            if (job.getAttempts() >= systemSettingService.getAiMaxAttempts()) { job.setStatus(AiJobStatus.FAILED); job.setCompletedAt(now); }
-            else { job.setStatus(AiJobStatus.PENDING); job.setNextRetryAt(now.plus(retryDelay(job.getAttempts()))); }
-            aiJobRepository.save(job); Image image = job.getImage(); image.setAnalysisError(message); image.setAnalysisCompletedAt(job.getStatus() == AiJobStatus.FAILED ? now : null);
-            if (job.getStatus() == AiJobStatus.FAILED && job.getVectorModelIds() != null) for (String modelId : job.getVectorModelIds().split(",")) image.getIndexVectors().stream().filter(vector -> modelId.trim().equals(vector.getModelId())).forEach(vector -> { vector.setStatus("FAILED"); vector.setErrorMessage(message); });
+            if (job.getAttempts() >= systemSettingService.getAnalysisMaxAttempts()) { job.setStatus(AnalysisJobStatus.FAILED); job.setCompletedAt(now); }
+            else { job.setStatus(AnalysisJobStatus.PENDING); job.setNextRetryAt(now.plus(retryDelay(job.getAttempts()))); }
+            analysisJobRepository.save(job); Image image = job.getImage(); image.setAnalysisError(message); image.setAnalysisCompletedAt(job.getStatus() == AnalysisJobStatus.FAILED ? now : null);
+            if (job.getStatus() == AnalysisJobStatus.FAILED && job.getVectorModelIds() != null) for (String modelId : job.getVectorModelIds().split(",")) image.getIndexVectors().stream().filter(vector -> modelId.trim().equals(vector.getModelId())).forEach(vector -> { vector.setStatus("FAILED"); vector.setErrorMessage(message); });
             refreshImageStatus(image, now);
         });
     }
 
     private void refreshImageStatus(Image image, Instant now) {
         if (!storageService.existFile("original/" + image.getHash())) image.setStatus("MISSING");
-        else if (aiJobRepository.existsByImageIdAndStatusIn(image.getId(), List.of(AiJobStatus.PENDING, AiJobStatus.RUNNING))) { image.setStatus("ANALYZING"); image.setAnalysisStage(activeStage(image.getId())); image.setAnalysisCompletedAt(null); }
+        else if (analysisJobRepository.existsByImageIdAndStatusIn(image.getId(), List.of(AnalysisJobStatus.PENDING, AnalysisJobStatus.RUNNING))) { image.setStatus("ANALYZING"); image.setAnalysisStage(activeStage(image.getId())); image.setAnalysisCompletedAt(null); }
         else {
-            AiJob latest = aiJobRepository.findFirstByImageIdOrderByUpdatedAtDesc(image.getId()).orElse(null);
-            boolean failed = latest != null && latest.getStatus() == AiJobStatus.FAILED;
+            AnalysisJob latest = analysisJobRepository.findFirstByImageIdOrderByUpdatedAtDesc(image.getId()).orElse(null);
+            boolean failed = latest != null && latest.getStatus() == AnalysisJobStatus.FAILED;
             image.setStatus(failed ? "ERROR" : "NORMAL");
             image.setAnalysisStage(failed && latest != null ? latest.getCapability() : null);
             if (!failed) { image.setAnalysisError(null); image.setAnalysisCompletedAt(now); }
@@ -196,9 +196,9 @@ public class AiJobWorker {
         imageRepository.save(image);
     }
 
-    private boolean owns(AiJob job) { return job != null && job.getStatus() == AiJobStatus.RUNNING && workerId.equals(job.getLockedBy()); }
-    Duration retryDelay(int attempts) { long multiplier = 1L << Math.min(Math.max(attempts - 1, 0), 20); Duration delay = Duration.ofSeconds(systemSettingService.getAiRetryBaseDelaySeconds()).multipliedBy(multiplier); Duration max = Duration.ofSeconds(systemSettingService.getAiRetryMaxDelaySeconds()); return delay.compareTo(max) > 0 ? max : delay; }
-    private void validateResponse(AnalyzeImageResponseDto response, String capability) {
+    private boolean owns(AnalysisJob job) { return job != null && job.getStatus() == AnalysisJobStatus.RUNNING && workerId.equals(job.getLockedBy()); }
+    Duration retryDelay(int attempts) { long multiplier = 1L << Math.min(Math.max(attempts - 1, 0), 20); Duration delay = Duration.ofSeconds(systemSettingService.getAnalysisRetryBaseDelaySeconds()).multipliedBy(multiplier); Duration max = Duration.ofSeconds(systemSettingService.getAnalysisRetryMaxDelaySeconds()); return delay.compareTo(max) > 0 ? max : delay; }
+    private void validateResponse(ImageAnalysisResponseDto response, String capability) {
         if (response == null) throw new IllegalStateException("AI response invalid");
         if (!"TAGS".equals(capability) && response.getEmbedding() == null && (response.getEmbeddings() == null || response.getEmbeddings().isEmpty())) {
             throw new IllegalStateException("AI vector response invalid");
@@ -213,8 +213,8 @@ public class AiJobWorker {
     private String activeStage(Long imageId) {
         boolean tags = false;
         boolean vectors = false;
-        for (AiJob job : aiJobRepository.findAllByImageId(imageId)) {
-            if (job.getStatus() != AiJobStatus.PENDING && job.getStatus() != AiJobStatus.RUNNING) continue;
+        for (AnalysisJob job : analysisJobRepository.findAllByImageId(imageId)) {
+            if (job.getStatus() != AnalysisJobStatus.PENDING && job.getStatus() != AnalysisJobStatus.RUNNING) continue;
             tags |= "TAGS".equals(job.getCapability()) || "TAGS_AND_VECTORS".equals(job.getCapability());
             vectors |= "VECTORS".equals(job.getCapability()) || "TAGS_AND_VECTORS".equals(job.getCapability());
         }

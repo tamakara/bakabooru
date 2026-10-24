@@ -1,7 +1,7 @@
 package com.tamakara.bakabooru.controller;
 
-import com.tamakara.bakabooru.module.ai.dto.AiModelDto;
-import com.tamakara.bakabooru.module.ai.service.AiModelService;
+import com.tamakara.bakabooru.module.model.dto.ModelDto;
+import com.tamakara.bakabooru.module.model.service.ModelManagerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,21 +10,21 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/ai/models")
 @RequiredArgsConstructor
-public class AiModelController {
-    private final AiModelService service;
+public class ModelManagerController {
+    private final ModelManagerService service;
 
     @GetMapping
-    public List<AiModelDto> list() {
+    public List<ModelDto> list() {
         return service.list();
     }
 
     @PostMapping("/{id}/download")
-    public AiModelDto download(@PathVariable String id) {
+    public ModelDto download(@PathVariable String id) {
         return service.markDownloadStarted(id);
     }
 
     @DeleteMapping("/{id}/artifact")
-    public AiModelDto uninstall(@PathVariable String id) {
+    public ModelDto uninstall(@PathVariable String id) {
         return service.uninstall(id);
     }
 }

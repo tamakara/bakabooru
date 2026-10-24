@@ -1,4 +1,4 @@
-package com.tamakara.bakabooru.module.ai.entity;
+package com.tamakara.bakabooru.module.model.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,7 +15,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @Entity
 @Table(name = "ai_models")
-public class AiModel {
+public class Model {
     @Id
     private String id;
     @Column(nullable = false)

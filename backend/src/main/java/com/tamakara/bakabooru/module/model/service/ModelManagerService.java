@@ -1,9 +1,9 @@
-package com.tamakara.bakabooru.module.ai.service;
+package com.tamakara.bakabooru.module.model.service;
 
-import com.tamakara.bakabooru.module.ai.dto.AiModelDto;
-import com.tamakara.bakabooru.module.ai.client.AiServiceClient;
-import com.tamakara.bakabooru.module.ai.entity.AiModel;
-import com.tamakara.bakabooru.module.ai.repository.AiModelRepository;
+import com.tamakara.bakabooru.module.model.dto.ModelDto;
+import com.tamakara.bakabooru.module.model.client.ModelManagerClient;
+import com.tamakara.bakabooru.module.model.entity.Model;
+import com.tamakara.bakabooru.module.model.repository.ModelRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,15 +15,15 @@ import java.time.Instant;
 
 @Service
 @RequiredArgsConstructor
-public class AiModelService {
-    private final AiModelRepository repository;
-    private final AiServiceClient aiServiceClient;
+public class ModelManagerService {
+    private final ModelRepository repository;
+    private final ModelManagerClient modelManagerClient;
 
     @Transactional
-    public List<AiModelDto> list() {
-        List<AiModel> models = repository.findAllByOrderByNameAsc();
+    public List<ModelDto> list() {
+        List<Model> models = repository.findAllByOrderByNameAsc();
         try {
-            List<?> remote = aiServiceClient.modelCatalog();
+            List<?> remote = modelManagerClient.modelCatalog();
             final List<?> remoteCatalog = remote == null ? List.of() : remote;
             var states = remoteCatalog.stream()
                     .filter(Map.class::isInstance)
@@ -43,29 +43,29 @@ public class AiModelService {
                 }
             });
             repository.saveAll(models);
-            List<AiModelDto> result = new ArrayList<>(models.stream().map(model -> {
-                AiModelDto dto = AiModelDto.from(model);
+            List<ModelDto> result = new ArrayList<>(models.stream().map(model -> {
+                ModelDto dto = ModelDto.from(model);
                 dto.setErrorMessage(errors.get(model.getId()));
                 return dto;
             }).toList());
-            java.util.Set<String> knownIds = models.stream().map(AiModel::getId).collect(java.util.stream.Collectors.toSet());
+            java.util.Set<String> knownIds = models.stream().map(Model::getId).collect(java.util.stream.Collectors.toSet());
             remoteCatalog.stream().filter(Map.class::isInstance).map(item -> (Map<?, ?>) item)
                     .filter(item -> item.get("id") != null && !knownIds.contains(item.get("id").toString()))
-                    .forEach(item -> result.add(AiModelDto.fromRemote(item)));
-            result.sort(java.util.Comparator.comparing(AiModelDto::getName, java.util.Comparator.nullsLast(String::compareToIgnoreCase)));
+                    .forEach(item -> result.add(ModelDto.fromRemote(item)));
+            result.sort(java.util.Comparator.comparing(ModelDto::getName, java.util.Comparator.nullsLast(String::compareToIgnoreCase)));
             return result;
         } catch (RuntimeException ignored) {
             // The web service remains usable while the AI service is starting.
         }
-        return models.stream().map(AiModelDto::from).toList();
+        return models.stream().map(ModelDto::from).toList();
     }
 
     @Transactional
-    public AiModelDto markDownloadStarted(String id) {
-        AiModel model = repository.findById(id).orElse(null);
+    public ModelDto markDownloadStarted(String id) {
+        Model model = repository.findById(id).orElse(null);
         if (model == null) {
             try {
-                aiServiceClient.downloadModel(id);
+                modelManagerClient.downloadModel(id);
                 return list().stream().filter(item -> id.equals(item.getId())).findFirst()
                         .orElseThrow(() -> new IllegalArgumentException("Model not found: " + id));
             } catch (RuntimeException error) {
@@ -74,12 +74,12 @@ public class AiModelService {
         }
         model.setStatus("DOWNLOADING");
         model.setUpdatedAt(Instant.now());
-        AiModelDto result = AiModelDto.from(repository.save(model));
+        ModelDto result = ModelDto.from(repository.save(model));
         try {
-            String state = aiServiceClient.downloadModel(id);
+            String state = modelManagerClient.downloadModel(id);
             model.setStatus(state);
             model.setUpdatedAt(Instant.now());
-            result = AiModelDto.from(repository.save(model));
+            result = ModelDto.from(repository.save(model));
         } catch (RuntimeException error) {
             model.setStatus("FAILED");
             repository.save(model);
@@ -89,10 +89,10 @@ public class AiModelService {
     }
 
     @Transactional
-    public AiModelDto uninstall(String id) {
-        AiModel model = repository.findById(id).orElseThrow(() -> new IllegalArgumentException("Model not found: " + id));
+    public ModelDto uninstall(String id) {
+        Model model = repository.findById(id).orElseThrow(() -> new IllegalArgumentException("Model not found: " + id));
         model.setStatus("NOT_INSTALLED");
         model.setUpdatedAt(Instant.now());
-        return AiModelDto.from(repository.save(model));
+        return ModelDto.from(repository.save(model));
     }
 }

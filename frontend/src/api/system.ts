@@ -16,7 +16,7 @@ export const systemApi = {
   }
 }
 
-export interface AiModelDto {
+export interface ModelDto {
   id: string
   name: string
   capability: 'TEXT_TO_IMAGE' | 'IMAGE_TO_IMAGE' | 'TAGGING'
@@ -29,8 +29,8 @@ export interface AiModelDto {
   errorMessage?: string
 }
 
-export const aiModelApi = {
-  list: async () => (await apiClient.get<AiModelDto[]>('/ai/models')).data,
-  download: async (id: string) => (await apiClient.post<AiModelDto>(`/ai/models/${id}/download`)).data,
-  uninstall: async (id: string) => (await apiClient.delete<AiModelDto>(`/ai/models/${id}/artifact`)).data
+export const modelManagerApi = {
+  list: async () => (await apiClient.get<ModelDto[]>('/ai/models')).data,
+  download: async (id: string) => (await apiClient.post<ModelDto>(`/ai/models/${id}/download`)).data,
+  uninstall: async (id: string) => (await apiClient.delete<ModelDto>(`/ai/models/${id}/artifact`)).data
 }

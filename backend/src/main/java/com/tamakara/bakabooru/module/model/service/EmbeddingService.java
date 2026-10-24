@@ -1,7 +1,7 @@
-package com.tamakara.bakabooru.module.ai.service;
+package com.tamakara.bakabooru.module.model.service;
 
-import com.tamakara.bakabooru.module.ai.client.AiServiceClient;
-import com.tamakara.bakabooru.module.ai.dto.ImageEmbeddingResponseDto;
+import com.tamakara.bakabooru.module.model.client.ModelManagerClient;
+import com.tamakara.bakabooru.module.model.dto.ImageEmbeddingResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -12,11 +12,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EmbeddingService {
 
-    private final AiServiceClient aiServiceClient;
+    private final ModelManagerClient modelManagerClient;
 
     public double[] generateImageEmbedding(MultipartFile file, String modelId) {
         try {
-            return toArray(aiServiceClient.imageEmbedding(file, modelId));
+            return toArray(modelManagerClient.imageEmbedding(file, modelId));
         } catch (Exception e) {
             throw new RuntimeException("Embedding generation failed: " + e.getMessage(), e);
         }

@@ -1,4 +1,4 @@
-package com.tamakara.bakabooru.module.ai.dto;
+package com.tamakara.bakabooru.module.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class AnalyzeImageRequestDto {
+public class ImageAnalysisRequestDto {
     @JsonProperty("object_name")
     private String objectName;
     private double threshold;
@@ -15,7 +15,7 @@ public class AnalyzeImageRequestDto {
     @JsonProperty("vector_model_ids")
     private java.util.List<String> vectorModelIds;
 
-    public AnalyzeImageRequestDto(String objectName, double threshold) {
+    public ImageAnalysisRequestDto(String objectName, double threshold) {
         this(objectName, threshold, null, null);
     }
 }

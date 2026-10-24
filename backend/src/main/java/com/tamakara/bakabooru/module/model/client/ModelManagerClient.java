@@ -1,11 +1,11 @@
-package com.tamakara.bakabooru.module.ai.client;
+package com.tamakara.bakabooru.module.model.client;
 
-import com.tamakara.bakabooru.module.ai.dto.EmbeddingResponseDto;
-import com.tamakara.bakabooru.module.ai.dto.AnalyzeImageRequestDto;
-import com.tamakara.bakabooru.module.ai.dto.AnalyzeImageResponseDto;
-import com.tamakara.bakabooru.module.ai.dto.ImageEmbeddingResponseDto;
-import com.tamakara.bakabooru.module.ai.dto.SemanticSearchRequestDto;
-import com.tamakara.bakabooru.config.AiServiceProperties;
+import com.tamakara.bakabooru.module.model.dto.EmbeddingResponseDto;
+import com.tamakara.bakabooru.module.model.dto.ImageAnalysisRequestDto;
+import com.tamakara.bakabooru.module.model.dto.ImageAnalysisResponseDto;
+import com.tamakara.bakabooru.module.model.dto.ImageEmbeddingResponseDto;
+import com.tamakara.bakabooru.module.model.dto.SemanticSearchRequestDto;
+import com.tamakara.bakabooru.config.ModelManagerProperties;
 import com.tamakara.bakabooru.module.system.service.SystemSettingService;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -19,15 +19,15 @@ import java.util.List;
 import java.util.HashMap;
 
 @Component
-public class AiServiceClient {
+public class ModelManagerClient {
 
-    private static final Duration AI_TIMEOUT = Duration.ofSeconds(120);
+    private static final Duration MODEL_MANAGER_TIMEOUT = Duration.ofSeconds(120);
 
     private final WebClient webClient;
     private final SystemSettingService systemSettingService;
 
-    public AiServiceClient(
-            AiServiceProperties aiServiceProperties,
+    public ModelManagerClient(
+            ModelManagerProperties modelManagerProperties,
             WebClient.Builder webClientBuilder,
             SystemSettingService systemSettingService
     ) {
@@ -40,18 +40,18 @@ public class AiServiceClient {
         return base.replaceAll("/+$", "") + path;
     }
 
-    public AnalyzeImageResponseDto analyzeImage(AnalyzeImageRequestDto requestBody) {
+    public ImageAnalysisResponseDto analyzeImage(ImageAnalysisRequestDto requestBody) {
         return webClient
                 .post()
                 .uri(url("/v1/images/analyze"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(requestBody)
                 .retrieve()
-                .bodyToMono(AnalyzeImageResponseDto.class)
-                .block(AI_TIMEOUT);
+                .bodyToMono(ImageAnalysisResponseDto.class)
+                .block(MODEL_MANAGER_TIMEOUT);
     }
 
-    public AnalyzeImageResponseDto analyzeTags(AnalyzeImageRequestDto requestBody) {
+    public ImageAnalysisResponseDto analyzeTags(ImageAnalysisRequestDto requestBody) {
         // The capability endpoint has a deliberately small contract: model_id,
         // threshold and object_name. Do not forward the combined analysis DTO,
         // whose field is named tag_model_id.
@@ -60,12 +60,12 @@ public class AiServiceClient {
                 "model_id", requestBody.getTagModelId(),
                 "threshold", requestBody.getThreshold());
         return webClient.post().uri(url("/v1/images/tags")).contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(body).retrieve().bodyToMono(AnalyzeImageResponseDto.class).block(AI_TIMEOUT);
+                .bodyValue(body).retrieve().bodyToMono(ImageAnalysisResponseDto.class).block(MODEL_MANAGER_TIMEOUT);
     }
 
-    public AnalyzeImageResponseDto analyzeVectors(AnalyzeImageRequestDto requestBody) {
+    public ImageAnalysisResponseDto analyzeVectors(ImageAnalysisRequestDto requestBody) {
         return webClient.post().uri(url("/v1/images/vectors")).contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(requestBody).retrieve().bodyToMono(AnalyzeImageResponseDto.class).block(AI_TIMEOUT);
+                .bodyValue(requestBody).retrieve().bodyToMono(ImageAnalysisResponseDto.class).block(MODEL_MANAGER_TIMEOUT);
     }
 
     public ImageEmbeddingResponseDto imageEmbedding(MultipartFile file, String modelId) {
@@ -75,7 +75,7 @@ public class AiServiceClient {
                 .body(BodyInserters.fromMultipartData("file", file.getResource()))
                 .retrieve()
                 .bodyToMono(ImageEmbeddingResponseDto.class)
-                .block(AI_TIMEOUT);
+                .block(MODEL_MANAGER_TIMEOUT);
     }
 
     public EmbeddingResponseDto generateEmbedding(SemanticSearchRequestDto requestBody) {
@@ -86,12 +86,12 @@ public class AiServiceClient {
                 .bodyValue(requestBody)
                 .retrieve()
                 .bodyToMono(EmbeddingResponseDto.class)
-                .block(AI_TIMEOUT);
+                .block(MODEL_MANAGER_TIMEOUT);
     }
 
     public String downloadModel(String modelId) {
         Map<?, ?> result = webClient.post().uri(url("/v1/models/" + modelId + "/download"))
-                .retrieve().bodyToMono(Map.class).block(AI_TIMEOUT);
+                .retrieve().bodyToMono(Map.class).block(MODEL_MANAGER_TIMEOUT);
         Object state = result == null ? null : result.get("artifactState");
         return state == null ? "DOWNLOADING" : state.toString();
     }
@@ -123,7 +123,7 @@ public class AiServiceClient {
     }
 
     public List<?> modelCatalog() {
-        return webClient.get().uri(url("/v1/models")).retrieve().bodyToMono(List.class).block(AI_TIMEOUT);
+        return webClient.get().uri(url("/v1/models")).retrieve().bodyToMono(List.class).block(MODEL_MANAGER_TIMEOUT);
     }
 
     public void updateRuntimeSettings(Map<String, Object> settings) {

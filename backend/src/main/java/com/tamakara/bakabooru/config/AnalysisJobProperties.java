@@ -11,6 +11,6 @@ import java.time.Duration;
 @Setter
 @Component
 @ConfigurationProperties(prefix = "app.ai-job")
-public class AiJobProperties {
+public class AnalysisJobProperties {
     private Duration lockDuration = Duration.ofMinutes(5);
 }

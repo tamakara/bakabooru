@@ -15,18 +15,18 @@ import java.util.stream.Collectors;
 public class SystemSettingService {
 
     public static final String TAG_THRESHOLD = "tag.threshold";
-    public static final String AI_MAX_ATTEMPTS = "ai-job.max-attempts";
-    public static final String AI_RETRY_BASE_DELAY_SECONDS = "ai-job.retry-base-delay-seconds";
-    public static final String AI_RETRY_MAX_DELAY_SECONDS = "ai-job.retry-max-delay-seconds";
+    public static final String ANALYSIS_MAX_ATTEMPTS = "ai-job.max-attempts";
+    public static final String ANALYSIS_RETRY_BASE_DELAY_SECONDS = "ai-job.retry-base-delay-seconds";
+    public static final String ANALYSIS_RETRY_MAX_DELAY_SECONDS = "ai-job.retry-max-delay-seconds";
     public static final String UPLOAD_COMPLETED_RETENTION_DAYS = "upload.completed-retention-days";
     public static final String BOOTSTRAP_DATABASE_URL = "bootstrap.database-url";
     public static final String BOOTSTRAP_STORAGE_ENDPOINT = "bootstrap.storage-endpoint";
 
     private static final Set<String> EDITABLE_KEYS = Set.of(
             TAG_THRESHOLD,
-            AI_MAX_ATTEMPTS,
-            AI_RETRY_BASE_DELAY_SECONDS,
-            AI_RETRY_MAX_DELAY_SECONDS,
+            ANALYSIS_MAX_ATTEMPTS,
+            ANALYSIS_RETRY_BASE_DELAY_SECONDS,
+            ANALYSIS_RETRY_MAX_DELAY_SECONDS,
             UPLOAD_COMPLETED_RETENTION_DAYS,
             "ai.service-url",
             "ai.inference-concurrency"
@@ -37,9 +37,9 @@ public class SystemSettingService {
     public List<SettingDefinitionDto> getDefinitions() {
         return List.of(
                 new SettingDefinitionDto(TAG_THRESHOLD, "Tag threshold", "number", "0.61", "HOT", false, "Minimum AI tag confidence"),
-                new SettingDefinitionDto(AI_MAX_ATTEMPTS, "AI max attempts", "integer", "5", "HOT", false, "Maximum AI attempts"),
-                new SettingDefinitionDto(AI_RETRY_BASE_DELAY_SECONDS, "AI retry base delay", "integer", "30", "HOT", false, "Base retry delay seconds"),
-                new SettingDefinitionDto(AI_RETRY_MAX_DELAY_SECONDS, "AI retry max delay", "integer", "1800", "HOT", false, "Maximum retry delay seconds"),
+                new SettingDefinitionDto(ANALYSIS_MAX_ATTEMPTS, "AI max attempts", "integer", "5", "HOT", false, "Maximum AI attempts"),
+                new SettingDefinitionDto(ANALYSIS_RETRY_BASE_DELAY_SECONDS, "AI retry base delay", "integer", "30", "HOT", false, "Base retry delay seconds"),
+                new SettingDefinitionDto(ANALYSIS_RETRY_MAX_DELAY_SECONDS, "AI retry max delay", "integer", "1800", "HOT", false, "Maximum retry delay seconds"),
                 new SettingDefinitionDto(UPLOAD_COMPLETED_RETENTION_DAYS, "Upload retention", "integer", "7", "HOT", false, "Completed upload retention days"),
                 new SettingDefinitionDto("ai.service-url", "AI service URL", "text", "http://model-manager:8000", "HOT", false, "Runtime model manager endpoint"),
                 new SettingDefinitionDto("ai.inference-concurrency", "Inference concurrency", "integer", "1", "HOT", false, "Maximum concurrent inference requests"),
@@ -102,16 +102,16 @@ public class SystemSettingService {
         return Double.parseDouble(getSetting(key));
     }
 
-    public int getAiMaxAttempts() {
-        return getIntSetting(AI_MAX_ATTEMPTS);
+    public int getAnalysisMaxAttempts() {
+        return getIntSetting(ANALYSIS_MAX_ATTEMPTS);
     }
 
-    public long getAiRetryBaseDelaySeconds() {
-        return getLongSetting(AI_RETRY_BASE_DELAY_SECONDS);
+    public long getAnalysisRetryBaseDelaySeconds() {
+        return getLongSetting(ANALYSIS_RETRY_BASE_DELAY_SECONDS);
     }
 
-    public long getAiRetryMaxDelaySeconds() {
-        return getLongSetting(AI_RETRY_MAX_DELAY_SECONDS);
+    public long getAnalysisRetryMaxDelaySeconds() {
+        return getLongSetting(ANALYSIS_RETRY_MAX_DELAY_SECONDS);
     }
 
     public long getUploadCompletedRetentionDays() {
@@ -144,20 +144,20 @@ public class SystemSettingService {
 
     private void validateEditableSettings(Map<String, String> settings) {
         double threshold = parseDouble(settings, TAG_THRESHOLD);
-        int maxAttempts = parseInt(settings, AI_MAX_ATTEMPTS);
-        long retryBaseDelay = parseLong(settings, AI_RETRY_BASE_DELAY_SECONDS);
-        long retryMaxDelay = parseLong(settings, AI_RETRY_MAX_DELAY_SECONDS);
+        int maxAttempts = parseInt(settings, ANALYSIS_MAX_ATTEMPTS);
+        long retryBaseDelay = parseLong(settings, ANALYSIS_RETRY_BASE_DELAY_SECONDS);
+        long retryMaxDelay = parseLong(settings, ANALYSIS_RETRY_MAX_DELAY_SECONDS);
         long retentionDays = parseLong(settings, UPLOAD_COMPLETED_RETENTION_DAYS);
         int inferenceConcurrency = parseInt(settings, "ai.inference-concurrency");
 
         requireRange(TAG_THRESHOLD, threshold, 0, 1);
-        requireRange(AI_MAX_ATTEMPTS, maxAttempts, 1, 20);
-        requireRange(AI_RETRY_BASE_DELAY_SECONDS, retryBaseDelay, 1, 3600);
+        requireRange(ANALYSIS_MAX_ATTEMPTS, maxAttempts, 1, 20);
+        requireRange(ANALYSIS_RETRY_BASE_DELAY_SECONDS, retryBaseDelay, 1, 3600);
         requireRange(UPLOAD_COMPLETED_RETENTION_DAYS, retentionDays, 1, 365);
         requireRange("ai.inference-concurrency", inferenceConcurrency, 1, 64);
         if (retryMaxDelay < retryBaseDelay) {
-            throw new IllegalArgumentException(AI_RETRY_MAX_DELAY_SECONDS
-                    + " must be greater than or equal to " + AI_RETRY_BASE_DELAY_SECONDS);
+            throw new IllegalArgumentException(ANALYSIS_RETRY_MAX_DELAY_SECONDS
+                    + " must be greater than or equal to " + ANALYSIS_RETRY_BASE_DELAY_SECONDS);
         }
         requireValue(settings, "ai.service-url");
     }

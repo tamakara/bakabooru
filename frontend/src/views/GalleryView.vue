@@ -1,8 +1,8 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import {useQuery} from '@tanstack/vue-query'
 import {searchApi} from '../api/search'
 import {galleryApi, type ImageDto, type ImageThumbnailDto} from '../api/gallery'
-import {aiModelApi} from '../api/system'
+import {modelManagerApi} from '../api/system'
 import {computed, h, nextTick, reactive, ref, shallowRef, watch} from 'vue'
 import {
   NButton,
@@ -52,9 +52,9 @@ import {v4 as uuidv4} from 'uuid';
 
 // 搜索模式
 const searchMode = ref<'TEXT' | 'IMAGE'>('TEXT')
-const {data: aiModels} = useQuery({queryKey: ['aiModels'], queryFn: aiModelApi.list})
-const vectorModelOptions = computed(() => (aiModels.value || []).filter(model => model.type === 'CLIP' && model.artifactState === 'READY').map(model => ({label: model.name, value: model.id})))
-const tagModelOptions = computed(() => (aiModels.value || []).filter(model => model.type === 'TAGGER' && model.artifactState === 'READY').map(model => ({label: model.name, value: model.id})))
+const {data: models} = useQuery({queryKey: ['models'], queryFn: modelManagerApi.list})
+const vectorModelOptions = computed(() => (models.value || []).filter(model => model.type === 'CLIP' && model.artifactState === 'READY').map(model => ({label: model.name, value: model.id})))
+const tagModelOptions = computed(() => (models.value || []).filter(model => model.type === 'TAGGER' && model.artifactState === 'READY').map(model => ({label: model.name, value: model.id})))
 
 // 表单状态
 const formState = reactive({

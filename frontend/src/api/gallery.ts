@@ -141,7 +141,7 @@ export const galleryApi = {
     return response.data
   },
 
-  retryAiProcessing: async (id: number, capability?: 'TAGS' | 'VECTORS' | 'TAGS_AND_VECTORS') => {
+  retryAnalysis: async (id: number, capability?: 'TAGS' | 'VECTORS' | 'TAGS_AND_VECTORS') => {
     const response = await apiClient.post<ImageDto>(`/images/${id}/ai/retry`, undefined, {
       params: capability ? {capability} : undefined
     })

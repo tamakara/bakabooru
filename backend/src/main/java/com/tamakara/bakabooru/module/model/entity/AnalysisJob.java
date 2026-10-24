@@ -1,4 +1,4 @@
-package com.tamakara.bakabooru.module.ai.entity;
+package com.tamakara.bakabooru.module.model.entity;
 
 import com.tamakara.bakabooru.module.image.entity.Image;
 import jakarta.persistence.Column;
@@ -23,7 +23,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @Entity
 @Table(name = "ai_jobs")
-public class AiJob {
+public class AnalysisJob {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,7 +38,7 @@ public class AiJob {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private AiJobStatus status;
+    private AnalysisJobStatus status;
 
     @Column(nullable = false)
     private int attempts;

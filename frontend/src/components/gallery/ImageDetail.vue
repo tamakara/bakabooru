@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import {computed, onMounted, onUnmounted, ref, watch} from 'vue'
 import {useQuery} from '@tanstack/vue-query'
 import {
@@ -37,7 +37,7 @@ import {
   TrashOutline
 } from '@vicons/ionicons5'
 import {galleryApi, type ImageDto, type ImageTagDto} from '../../api/gallery.ts'
-import {aiModelApi} from '../../api/system'
+import {modelManagerApi} from '../../api/system'
 import {tagsApi} from '../../api/tags.ts'
 import {useDateFormat} from '@vueuse/core'
 
@@ -58,7 +58,7 @@ const emit = defineEmits<{
 }>()
 
 const message = useMessage()
-const {data: aiModels} = useQuery({queryKey: ['aiModels'], queryFn: aiModelApi.list})
+const {data: models} = useQuery({queryKey: ['models'], queryFn: modelManagerApi.list})
 const editingName = ref(false)
 const newName = ref('')
 const newTagName = ref('')
@@ -70,8 +70,8 @@ const selectedVectorModelIds = ref<string[]>([])
 const selectedTagModelId = ref<string | null>(null)
 const showTagModelModal = ref(false)
 const showVectorModelModal = ref(false)
-const clipModels = computed(() => (aiModels.value || []).filter(model => model.type === 'CLIP' && model.artifactState === 'READY'))
-const tagModels = computed(() => (aiModels.value || []).filter(model => model.type === 'TAGGER' && model.artifactState === 'READY'))
+const clipModels = computed(() => (models.value || []).filter(model => model.type === 'CLIP' && model.artifactState === 'READY'))
+const tagModels = computed(() => (models.value || []).filter(model => model.type === 'TAGGER' && model.artifactState === 'READY'))
 const vectorStatus = (modelId: string) => props.image?.indexVectors?.find(vector => vector.modelId === modelId)?.status || 'NOT_COMPUTED'
 
 // 当image变化时更新编辑表单

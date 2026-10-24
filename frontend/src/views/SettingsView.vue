@@ -17,7 +17,7 @@ import {
   NTag,
   useMessage
 } from 'naive-ui'
-import { aiModelApi, systemApi, type AiModelDto } from '../api/system'
+import { modelManagerApi, systemApi, type ModelDto } from '../api/system'
 import { authApi } from '../api/auth'
 
 type SettingsForm = {
@@ -52,9 +52,9 @@ const settingsQuery = useQuery({
   retry: 1
 })
 
-const aiModelsQuery = useQuery({
-  queryKey: ['aiModels'],
-  queryFn: aiModelApi.list,
+const modelsQuery = useQuery({
+  queryKey: ['models'],
+  queryFn: modelManagerApi.list,
   refetchInterval: 3000,
   retry: 1
 })
@@ -124,17 +124,17 @@ function saveSettings() {
   updateSettingsMutation.mutate(payload)
 }
 
-const tagModels = computed(() => (aiModelsQuery.data.value ?? []).filter(model => model.type === 'TAGGER'))
-const clipModels = computed(() => (aiModelsQuery.data.value ?? []).filter(model => model.type === 'CLIP'))
+const tagModels = computed(() => (modelsQuery.data.value ?? []).filter(model => model.type === 'TAGGER'))
+const clipModels = computed(() => (modelsQuery.data.value ?? []).filter(model => model.type === 'CLIP'))
 const modelGroups = computed(() => [
   { title: '标签模型', models: tagModels.value },
   { title: 'CLIP 模型', models: clipModels.value }
 ])
 
 const modelMutation = useMutation({
-  mutationFn: (id: string) => aiModelApi.download(id),
+  mutationFn: (id: string) => modelManagerApi.download(id),
   onSuccess: async () => {
-    await queryClient.invalidateQueries({ queryKey: ['aiModels'] })
+    await queryClient.invalidateQueries({ queryKey: ['models'] })
     message.success('模型下载任务已提交，下载完成后请重启 AI 服务')
   },
   onError: (error: unknown) => message.error(errorMessage(error, '模型下载失败')),
@@ -149,7 +149,7 @@ function downloadModel(id: string) {
   modelMutation.mutate(id)
 }
 
-function modelStatusLabel(model: AiModelDto) {
+function modelStatusLabel(model: ModelDto) {
   if (model.artifactState === 'READY') return '已就绪'
   if (model.artifactState === 'RESTART_REQUIRED') return '已下载，重启后可用'
   if (model.artifactState === 'DOWNLOADING') return '下载中'
@@ -157,7 +157,7 @@ function modelStatusLabel(model: AiModelDto) {
   return '未下载'
 }
 
-function modelStatusType(model: AiModelDto): 'success' | 'info' | 'warning' | 'error' | 'default' {
+function modelStatusType(model: ModelDto): 'success' | 'info' | 'warning' | 'error' | 'default' {
   if (model.artifactState === 'READY') return 'success'
   if (model.artifactState === 'RESTART_REQUIRED') return 'warning'
   if (model.artifactState === 'DOWNLOADING') return 'info'
@@ -252,15 +252,15 @@ function updatePassword() {
         </template>
       </n-card>
 
-      <n-alert v-if="aiModelsQuery.isError.value" type="error" title="模型列表加载失败">
+      <n-alert v-if="modelsQuery.isError.value" type="error" title="模型列表加载失败">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <span>无法获取 AI 模型状态。</span>
-          <n-button size="small" @click="aiModelsQuery.refetch()">重新加载</n-button>
+          <n-button size="small" @click="modelsQuery.refetch()">重新加载</n-button>
         </div>
       </n-alert>
 
       <n-card v-for="group in modelGroups" :key="group.title" size="small" :title="group.title">
-        <n-spin :show="aiModelsQuery.isLoading.value">
+        <n-spin :show="modelsQuery.isLoading.value">
           <div v-if="group.models.length" class="divide-y divide-gray-100 dark:divide-gray-800">
             <div v-for="model in group.models" :key="model.id" class="flex min-h-16 flex-wrap items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
               <div class="min-w-0 flex-1">
@@ -282,7 +282,7 @@ function updatePassword() {
               <div v-if="model.errorMessage" class="basis-full break-words text-xs text-red-500">{{ model.errorMessage }}</div>
             </div>
           </div>
-          <n-empty v-else-if="!aiModelsQuery.isLoading.value" size="small" description="暂无模型" />
+          <n-empty v-else-if="!modelsQuery.isLoading.value" size="small" description="暂无模型" />
         </n-spin>
       </n-card>
 

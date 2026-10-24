@@ -1,7 +1,7 @@
-package com.tamakara.bakabooru.module.ai.repository;
+package com.tamakara.bakabooru.module.model.repository;
 
-import com.tamakara.bakabooru.module.ai.entity.AiJob;
-import com.tamakara.bakabooru.module.ai.entity.AiJobStatus;
+import com.tamakara.bakabooru.module.model.entity.AnalysisJob;
+import com.tamakara.bakabooru.module.model.entity.AnalysisJobStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -11,19 +11,19 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.List;
 
-public interface AiJobRepository extends JpaRepository<AiJob, Long> {
+public interface AnalysisJobRepository extends JpaRepository<AnalysisJob, Long> {
 
-    long countByStatus(AiJobStatus status);
+    long countByStatus(AnalysisJobStatus status);
 
-    List<AiJob> findAllByImageId(Long imageId);
+    List<AnalysisJob> findAllByImageId(Long imageId);
 
-    Optional<AiJob> findFirstByImageIdAndCapabilityOrderByUpdatedAtDesc(Long imageId, String capability);
+    Optional<AnalysisJob> findFirstByImageIdAndCapabilityOrderByUpdatedAtDesc(Long imageId, String capability);
 
-    Optional<AiJob> findFirstByImageIdOrderByCreatedAtDesc(Long imageId);
+    Optional<AnalysisJob> findFirstByImageIdOrderByCreatedAtDesc(Long imageId);
 
-    Optional<AiJob> findFirstByImageIdOrderByUpdatedAtDesc(Long imageId);
+    Optional<AnalysisJob> findFirstByImageIdOrderByUpdatedAtDesc(Long imageId);
 
-    boolean existsByImageIdAndStatusIn(Long imageId, List<AiJobStatus> statuses);
+    boolean existsByImageIdAndStatusIn(Long imageId, List<AnalysisJobStatus> statuses);
 
     @Query(value = """
             SELECT *
@@ -34,17 +34,17 @@ public interface AiJobRepository extends JpaRepository<AiJob, Long> {
             LIMIT 1
             FOR UPDATE SKIP LOCKED
             """, nativeQuery = true)
-    Optional<AiJob> findNextClaimable(@Param("now") Instant now);
+    Optional<AnalysisJob> findNextClaimable(@Param("now") Instant now);
 
     @Modifying
     @Query("""
-            UPDATE AiJob j
+            UPDATE AnalysisJob j
             SET j.lockedUntil = :lockedUntil, j.updatedAt = :now
             WHERE j.status = :status AND j.lockedBy = :workerId
             """)
     int extendWorkerLocks(
             @Param("workerId") String workerId,
-            @Param("status") AiJobStatus status,
+            @Param("status") AnalysisJobStatus status,
             @Param("lockedUntil") Instant lockedUntil,
             @Param("now") Instant now
     );

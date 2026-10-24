@@ -1,7 +1,7 @@
 package com.tamakara.bakabooru.module.upload.service;
 
 import com.tamakara.bakabooru.config.UploadProperties;
-import com.tamakara.bakabooru.module.ai.service.AiJobService;
+import com.tamakara.bakabooru.module.model.service.AnalysisJobService;
 import com.tamakara.bakabooru.module.upload.model.ImageInfo;
 import com.tamakara.bakabooru.module.image.entity.Image;
 import com.tamakara.bakabooru.module.image.service.ImageService;
@@ -36,7 +36,7 @@ public class UploadJobWorker {
     private final StorageService storageService;
     private final ImageService imageService;
     private final ThumbnailService thumbnailService;
-    private final AiJobService aiJobService;
+    private final AnalysisJobService analysisJobService;
     private final UploadProperties uploadProperties;
     private final SystemSettingService systemSettingService;
     private final TransactionTemplate transactionTemplate;
@@ -151,7 +151,7 @@ public class UploadJobWorker {
         image.setStatus("NORMAL");
         Image savedImage = imageService.addImage(image);
         if (hasAiSelection) {
-            aiJobService.enqueue(savedImage, snapshot.getTagModelId(), snapshot.getVectorModelIds());
+            analysisJobService.enqueue(savedImage, snapshot.getTagModelId(), snapshot.getVectorModelIds());
         }
 
         UploadJob current = uploadJobRepository.findById(jobId)

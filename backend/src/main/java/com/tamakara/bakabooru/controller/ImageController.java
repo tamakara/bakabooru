@@ -1,10 +1,10 @@
 package com.tamakara.bakabooru.controller;
 
 import com.tamakara.bakabooru.module.image.dto.ImageDto;
-import com.tamakara.bakabooru.module.image.dto.AiTagsRequest;
-import com.tamakara.bakabooru.module.image.dto.AiVectorsRequest;
-import com.tamakara.bakabooru.module.image.dto.BatchAiTagsRequest;
-import com.tamakara.bakabooru.module.image.dto.BatchAiVectorsRequest;
+import com.tamakara.bakabooru.module.image.dto.TagsRequest;
+import com.tamakara.bakabooru.module.image.dto.VectorsRequest;
+import com.tamakara.bakabooru.module.image.dto.BatchTagsRequest;
+import com.tamakara.bakabooru.module.image.dto.BatchVectorsRequest;
 import com.tamakara.bakabooru.module.image.service.ImageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -59,17 +59,17 @@ public class ImageController {
 
     @PostMapping("/{id}/ai/retry")
     @Operation(summary = "operation")
-    public ImageDto retryAiProcessing(@PathVariable Long id, @RequestParam(required = false) String capability) {
-        return imageService.retryAiProcessing(id, capability);
+    public ImageDto retryAnalysis(@PathVariable Long id, @RequestParam(required = false) String capability) {
+        return imageService.retryAnalysis(id, capability);
     }
 
     @PostMapping("/{id}/ai/tags")
-    public ImageDto generateTags(@PathVariable Long id, @RequestBody AiTagsRequest request) {
+    public ImageDto generateTags(@PathVariable Long id, @RequestBody TagsRequest request) {
         return imageService.enqueueAi(id, request == null ? null : request.modelId(), null);
     }
 
     @PostMapping("/{id}/ai/vectors")
-    public ImageDto generateVectors(@PathVariable Long id, @RequestBody AiVectorsRequest request) {
+    public ImageDto generateVectors(@PathVariable Long id, @RequestBody VectorsRequest request) {
         List<String> models = request == null || request.modelIds() == null ? List.of() : request.modelIds();
         return imageService.enqueueAi(id, null, String.join(",", models));
     }
@@ -81,7 +81,7 @@ public class ImageController {
     }
 
     @PostMapping("/batch/ai/tags")
-    public List<ImageDto> generateTagsBatch(@RequestBody BatchAiTagsRequest request) {
+    public List<ImageDto> generateTagsBatch(@RequestBody BatchTagsRequest request) {
         try {
             return imageService.enqueueBatchTags(request);
         } catch (IllegalArgumentException error) {
@@ -90,7 +90,7 @@ public class ImageController {
     }
 
     @PostMapping("/batch/ai/vectors")
-    public List<ImageDto> generateVectorsBatch(@RequestBody BatchAiVectorsRequest request) {
+    public List<ImageDto> generateVectorsBatch(@RequestBody BatchVectorsRequest request) {
         try {
             return imageService.enqueueBatchVectors(request);
         } catch (IllegalArgumentException error) {

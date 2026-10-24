@@ -1,4 +1,4 @@
-package com.tamakara.bakabooru.module.ai.dto;
+package com.tamakara.bakabooru.module.model.dto;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
