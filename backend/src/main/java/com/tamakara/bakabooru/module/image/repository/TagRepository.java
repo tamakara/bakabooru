@@ -1,6 +1,6 @@
-package com.tamakara.bakabooru.module.tag.repository;
+package com.tamakara.bakabooru.module.image.repository;
 
-import com.tamakara.bakabooru.module.tag.entity.Tag;
+import com.tamakara.bakabooru.module.image.entity.Tag;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

@@ -1,8 +1,8 @@
-package com.tamakara.bakabooru.module.model.service;
+package com.tamakara.bakabooru.module.analysis.service;
 
-import com.tamakara.bakabooru.module.model.entity.AnalysisJob;
-import com.tamakara.bakabooru.module.model.entity.AnalysisJobStatus;
-import com.tamakara.bakabooru.module.model.repository.AnalysisJobRepository;
+import com.tamakara.bakabooru.module.analysis.entity.AnalysisJob;
+import com.tamakara.bakabooru.module.analysis.entity.AnalysisJobStatus;
+import com.tamakara.bakabooru.module.analysis.repository.AnalysisJobRepository;
 import com.tamakara.bakabooru.module.image.entity.Image;
 import com.tamakara.bakabooru.module.image.entity.ImageEmbedding;
 import com.tamakara.bakabooru.module.image.repository.ImageRepository;

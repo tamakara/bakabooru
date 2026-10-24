@@ -1,7 +1,7 @@
 package com.tamakara.bakabooru.module.upload.service;
 
 import com.tamakara.bakabooru.config.UploadProperties;
-import com.tamakara.bakabooru.module.model.service.AnalysisJobService;
+import com.tamakara.bakabooru.module.analysis.service.AnalysisJobService;
 import com.tamakara.bakabooru.module.upload.model.ImageInfo;
 import com.tamakara.bakabooru.module.image.entity.Image;
 import com.tamakara.bakabooru.module.image.service.ImageService;

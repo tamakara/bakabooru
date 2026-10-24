@@ -1,14 +1,11 @@
 package com.tamakara.bakabooru.module.image.service;
 
-import com.tamakara.bakabooru.module.model.service.AnalysisJobService;
 import com.tamakara.bakabooru.module.image.dto.ImageDto;
-import com.tamakara.bakabooru.module.image.dto.BatchTagsRequest;
-import com.tamakara.bakabooru.module.image.dto.BatchVectorsRequest;
 import com.tamakara.bakabooru.module.image.entity.Image;
 import com.tamakara.bakabooru.module.image.mapper.ImageMapper;
 import com.tamakara.bakabooru.module.image.repository.ImageRepository;
-import com.tamakara.bakabooru.module.tag.entity.Tag;
-import com.tamakara.bakabooru.module.tag.service.TagService;
+import com.tamakara.bakabooru.module.image.entity.Tag;
+import com.tamakara.bakabooru.module.image.service.TagService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +15,6 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.time.Instant;
 import java.util.List;
-import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -26,14 +22,10 @@ import java.util.zip.ZipOutputStream;
 @RequiredArgsConstructor
 public class ImageService {
 
-    private static final String CAMIE_TAGGER_MODEL_ID = "camie-tagger-v2";
-    private static final Set<String> CLIP_MODEL_IDS = Set.of("clip-vit-base-patch32");
-
     private final ImageRepository imageRepository;
     private final ImageMapper imageMapper;
     private final StorageService storageService;
     private final TagService tagService;
-    private final AnalysisJobService analysisJobService;
 
     @Transactional
     public ImageDto getImage(Long id) {
@@ -92,79 +84,6 @@ public class ImageService {
         image.setUpdatedAt(Instant.now());
 
         return imageMapper.toDto(imageRepository.save(image));
-    }
-
-    public ImageDto retryAnalysis(Long id) {
-        return retryAnalysis(id, null);
-    }
-
-    public ImageDto retryAnalysis(Long id, String capability) {
-        Image image = analysisJobService.retry(id, capability);
-        return imageMapper.toDto(image);
-    }
-
-    @Transactional
-    public ImageDto enqueueAi(Long id, String tagModelId, String vectorModelIds) {
-        Image image = imageRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Image not found: " + id));
-        if ((tagModelId == null || tagModelId.isBlank())
-                && (vectorModelIds == null || vectorModelIds.isBlank())) {
-            throw new IllegalArgumentException("At least one AI model is required");
-        }
-        if (tagModelId != null && !tagModelId.isBlank() && !CAMIE_TAGGER_MODEL_ID.equals(tagModelId.trim())) {
-            throw new IllegalArgumentException("未知的标签模型: " + tagModelId);
-        }
-        if (vectorModelIds != null && !vectorModelIds.isBlank()) {
-            for (String modelId : vectorModelIds.split(",")) {
-                if (!CLIP_MODEL_IDS.contains(modelId.trim())) {
-                    throw new IllegalArgumentException("未知的向量模型: " + modelId);
-                }
-            }
-        }
-        analysisJobService.enqueue(image, tagModelId, vectorModelIds);
-        return imageMapper.toDto(image);
-    }
-
-    @Transactional
-    public List<ImageDto> enqueueBatchTags(BatchTagsRequest request) {
-        if (request == null || request.ids() == null || request.ids().isEmpty()
-                || request.modelId() == null || request.modelId().isBlank()) {
-            throw new IllegalArgumentException("图片列表和标签模型不能为空");
-        }
-        validateImageIds(request.ids());
-        return request.ids().stream()
-                .distinct()
-                .map(id -> enqueueAi(id, request.modelId(), null))
-                .toList();
-    }
-
-    @Transactional
-    public List<ImageDto> enqueueBatchVectors(BatchVectorsRequest request) {
-        if (request == null || request.ids() == null || request.ids().isEmpty()
-                || request.modelIds() == null || request.modelIds().stream().allMatch(id -> id == null || id.isBlank())) {
-            throw new IllegalArgumentException("图片列表和向量模型不能为空");
-        }
-        validateImageIds(request.ids());
-        String modelIds = request.modelIds().stream()
-                .filter(id -> id != null && !id.isBlank())
-                .map(String::trim)
-                .distinct()
-                .reduce((left, right) -> left + "," + right)
-                .orElseThrow(() -> new IllegalArgumentException("至少选择一个向量模型"));
-        return request.ids().stream()
-                .distinct()
-                .map(id -> enqueueAi(id, null, modelIds))
-                .toList();
-    }
-
-    private void validateImageIds(List<Long> ids) {
-        if (ids.stream().anyMatch(id -> id == null || id <= 0)) {
-            throw new IllegalArgumentException("图片 ID 必须为正数");
-        }
-        List<Long> existingIds = imageRepository.findAllById(ids).stream().map(Image::getId).toList();
-        if (existingIds.size() != ids.stream().distinct().count()) {
-            throw new IllegalArgumentException("部分图片不存在");
-        }
     }
 
     @Transactional

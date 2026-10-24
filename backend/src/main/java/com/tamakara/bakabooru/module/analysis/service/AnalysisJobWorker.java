@@ -1,19 +1,19 @@
-package com.tamakara.bakabooru.module.model.service;
+package com.tamakara.bakabooru.module.analysis.service;
 
 import com.tamakara.bakabooru.config.AnalysisJobProperties;
 import com.tamakara.bakabooru.module.model.client.ModelManagerClient;
 import com.tamakara.bakabooru.module.model.dto.ImageAnalysisRequestDto;
 import com.tamakara.bakabooru.module.model.dto.ImageAnalysisResponseDto;
-import com.tamakara.bakabooru.module.model.entity.AnalysisJob;
-import com.tamakara.bakabooru.module.model.entity.AnalysisJobStatus;
-import com.tamakara.bakabooru.module.model.repository.AnalysisJobRepository;
+import com.tamakara.bakabooru.module.analysis.entity.AnalysisJob;
+import com.tamakara.bakabooru.module.analysis.entity.AnalysisJobStatus;
+import com.tamakara.bakabooru.module.analysis.repository.AnalysisJobRepository;
 import com.tamakara.bakabooru.module.image.entity.Image;
 import com.tamakara.bakabooru.module.image.entity.ImageEmbedding;
 import com.tamakara.bakabooru.module.image.repository.ImageRepository;
 import com.tamakara.bakabooru.module.image.service.StorageService;
 import com.tamakara.bakabooru.module.system.service.SystemSettingService;
-import com.tamakara.bakabooru.module.tag.entity.Tag;
-import com.tamakara.bakabooru.module.tag.service.TagService;
+import com.tamakara.bakabooru.module.image.entity.Tag;
+import com.tamakara.bakabooru.module.image.service.TagService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -134,7 +134,7 @@ public class AnalysisJobWorker {
                     relation.setImage(null);
                 }
             }
-            Map<Long, com.tamakara.bakabooru.module.tag.entity.ImageTagRelation> existingAnalysisRelations = new HashMap<>();
+            Map<Long, com.tamakara.bakabooru.module.image.entity.ImageTagRelation> existingAnalysisRelations = new HashMap<>();
             Set<Long> existingTagIds = image.getTagRelations().stream()
                     .filter(relation -> relation.getTag() != null && relation.getTag().getId() != null)
                     .peek(relation -> {
@@ -151,7 +151,7 @@ public class AnalysisJobWorker {
                     if (relation != null) {
                         relation.setScore(entry.getValue());
                     } else if (existingTagIds.add(tag.getId())) {
-                        image.getTagRelations().add(new com.tamakara.bakabooru.module.tag.entity.ImageTagRelation(image, tag, entry.getValue(), "AI"));
+                        image.getTagRelations().add(new com.tamakara.bakabooru.module.image.entity.ImageTagRelation(image, tag, entry.getValue(), "AI"));
                     }
                 }
                 catch (RuntimeException ignored) { log.debug("Unable to persist generated tag {}", entry.getKey()); }

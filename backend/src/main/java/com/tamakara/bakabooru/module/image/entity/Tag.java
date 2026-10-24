@@ -1,4 +1,4 @@
-package com.tamakara.bakabooru.module.tag.entity;
+package com.tamakara.bakabooru.module.image.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

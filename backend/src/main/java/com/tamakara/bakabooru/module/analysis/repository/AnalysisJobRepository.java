@@ -1,7 +1,7 @@
-package com.tamakara.bakabooru.module.model.repository;
+package com.tamakara.bakabooru.module.analysis.repository;
 
-import com.tamakara.bakabooru.module.model.entity.AnalysisJob;
-import com.tamakara.bakabooru.module.model.entity.AnalysisJobStatus;
+import com.tamakara.bakabooru.module.analysis.entity.AnalysisJob;
+import com.tamakara.bakabooru.module.analysis.entity.AnalysisJobStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

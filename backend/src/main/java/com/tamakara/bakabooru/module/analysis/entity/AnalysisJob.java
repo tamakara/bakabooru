@@ -1,4 +1,4 @@
-package com.tamakara.bakabooru.module.model.entity;
+package com.tamakara.bakabooru.module.analysis.entity;
 
 import com.tamakara.bakabooru.module.image.entity.Image;
 import jakarta.persistence.Column;

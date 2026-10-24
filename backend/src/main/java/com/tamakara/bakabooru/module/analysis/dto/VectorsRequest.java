@@ -1,4 +1,4 @@
-package com.tamakara.bakabooru.module.image.dto;
+package com.tamakara.bakabooru.module.analysis.dto;
 
 import java.util.List;
 

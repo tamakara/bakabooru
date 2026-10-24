@@ -1,24 +1,18 @@
 package com.tamakara.bakabooru.controller;
 
 import com.tamakara.bakabooru.module.image.dto.ImageDto;
-import com.tamakara.bakabooru.module.image.dto.TagsRequest;
-import com.tamakara.bakabooru.module.image.dto.VectorsRequest;
-import com.tamakara.bakabooru.module.image.dto.BatchTagsRequest;
-import com.tamakara.bakabooru.module.image.dto.BatchVectorsRequest;
 import com.tamakara.bakabooru.module.image.service.ImageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
-/** 图片详情、标签和 AI 任务接口。 */
+/** 图片详情、标签和文件操作接口。 */
 @RestController
 @RequestMapping("/api/images")
 @RequiredArgsConstructor
@@ -57,45 +51,10 @@ public class ImageController {
         return imageService.removeTag(id, tagId);
     }
 
-    @PostMapping("/{id}/ai/retry")
-    @Operation(summary = "operation")
-    public ImageDto retryAnalysis(@PathVariable Long id, @RequestParam(required = false) String capability) {
-        return imageService.retryAnalysis(id, capability);
-    }
-
-    @PostMapping("/{id}/ai/tags")
-    public ImageDto generateTags(@PathVariable Long id, @RequestBody TagsRequest request) {
-        return imageService.enqueueAi(id, request == null ? null : request.modelId(), null);
-    }
-
-    @PostMapping("/{id}/ai/vectors")
-    public ImageDto generateVectors(@PathVariable Long id, @RequestBody VectorsRequest request) {
-        List<String> models = request == null || request.modelIds() == null ? List.of() : request.modelIds();
-        return imageService.enqueueAi(id, null, String.join(",", models));
-    }
-
     @PostMapping("/batch/delete")
     @Operation(summary = "operation")
     public void deleteImages(@RequestBody List<Long> ids) {
         imageService.deleteImages(ids);
-    }
-
-    @PostMapping("/batch/ai/tags")
-    public List<ImageDto> generateTagsBatch(@RequestBody BatchTagsRequest request) {
-        try {
-            return imageService.enqueueBatchTags(request);
-        } catch (IllegalArgumentException error) {
-            throw new ResponseStatusException(BAD_REQUEST, error.getMessage(), error);
-        }
-    }
-
-    @PostMapping("/batch/ai/vectors")
-    public List<ImageDto> generateVectorsBatch(@RequestBody BatchVectorsRequest request) {
-        try {
-            return imageService.enqueueBatchVectors(request);
-        } catch (IllegalArgumentException error) {
-            throw new ResponseStatusException(BAD_REQUEST, error.getMessage(), error);
-        }
     }
 
     @PostMapping("/batch/delete-missing")
