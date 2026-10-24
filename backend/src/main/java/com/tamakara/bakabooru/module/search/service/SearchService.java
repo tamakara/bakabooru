@@ -1,10 +1,10 @@
-package com.tamakara.bakabooru.module.gallery.service;
+package com.tamakara.bakabooru.module.search.service;
 
 import com.tamakara.bakabooru.module.ai.dto.EmbeddingResponseDto;
 import com.tamakara.bakabooru.module.ai.service.EmbeddingService;
 import com.tamakara.bakabooru.module.ai.service.ParseQueryService;
-import com.tamakara.bakabooru.module.gallery.dto.SearchRequestDto;
-import com.tamakara.bakabooru.module.gallery.dto.SearchResultDto;
+import com.tamakara.bakabooru.module.search.dto.SearchRequestDto;
+import com.tamakara.bakabooru.module.search.dto.SearchResultDto;
 import com.tamakara.bakabooru.module.image.dto.ImageThumbnailDto;
 import com.tamakara.bakabooru.module.image.dto.SearchDto;
 import com.tamakara.bakabooru.module.image.service.ImageSearchService;

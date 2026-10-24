@@ -1,4 +1,4 @@
-package com.tamakara.bakabooru.module.gallery.controller;
+package com.tamakara.bakabooru.controller;
 
 import com.tamakara.bakabooru.module.system.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;

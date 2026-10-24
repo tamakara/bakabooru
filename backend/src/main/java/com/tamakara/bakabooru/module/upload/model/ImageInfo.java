@@ -1,4 +1,4 @@
-package com.tamakara.bakabooru.module.gallery.model;
+package com.tamakara.bakabooru.module.upload.model;
 
 import lombok.Getter;
 

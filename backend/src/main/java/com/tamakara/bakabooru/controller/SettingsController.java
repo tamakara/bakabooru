@@ -1,4 +1,4 @@
-package com.tamakara.bakabooru.module.gallery.controller;
+package com.tamakara.bakabooru.controller;
 
 import com.tamakara.bakabooru.module.system.service.SystemSettingService;
 import com.tamakara.bakabooru.module.ai.client.AiServiceClient;

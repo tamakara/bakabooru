@@ -1,4 +1,4 @@
-package com.tamakara.bakabooru.module.upload.controller;
+package com.tamakara.bakabooru.controller;
 
 import com.tamakara.bakabooru.module.upload.dto.TasksInfoDto;
 import com.tamakara.bakabooru.module.upload.service.UploadJobService;

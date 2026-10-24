@@ -1,6 +1,6 @@
 package com.tamakara.bakabooru.module.image.service;
 
-import com.tamakara.bakabooru.module.gallery.dto.SearchResultDto;
+import com.tamakara.bakabooru.module.search.dto.SearchResultDto;
 import com.tamakara.bakabooru.module.image.dto.ImageThumbnailDto;
 import com.tamakara.bakabooru.module.image.dto.SearchDto;
 import lombok.RequiredArgsConstructor;

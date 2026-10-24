@@ -1,4 +1,4 @@
-package com.tamakara.bakabooru.module.gallery.controller;
+package com.tamakara.bakabooru.controller;
 
 import com.tamakara.bakabooru.module.image.dto.ImageDto;
 import com.tamakara.bakabooru.module.image.dto.AiTagsRequest;

@@ -1,4 +1,4 @@
-package com.tamakara.bakabooru.module.gallery.dto;
+package com.tamakara.bakabooru.module.search.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

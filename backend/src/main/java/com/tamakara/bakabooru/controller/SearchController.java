@@ -1,8 +1,8 @@
-package com.tamakara.bakabooru.module.gallery.controller;
+package com.tamakara.bakabooru.controller;
 
-import com.tamakara.bakabooru.module.gallery.dto.SearchRequestDto;
-import com.tamakara.bakabooru.module.gallery.dto.SearchResultDto;
-import com.tamakara.bakabooru.module.gallery.service.SearchService;
+import com.tamakara.bakabooru.module.search.dto.SearchRequestDto;
+import com.tamakara.bakabooru.module.search.dto.SearchResultDto;
+import com.tamakara.bakabooru.module.search.service.SearchService;
 import com.tamakara.bakabooru.module.image.dto.ImageThumbnailDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
