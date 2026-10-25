@@ -144,6 +144,52 @@ sequenceDiagram
     API-->>UI: 返回模型状态
 ```
 
+### 配置管理
+
+配置页面先读取可编辑值和配置元数据。更新请求只允许白名单中的热更新配置，Backend 会合并已有值进行类型、范围和依赖校验，再持久化到 `system_settings`。推理并发配置会同步调用 Model Manager；同步失败不会回滚数据库，服务恢复后会在下一次加载或更新时生效。数据库连接、存储端点等 `BOOTSTRAP` 配置由部署环境提供，设备模式和模型缓存目录等 `RELOAD` 配置需要重新加载或重启。
+
+```mermaid
+sequenceDiagram
+    actor User as 用户
+    participant UI as Frontend
+    participant API as SettingsController
+    participant Service as SystemSettingService
+    participant DB as PostgreSQL
+    participant Manager as Model Manager
+
+    UI->>API: GET /api/system/settings
+    API->>Service: 读取可编辑设置
+    Service->>DB: 查询 system_settings
+    DB-->>Service: 当前值
+    Service-->>API: 默认值补齐后的设置
+    API-->>UI: 返回设置值
+
+    UI->>API: GET /api/system/settings/metadata
+    API->>Service: 读取定义和当前值
+    Service->>DB: 查询设置
+    Service-->>API: 类型、默认值、作用域和重启标记
+    API-->>UI: 返回配置元数据
+
+    User->>UI: 修改热更新配置
+    UI->>API: POST /api/system/settings
+    API->>Service: 校验白名单、类型、范围和依赖
+    alt 校验失败
+        Service-->>API: IllegalArgumentException
+        API-->>UI: 400 Bad Request
+    else 校验通过
+        Service->>DB: 更新 system_settings
+        opt 修改了推理并发
+            API->>Manager: POST /v1/runtime-settings
+            alt Model Manager 在线
+                Manager-->>API: 更新成功
+            else Model Manager 暂不可用
+                Note over API,DB: 保留已持久化配置，等待服务恢复后加载
+            end
+        end
+        API-->>UI: 更新成功
+    end
+```
+
 ## 一致性
 
 - PostgreSQL 是业务状态的事实来源，Model Manager 不写业务数据库。

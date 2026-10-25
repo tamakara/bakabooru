@@ -73,6 +73,6 @@ def test_versioned_embedding_routes_exist():
     assert "/v1/embeddings/image-file" in paths
 
 
-def test_service_has_no_database_or_minilm_state():
+def test_service_has_no_database_or_embedding_state():
     assert not any(name.startswith("DB_") for name in type(settings).model_fields)
     assert not hasattr(model_manager, "_embeddings")

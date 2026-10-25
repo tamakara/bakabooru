@@ -7,10 +7,9 @@ import numpy as np
 
 from app.core.settings import settings
 
-# HuggingFace CLIP 模型名称
-CLIP_MODEL_NAME = "openai/clip-vit-base-patch32"
-# ONNX 版本的 CLIP 模型
-CLIP_ONNX_REPO = "Xenova/clip-vit-base-patch32"
+# HuggingFace CLIP ONNX 模型与处理器仓库。
+# 统一使用单一来源，避免同时维护 PyTorch 和 ONNX 两套模型。
+CLIP_REPO = "Xenova/clip-vit-base-patch32"
 
 MODEL_CATALOG = {
     "camie-tagger-v2": {
@@ -20,7 +19,7 @@ MODEL_CATALOG = {
     },
     "clip-vit-base-patch32": {
         "name": "CLIP ViT-B/32", "type": "CLIP", "version": "1",
-        "dimension": 512, "capabilities": ["IMAGE_EMBEDDING", "TEXT_EMBEDDING"], "repo": CLIP_ONNX_REPO,
+        "dimension": 512, "capabilities": ["IMAGE_EMBEDDING", "TEXT_EMBEDDING"], "repo": CLIP_REPO,
         "files": [
             "onnx/text_model.onnx", "onnx/vision_model.onnx",
             "preprocessor_config.json", "tokenizer_config.json", "vocab.json", "merges.txt",
@@ -220,17 +219,17 @@ class ModelManager:
         from huggingface_hub import hf_hub_download
         from transformers import CLIPProcessor
 
-        print(f"正在加载 CLIP ONNX 模型: {CLIP_ONNX_REPO}...")
+        print(f"正在加载 CLIP ONNX 模型: {CLIP_REPO}...")
         cache_dir = str(settings.MODEL_CACHE_DIR)
 
         # 下载 ONNX 模型文件
         text_model_path = hf_hub_download(
-            repo_id=CLIP_ONNX_REPO,
+            repo_id=CLIP_REPO,
             filename="onnx/text_model.onnx",
             cache_dir=cache_dir, local_files_only=local_only
         )
         vision_model_path = hf_hub_download(
-            repo_id=CLIP_ONNX_REPO,
+            repo_id=CLIP_REPO,
             filename="onnx/vision_model.onnx",
             cache_dir=cache_dir, local_files_only=local_only
         )
@@ -250,19 +249,11 @@ class ModelManager:
             providers=self._ort_providers
         )
 
-        # 从 ONNX repo 加载 tokenizer（避免额外请求 PyTorch repo）
-        try:
-            self._clip_processor = CLIPProcessor.from_pretrained(
-                CLIP_ONNX_REPO,
-                cache_dir=cache_dir, local_files_only=local_only,
-            )
-        except Exception:
-            # 处理器文件可能只存在于 PyTorch 对应仓库，仍然只从本地缓存读取。
-            print(f"从 {CLIP_ONNX_REPO} 加载 processor 失败，尝试 {CLIP_MODEL_NAME}...")
-            self._clip_processor = CLIPProcessor.from_pretrained(
-                CLIP_MODEL_NAME,
-                cache_dir=cache_dir, local_files_only=local_only,
-            )
+        # 处理器文件与 ONNX 权重来自同一仓库，保证下载和运行时来源一致。
+        self._clip_processor = CLIPProcessor.from_pretrained(
+            CLIP_REPO,
+            cache_dir=cache_dir, local_files_only=local_only,
+        )
 
         active_provider = self._clip_text_session.get_providers()[0]
         print(f"CLIP ONNX 模型加载完成，使用: {active_provider}")
