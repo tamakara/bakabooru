@@ -18,7 +18,6 @@ def test_get_settings_uses_backend_batch_endpoint(monkeypatch):
     assert values == {"inference.concurrency": "4"}
     request = urlopen.call_args.args[0]
     assert request.full_url.endswith("/internal/config?keys=inference.concurrency")
-    assert request.get_header("X-internal-token") == config_client.settings.INTERNAL_CONFIG_TOKEN
 
 
 def test_get_settings_returns_safe_default_when_backend_is_unavailable(monkeypatch):

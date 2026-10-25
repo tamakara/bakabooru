@@ -1,6 +1,5 @@
 package com.tamakara.bakabooru.controller;
 
-import com.tamakara.bakabooru.config.InternalConfigProperties;
 import com.tamakara.bakabooru.module.setting.service.SettingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,21 +23,16 @@ public class InternalConfigController {
             SettingService.ACTIVE_CLIP
     );
     private final SettingService settingService;
-    private final InternalConfigProperties properties;
 
     @GetMapping("/{key}")
-    public Map<String, Map<String, String>> get(@PathVariable String key,
-                                                @RequestHeader(value = "X-Internal-Token", required = false) String token) {
-        authorize(token);
+    public Map<String, Map<String, String>> get(@PathVariable String key) {
         validateKey(key);
         return valuesResponse(List.of(key));
     }
 
     @GetMapping
     public Map<String, Map<String, String>> getMany(
-            @RequestParam(name = "keys", required = false) String keys,
-            @RequestHeader(value = "X-Internal-Token", required = false) String token) {
-        authorize(token);
+            @RequestParam(name = "keys", required = false) String keys) {
         if (keys == null || keys.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "keys is required");
         }
@@ -63,12 +57,6 @@ public class InternalConfigController {
         if (SettingService.UPLOAD_COMPLETED_RETENTION_DAYS.equals(key)) return "7";
         if (SettingService.INFERENCE_CONCURRENCY.equals(key)) return "1";
         return "";
-    }
-
-    private void authorize(String token) {
-        if (token == null || !token.equals(properties.getInternalToken())) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid internal token");
-        }
     }
 
     private void validateKey(String key) {

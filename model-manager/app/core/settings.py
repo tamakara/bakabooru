@@ -24,7 +24,6 @@ class Settings(BaseSettings):
     # 固定使用 CUDA，不在运行时回退到 CPU。
     DEVICE: str = "cuda"
     BACKEND_INTERNAL_URL: str = "http://backend:8080"
-    INTERNAL_CONFIG_TOKEN: str = "change-me-internal"
 
 
     model_config = {

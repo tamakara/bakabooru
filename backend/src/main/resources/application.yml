@@ -74,7 +74,6 @@ app:
   # AI 服务配置
   ai-service:
     url: ${MODEL_MANAGER_URL:http://model-manager:8000}
-    internal-token: ${INTERNAL_CONFIG_TOKEN:change-me-internal}
   ai-job:
     poll-interval-ms: ${AI_JOB_POLL_INTERVAL_MS:1000}
     initial-delay-ms: ${AI_JOB_INITIAL_DELAY_MS:2000}

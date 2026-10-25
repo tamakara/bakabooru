@@ -148,7 +148,7 @@ sequenceDiagram
 
 ### 配置管理
 
-配置页面先读取可编辑值和配置元数据。更新请求只允许白名单中的热更新配置，Backend 会合并已有值进行类型、范围和依赖校验，再持久化到 `system_settings` 并在事务提交后删除对应 Redis 缓存。Backend 读取配置时先查 Redis，未命中时回源 PostgreSQL 并回填；Model Manager 只通过受保护的内部 HTTP 接口向 Backend 获取配置，不感知 Redis。推理并发配置由 Model Manager 定时拉取；Backend 或网络暂时不可用时保留当前已生效值。
+配置页面先读取可编辑值和配置元数据。更新请求只允许白名单中的热更新配置，Backend 会合并已有值进行类型、范围和依赖校验，再持久化到 `system_settings` 并在事务提交后删除对应 Redis 缓存。Backend 读取配置时先查 Redis，未命中时回源 PostgreSQL 并回填；Model Manager 只通过 Docker 内部网络中的 HTTP 接口向 Backend 获取配置，不感知 Redis。推理并发配置由 Model Manager 定时拉取；Backend 或网络暂时不可用时保留当前已生效值。
 
 ```mermaid
 sequenceDiagram

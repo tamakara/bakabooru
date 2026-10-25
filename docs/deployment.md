@@ -36,8 +36,7 @@ docker compose ps
 | `MINIO_ROOT_USER` / `MINIO_ROOT_PASSWORD` | MinIO 和 Backend 访问凭据 | `bakabooru_user` / `bakabooru_password` |
 | `MINIO_BUCKET_NAME` | 图片 bucket | `images` |
 | `DATA_DIR` | 持久化数据根目录 | `./data` |
-| `REDIS_PASSWORD` | Redis 密码 | `change-me-redis` |
-| `INTERNAL_CONFIG_TOKEN` | Backend 内部配置接口与 model-manager 之间的共享令牌 | `change-me-internal` |
+| `REDIS_PASSWORD` | Redis 密码，由 Backend 和 Redis 容器使用 | `bakabooru_password` |
 
 Backend 的服务地址、Worker 调度参数和缩略图规格位于 `backend/src/main/resources/application.yml`；Model Manager 的 Backend 地址、CUDA 和模型缓存目录位于 `model-manager/app/core/settings.py`。标签阈值、分析重试参数、上传任务保留天数和推理并发通过系统设置接口修改，PostgreSQL 持久化、Redis 仅由 Backend 缓存。
 

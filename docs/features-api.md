@@ -70,9 +70,9 @@ Backend API 使用 `/api` 前缀。除认证初始化、登录和健康检查外
 | `GET` | `/api/system/settings/metadata` | 获取设置元数据 |
 | `POST` | `/api/system/settings` | 更新可编辑设置 |
 
-保存设置后返回 `updated`、`restartRequired`、`restartServices` 和 `message`。Redis 只由 Backend 使用；model-manager 通过受保护的 `/internal/config` HTTP 接口读取配置。
+保存设置后返回 `updated`、`restartRequired`、`restartServices` 和 `message`。Redis 只由 Backend 使用；model-manager 通过 Docker 内部网络中的 `/internal/config` HTTP 接口读取配置。
 
-内部服务读取配置使用 `X-Internal-Token`：
+内部服务直接通过 Backend 配置接口读取允许的配置键：
 
 | 方法 | 路径 | 用途 |
 | --- | --- | --- |
