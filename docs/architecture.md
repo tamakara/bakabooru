@@ -8,6 +8,7 @@ flowchart LR
     Frontend -->|/api/*| Backend[Backend<br/>Spring Boot]
     Frontend -->|/oss/*| MinIO[(MinIO)]
     Backend -->|业务数据、任务和向量| PostgreSQL[(PostgreSQL + pgvector)]
+    Backend -->|配置缓存| Redis[(Redis)]
     Backend -->|对象读写| MinIO
     Backend -->|推理请求| Manager[Model Manager<br/>FastAPI + ONNX Runtime]
     Manager -->|读取原图| MinIO
@@ -30,7 +31,7 @@ flowchart LR
 - `module.model`：模型实体和目录、`ModelManagerClient`、文本/图片向量服务。
 - `module.search`：组合搜索和语义搜索编排。
 - `module.upload`：上传任务、文件归档和入库 Worker。
-- `module.system`：系统设置和认证。
+- `module.system`：系统设置、Redis 缓存和认证。
 
 ## 核心流程
 
@@ -146,7 +147,7 @@ sequenceDiagram
 
 ### 配置管理
 
-配置页面先读取可编辑值和配置元数据。更新请求只允许白名单中的热更新配置，Backend 会合并已有值进行类型、范围和依赖校验，再持久化到 `system_settings`。推理并发配置会同步调用 Model Manager；同步失败不会回滚数据库，服务恢复后会在下一次加载或更新时生效。数据库连接、存储端点等 `BOOTSTRAP` 配置由部署环境提供，设备模式和模型缓存目录等 `RELOAD` 配置需要重新加载或重启。
+配置页面先读取可编辑值和配置元数据。更新请求只允许白名单中的热更新配置，Backend 会合并已有值进行类型、范围和依赖校验，再持久化到 `system_settings` 并删除对应 Redis 缓存。Backend 读取配置时先查 Redis，未命中时回源 PostgreSQL 并回填；Model Manager 也按相同键读取 Redis，未命中时通过受保护的内部接口请求 Backend 回源。推理并发配置会同步调用 Model Manager；同步失败不会回滚数据库，界面只提示后续生效。
 
 ```mermaid
 sequenceDiagram

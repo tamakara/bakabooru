@@ -2,8 +2,6 @@ package com.tamakara.bakabooru.module.search.dto;
 
 import lombok.Data;
 
-import java.util.List;
-
 @Data
 public class SearchRequestDto {
     private String tags;
@@ -20,6 +18,4 @@ public class SearchRequestDto {
     private Integer page;
     private Integer size;
     private String sort;
-    private List<String> vectorModelIds;
-    private String vectorModelId;
 }

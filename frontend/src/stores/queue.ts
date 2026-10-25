@@ -27,11 +27,11 @@ export const useQueueStore = defineStore('queue', () => {
   queue.on('active', updateStats)
 
   // 添加文件到上传队列
-  const addFileToQueue = async (file: File, options?: { tagModelId?: string, vectorModelIds?: string[] }) => {
+  const addFileToQueue = async (file: File) => {
     await queue.add(async () => {
       updateStats()
       try {
-        await uploadApi.uploadFile(file, options)
+        await uploadApi.uploadFile(file)
       } catch (error) {
         console.error(`Upload failed for ${file.name}:`, error)
       } finally {

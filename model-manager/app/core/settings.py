@@ -23,6 +23,11 @@ class Settings(BaseSettings):
 
     # 固定使用 CUDA，不在运行时回退到 CPU。
     DEVICE: str = "cuda"
+    REDIS_HOST: str = "redis"
+    REDIS_PORT: int = 6379
+    REDIS_PASSWORD: str = ""
+    BACKEND_INTERNAL_URL: str = "http://backend:8080"
+    INTERNAL_CONFIG_TOKEN: str = "change-me-internal"
 
 
     model_config = {

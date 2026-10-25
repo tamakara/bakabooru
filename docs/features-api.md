@@ -12,10 +12,10 @@ Backend API 使用 `/api` 前缀。除认证初始化、登录和健康检查外
 | 图片分析 | 自动或手动排队打标、向量计算、失败重试和批量操作；`/api/images/*/ai/*` |
 | 上传任务 | 文件上传、队列状态、失败任务重试和清理；`/api/upload*` |
 | 标签 | 标签列表和查询；`/api/tags` |
-| 模型管理 | 查看模型状态和提交模型下载/卸载操作；`/api/ai/models` |
-| 系统设置 | 标签阈值、重试策略和推理运行时设置；`/api/system/settings` |
+| 模型管理 | 查看、下载和启用一个标签模型及一个 CLIP 模型；`/api/ai/models` |
+| 系统设置 | 标签阈值、重试策略、上传保留和推理并发；`/api/system/settings` |
 
-搜索条件支持正负标签、关键词、语义文本、图片状态、向量模型、宽高、文件大小、排序和分页。上传接口返回表示文件已进入后台入库队列，不表示图片分析已经完成。
+搜索条件支持正负标签、关键词、语义文本、图片状态、宽高、文件大小、排序和分页；语义搜索和以图搜图自动使用当前启用的 CLIP 模型。上传接口返回表示文件已进入后台入库队列，不表示图片分析已经完成。
 
 ## Backend API
 
@@ -33,7 +33,7 @@ Backend API 使用 `/api` 前缀。除认证初始化、登录和健康检查外
 | 方法 | 路径 | 用途 |
 | --- | --- | --- |
 | `POST` | `/api/search` | 标签、关键词、元数据或语义搜索 |
-| `POST` | `/api/search/image` | multipart 以图搜图；字段 `file`，可选 `threshold`、`page`、`size`、`vectorModelIds`、`vectorModelId` |
+| `POST` | `/api/search/image` | multipart 以图搜图；字段 `file`，可选 `threshold`、`page`、`size` |
 | `GET` | `/api/tags?query=` | 查询标签 |
 | `GET` | `/api/images/{id}` | 获取图片详情 |
 | `PUT` | `/api/images/{id}` | 更新图片元数据 |
@@ -48,10 +48,10 @@ Backend API 使用 `/api` 前缀。除认证初始化、登录和健康检查外
 | 方法 | 路径 | 用途 |
 | --- | --- | --- |
 | `POST` | `/api/images/{id}/ai/retry?capability=` | 重试分析 |
-| `POST` | `/api/images/{id}/ai/tags` | 为单张图片排队生成标签；body 含 `modelId` |
-| `POST` | `/api/images/{id}/ai/vectors` | 为单张图片排队生成向量；body 含 `modelIds` |
-| `POST` | `/api/images/batch/ai/tags` | 批量生成标签；body 含 `ids`、`modelId` |
-| `POST` | `/api/images/batch/ai/vectors` | 批量生成向量；body 含 `ids`、`modelIds` |
+| `POST` | `/api/images/{id}/ai/tags` | 使用当前启用标签模型排队生成标签 |
+| `POST` | `/api/images/{id}/ai/vectors` | 使用当前启用 CLIP 模型排队生成向量 |
+| `POST` | `/api/images/batch/ai/tags` | 使用当前启用标签模型批量生成标签；body 含 `ids` |
+| `POST` | `/api/images/batch/ai/vectors` | 使用当前启用 CLIP 模型批量生成向量；body 含 `ids` |
 
 这些路由由 `ImageAnalysisController` 提供，业务流程位于 `module.analysis`，图片 CRUD 不参与分析任务编排。
 
@@ -59,16 +59,18 @@ Backend API 使用 `/api` 前缀。除认证初始化、登录和健康检查外
 
 | 方法 | 路径 | 用途 |
 | --- | --- | --- |
-| `POST` | `/api/upload` | 上传 multipart 图片；字段 `file`、可选 `tagModelId`、`vectorModelIds` |
+| `POST` | `/api/upload` | 上传 multipart 图片；字段 `file`，分析使用当前启用模型 |
 | `GET` | `/api/upload/tasks` | 获取上传队列和失败任务 |
 | `POST` | `/api/upload/tasks?id={uuid}` | 重试上传任务 |
 | `DELETE` | `/api/upload/tasks` | 清除失败上传任务 |
 | `GET` | `/api/ai/models` | 获取模型目录和状态 |
 | `POST` | `/api/ai/models/{id}/download` | 下载模型工件 |
-| `DELETE` | `/api/ai/models/{id}/artifact` | 将模型状态设为未安装 |
+| `POST` | `/api/ai/models/{id}/enable` | 启用已就绪模型；标签和 CLIP 各允许一个 |
 | `GET` | `/api/system/settings` | 获取系统设置 |
 | `GET` | `/api/system/settings/metadata` | 获取设置元数据 |
 | `POST` | `/api/system/settings` | 更新可编辑设置 |
+
+保存设置后返回 `updated`、`restartRequired`、`restartServices` 和 `message`。model-manager 读取 Redis 配置，缓存未命中时通过受保护的 `/internal/config/{key}` 回源 Backend。
 
 ## Model Manager API
 

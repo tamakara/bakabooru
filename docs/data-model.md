@@ -101,7 +101,7 @@ erDiagram
 
 ### `system_settings`
 
-键值形式的系统设置表，主键为 `setting_key`。设置包括标签阈值、上传与任务调度参数、Model Manager 地址、推理并发、设备模式和模型缓存目录。敏感值是否可写以及修改后是否需要重启由 Backend 设置元数据控制。
+键值形式的系统设置表，主键为 `setting_key`。当前运行时键包括 `analysis.tag-threshold`、`analysis.max-attempts`、`analysis.retry-base-delay-seconds`、`analysis.retry-max-delay-seconds`、`upload.completed-retention-days`、`inference.concurrency`、`model.active-tagger-id` 和 `model.active-clip-id`。Redis 只缓存这些值，数据库仍是事实来源；缓存失效后由 Backend 回源并回填。Model Manager 不直接连接 PostgreSQL，而是通过内部配置接口回源。
 
 ## 一致性与生命周期
 

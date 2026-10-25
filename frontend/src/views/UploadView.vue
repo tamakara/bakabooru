@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import {computed, h, ref, watch} from 'vue'
+import {computed, h, ref} from 'vue'
 import {useMutation, useQuery, useQueryClient} from '@tanstack/vue-query'
 import {uploadApi, type UploadTask} from '../api/upload'
-import {modelManagerApi} from '../api/system'
 import {useQueueStore} from '../stores/queue'
 import {
   type DataTableColumns,
@@ -15,7 +14,6 @@ import {
   NSpace,
   NTag,
   NText,
-  NSelect,
   NTooltip,
   NUpload,
   NUploadDragger,
@@ -29,17 +27,6 @@ const message = useMessage()
 const queryClient = useQueryClient()
 const queueStore = useQueueStore()
 
-const {data: models} = useQuery({queryKey: ['models'], queryFn: modelManagerApi.list})
-const selectedTagModelId = ref<string | null>(localStorage.getItem('bakabooru.tagModelId'))
-const selectedVectorModelIds = ref<string[]>(JSON.parse(localStorage.getItem('bakabooru.vectorModelIds') || '[]'))
-watch(selectedTagModelId, value => value ? localStorage.setItem('bakabooru.tagModelId', value) : localStorage.removeItem('bakabooru.tagModelId'))
-watch(selectedVectorModelIds, value => localStorage.setItem('bakabooru.vectorModelIds', JSON.stringify(value)))
-const tagModelOptions = computed(() => (models.value || [])
-  .filter(model => model.type === 'TAGGER' && model.artifactState === 'READY')
-  .map(model => ({label: model.name, value: model.id})))
-const vectorModelOptions = computed(() => (models.value || [])
-  .filter(model => model.type === 'CLIP' && model.artifactState === 'READY')
-  .map(model => ({label: model.name, value: model.id})))
 
 // ===== 上传区域 =====
 const isRecursiveScan = ref(true)
@@ -47,10 +34,7 @@ const uploadFileList = ref<UploadFileInfo[]>([])
 const folderInputRef = ref<HTMLInputElement | null>(null)
 
 function addToQueue(file: File) {
-  queueStore.addFileToQueue(file, {
-    tagModelId: selectedTagModelId.value || undefined,
-    vectorModelIds: selectedVectorModelIds.value
-  })
+  queueStore.addFileToQueue(file)
 }
 
 const scanFolderBatchUpload = (e: Event) => {
@@ -193,10 +177,6 @@ const columns: DataTableColumns<UploadTask> = [
             />
           </div>
         </template>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
-          <n-select v-model:value="selectedTagModelId" :options="tagModelOptions" clearable placeholder="标签模型（可选）" size="small" />
-          <n-select v-model:value="selectedVectorModelIds" :options="vectorModelOptions" multiple clearable placeholder="索引向量模型（可选）" size="small" />
-        </div>
         <n-upload
             v-model:file-list="uploadFileList"
             multiple

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import {computed, onMounted, onUnmounted, ref, watch} from 'vue'
-import {useQuery} from '@tanstack/vue-query'
 import {
   NButton,
   NDivider,
@@ -8,9 +7,7 @@ import {
   NImage,
   NInput,
   NInputGroup,
-  NModal,
   NPopconfirm,
-  NSelect,
   NTag,
   NTooltip,
   NSkeleton,
@@ -37,7 +34,6 @@ import {
   TrashOutline
 } from '@vicons/ionicons5'
 import {galleryApi, type ImageDto, type ImageTagDto} from '../../api/gallery.ts'
-import {modelManagerApi} from '../../api/system'
 import {tagsApi} from '../../api/tags.ts'
 import {useDateFormat} from '@vueuse/core'
 
@@ -58,7 +54,6 @@ const emit = defineEmits<{
 }>()
 
 const message = useMessage()
-const {data: models} = useQuery({queryKey: ['models'], queryFn: modelManagerApi.list})
 const editingName = ref(false)
 const newName = ref('')
 const newTagName = ref('')
@@ -66,20 +61,11 @@ const tagSearchOptions = ref<AutoCompleteOption[]>([])
 const isEditingTags = ref(false)
 const addingTag = ref(false)
 const recomputing = ref(false)
-const selectedVectorModelIds = ref<string[]>([])
-const selectedTagModelId = ref<string | null>(null)
-const showTagModelModal = ref(false)
-const showVectorModelModal = ref(false)
-const clipModels = computed(() => (models.value || []).filter(model => model.type === 'CLIP' && model.artifactState === 'READY'))
-const tagModels = computed(() => (models.value || []).filter(model => model.type === 'TAGGER' && model.artifactState === 'READY'))
-const vectorStatus = (modelId: string) => props.image?.indexVectors?.find(vector => vector.modelId === modelId)?.status || 'NOT_COMPUTED'
 
 // 当image变化时更新编辑表单
 watch(() => props.image, (newImage) => {
   if (newImage) {
     newName.value = newImage.title
-    selectedVectorModelIds.value = (newImage.indexVectors || []).filter(vector => vector.status === 'READY').map(vector => vector.modelId)
-    if (!selectedTagModelId.value) selectedTagModelId.value = tagModels.value[0]?.id || null
   }
 }, {immediate: true})
 
@@ -285,12 +271,10 @@ const handleRecomputeTags = async (): Promise<boolean> => {
   if (!props.image || recomputing.value) return false
   recomputing.value = true
   try {
-    if (!selectedTagModelId.value) { message.warning('请先下载并选择标签模型'); return false }
-    const updated = await galleryApi.generateTags(props.image.id, selectedTagModelId.value)
+    const updated = await galleryApi.generateTags(props.image.id)
     emit('update:image', updated)
     emit('refresh')
     message.success('标签重算任务已提交')
-    showTagModelModal.value = false
     return false
   } catch {
     message.error('提交标签重算失败')
@@ -301,14 +285,13 @@ const handleRecomputeTags = async (): Promise<boolean> => {
 }
 
 const handleRecomputeVectors = async (): Promise<boolean> => {
-  if (!props.image || !selectedVectorModelIds.value.length || recomputing.value) return false
+  if (!props.image || recomputing.value) return false
   recomputing.value = true
   try {
-    const updated = await galleryApi.generateVectors(props.image.id, selectedVectorModelIds.value)
+    const updated = await galleryApi.generateVectors(props.image.id)
     emit('update:image', updated)
     emit('refresh')
     message.success('向量重算任务已提交')
-    showVectorModelModal.value = false
     return false
   } catch {
     message.error('提交向量重算失败')
@@ -362,7 +345,7 @@ const getTagColor = (type: string) => {
 </script>
 
 <template>
-  <n-modal :show="show" @update:show="(v) => emit('update:show', v)" class="!m-0 !p-0" :auto-focus="false">
+  <n-modal :show="show" @update:show="(v: boolean) => emit('update:show', v)" class="!m-0 !p-0" :auto-focus="false">
     <div class="flex flex-col w-screen h-screen bg-black text-white overflow-hidden">
 
       <!-- Content Area -->
@@ -565,13 +548,13 @@ const getTagColor = (type: string) => {
                 <div>
                   <div class="flex items-center justify-between">
                     <span class="text-gray-500 text-xs">索引向量</span>
-                    <n-button size="tiny" secondary circle :loading="recomputing" @click="showVectorModelModal = true" aria-label="重新计算索引向量">
+                    <n-button size="tiny" secondary circle :loading="recomputing" @click="handleRecomputeVectors" aria-label="重新计算索引向量">
                       <template #icon><n-icon :component="RefreshOutline" /></template>
                     </n-button>
                   </div>
                   <div class="flex flex-wrap gap-1 mt-1">
-                    <n-tag v-for="model in clipModels" :key="model.id" size="small" :bordered="false">
-                      {{ model.name }} / {{ vectorStatus(model.id) }}
+                    <n-tag v-for="vector in props.image.indexVectors" :key="vector.modelId" size="small" :bordered="false">
+                      {{ vector.modelId }} / {{ vector.status }}
                     </n-tag>
                     <span v-if="!props.image.indexVectors?.length" class="text-gray-500 text-xs">未计算</span>
                   </div>
@@ -633,7 +616,7 @@ const getTagColor = (type: string) => {
                       <n-icon :component="PencilOutline"/>
                     </template>
                   </n-button>
-                  <n-button size="tiny" secondary circle :loading="recomputing" :disabled="!tagModels.length" @click="showTagModelModal = true" aria-label="重新生成标签">
+                  <n-button size="tiny" secondary circle :loading="recomputing" @click="handleRecomputeTags" aria-label="重新生成标签">
                     <template #icon><n-icon :component="RefreshOutline" /></template>
                   </n-button>
                 </div>
@@ -692,17 +675,6 @@ const getTagColor = (type: string) => {
 
   </n-modal>
 
-  <!-- Keep auxiliary dialogs outside the full-screen modal so each modal has one root child. -->
-  <n-modal v-model:show="showTagModelModal" preset="dialog" title="选择标签模型" positive-text="开始生成" negative-text="取消" @positive-click="handleRecomputeTags">
-    <div class="w-full">
-      <n-select v-model:value="selectedTagModelId" :options="tagModels.map(model => ({ label: model.name, value: model.id }))" placeholder="选择已下载的标签模型" />
-    </div>
-  </n-modal>
-  <n-modal v-model:show="showVectorModelModal" preset="dialog" title="选择索引向量模型" positive-text="开始计算" negative-text="取消" @positive-click="handleRecomputeVectors">
-    <div class="w-full">
-      <n-select v-model:value="selectedVectorModelIds" multiple :options="clipModels.map(model => ({ label: model.name, value: model.id }))" placeholder="选择一个或多个已下载模型" />
-    </div>
-  </n-modal>
 </template>
 
 <style scoped>

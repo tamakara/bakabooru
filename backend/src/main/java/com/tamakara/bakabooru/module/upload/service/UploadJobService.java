@@ -6,6 +6,7 @@ import com.tamakara.bakabooru.module.upload.dto.UploadTaskDto;
 import com.tamakara.bakabooru.module.upload.entity.UploadJob;
 import com.tamakara.bakabooru.module.upload.entity.UploadJobStatus;
 import com.tamakara.bakabooru.module.upload.repository.UploadJobRepository;
+import com.tamakara.bakabooru.module.system.service.SystemSettingService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.stereotype.Service;
@@ -23,8 +24,9 @@ public class UploadJobService {
 
     private final UploadJobRepository uploadJobRepository;
     private final StorageService storageService;
+    private final SystemSettingService settingService;
 
-    public void createTask(MultipartFile file, String tagModelId, String vectorModelIds) {
+    public void createTask(MultipartFile file) {
         UUID id = UUID.randomUUID();
         String stagingObjectName = "staging/" + id;
         String filename = FilenameUtils.getName(file.getOriginalFilename());
@@ -49,8 +51,8 @@ public class UploadJobService {
             job.setStatus(UploadJobStatus.PENDING);
             job.setCreatedAt(now);
             job.setUpdatedAt(now);
-            job.setTagModelId(tagModelId);
-            job.setVectorModelIds(vectorModelIds);
+            job.setTagModelId(settingService.getActiveTaggerId());
+            job.setVectorModelIds(settingService.getActiveClipId());
             uploadJobRepository.save(job);
         } catch (Exception e) {
             try {

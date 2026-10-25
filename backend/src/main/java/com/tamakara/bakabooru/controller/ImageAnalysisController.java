@@ -2,8 +2,6 @@ package com.tamakara.bakabooru.controller;
 
 import com.tamakara.bakabooru.module.analysis.dto.BatchTagsRequest;
 import com.tamakara.bakabooru.module.analysis.dto.BatchVectorsRequest;
-import com.tamakara.bakabooru.module.analysis.dto.TagsRequest;
-import com.tamakara.bakabooru.module.analysis.dto.VectorsRequest;
 import com.tamakara.bakabooru.module.analysis.service.ImageAnalysisService;
 import com.tamakara.bakabooru.module.image.dto.ImageDto;
 import lombok.RequiredArgsConstructor;
@@ -27,14 +25,13 @@ public class ImageAnalysisController {
     }
 
     @PostMapping("/{id}/ai/tags")
-    public ImageDto generateTags(@PathVariable Long id, @RequestBody TagsRequest request) {
-        return imageAnalysisService.enqueue(id, request == null ? null : request.modelId(), null);
+    public ImageDto generateTags(@PathVariable Long id) {
+        return imageAnalysisService.enqueueTags(id);
     }
 
     @PostMapping("/{id}/ai/vectors")
-    public ImageDto generateVectors(@PathVariable Long id, @RequestBody VectorsRequest request) {
-        List<String> models = request == null || request.modelIds() == null ? List.of() : request.modelIds();
-        return imageAnalysisService.enqueue(id, null, String.join(",", models));
+    public ImageDto generateVectors(@PathVariable Long id) {
+        return imageAnalysisService.enqueueVectors(id);
     }
 
     @PostMapping("/batch/ai/tags")

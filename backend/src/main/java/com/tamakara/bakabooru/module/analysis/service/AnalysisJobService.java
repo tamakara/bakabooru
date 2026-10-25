@@ -6,6 +6,7 @@ import com.tamakara.bakabooru.module.analysis.repository.AnalysisJobRepository;
 import com.tamakara.bakabooru.module.image.entity.Image;
 import com.tamakara.bakabooru.module.image.entity.ImageEmbedding;
 import com.tamakara.bakabooru.module.image.repository.ImageRepository;
+import com.tamakara.bakabooru.module.system.service.SystemSettingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,10 +19,11 @@ public class AnalysisJobService {
 
     private final AnalysisJobRepository analysisJobRepository;
     private final ImageRepository imageRepository;
+    private final SystemSettingService settingService;
 
     @Transactional
     public AnalysisJob enqueue(Image image) {
-        return enqueue(image, null, null);
+        return enqueue(image, settingService.getActiveTaggerId(), settingService.getActiveClipId());
     }
 
     @Transactional
@@ -98,6 +100,14 @@ public class AnalysisJobService {
                 .orElseThrow(() -> new IllegalStateException("AI job not found: " + imageId));
         Instant now = Instant.now();
         job.setStatus(AnalysisJobStatus.PENDING);
+        if ("TAGS".equalsIgnoreCase(job.getCapability())) {
+            job.setTagModelId(settingService.getActiveTaggerId());
+        } else if ("VECTORS".equalsIgnoreCase(job.getCapability())) {
+            job.setVectorModelIds(settingService.getActiveClipId());
+        } else {
+            job.setTagModelId(settingService.getActiveTaggerId());
+            job.setVectorModelIds(settingService.getActiveClipId());
+        }
         job.setAttempts(0);
         job.setNextRetryAt(now);
         job.setLockedBy(null);

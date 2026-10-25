@@ -12,6 +12,7 @@ dependencies = [
     "pillow",
     "pydantic",
     "pydantic-settings",
+    "redis",
     "python-multipart",
     "transformers",
     "uvicorn",

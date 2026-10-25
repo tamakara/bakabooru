@@ -24,6 +24,5 @@ public class SearchDto {
     private Set<String> positiveTags;
     private Set<String> negativeTags;
     private List<Float> embedding;  // CLIP 文本查询向量
-    private List<String> vectorModelIds;
     private String vectorModelId;
 }

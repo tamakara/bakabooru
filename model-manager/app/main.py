@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+import asyncio
 
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
@@ -6,10 +7,14 @@ from fastapi.responses import JSONResponse
 from app.api import embeddings_router, images_router, models_router
 from app.api.runtime import router as runtime_router
 from app.core.model_manager import model_manager
+from app.core.inference import configure_from_settings, refresh_runtime_settings
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     model_manager.load_all()
+    configure_from_settings()
+    refresh_task = asyncio.create_task(refresh_runtime_settings())
     yield
+    refresh_task.cancel()
 
 
 app = FastAPI(

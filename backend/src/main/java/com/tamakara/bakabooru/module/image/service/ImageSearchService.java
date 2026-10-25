@@ -64,7 +64,6 @@ public class ImageSearchService {
             return new SearchResultDto<>(List.of(), page, size, false);
         }
         applyVector(searchDto, predicates, params);
-        applyModelFilters(searchDto, predicates, params);
 
         String sql = """
                 SELECT i.id, i.title, i.hash, i.extension, i.image_status,
@@ -200,16 +199,6 @@ public class ImageSearchService {
         if (!IMAGE_STATUSES.contains(status)) return;
         predicates.add("i.image_status = :imageStatus");
         params.addValue("imageStatus", status);
-    }
-
-    private void applyModelFilters(SearchDto searchDto, List<String> predicates, MapSqlParameterSource params) {
-        if (searchDto.getVectorModelIds() != null && !searchDto.getVectorModelIds().isEmpty()) {
-            predicates.add("EXISTS (SELECT 1 FROM image_embeddings ef WHERE ef.image_id = i.id "
-                    + "AND ef.status = 'READY' AND ef.model_id IN (:vectorModelIds) "
-                    + "GROUP BY ef.image_id HAVING COUNT(DISTINCT ef.model_id) = :vectorModelCount)");
-            params.addValue("vectorModelIds", searchDto.getVectorModelIds());
-            params.addValue("vectorModelCount", searchDto.getVectorModelIds().stream().distinct().count());
-        }
     }
 
     private String buildOrderBy(SearchDto searchDto) {

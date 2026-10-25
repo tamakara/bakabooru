@@ -10,6 +10,14 @@ services:
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}"]
 
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD:-change-me-redis}"]
+    volumes:
+      - ${DATA_DIR}/redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-change-me-redis}", "ping"]
+
   minio:
     image: minio/minio
     command: server /data --console-address ":9001"
@@ -28,6 +36,11 @@ services:
       MINIO_ACCESS_KEY: ${MINIO_ROOT_USER}
       MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
       MINIO_BUCKET_NAME: ${MINIO_BUCKET_NAME}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-change-me-redis}
+      BACKEND_INTERNAL_URL: http://backend:8080
+      INTERNAL_CONFIG_TOKEN: ${INTERNAL_CONFIG_TOKEN:-change-me-internal}
     gpus: all
     volumes:
       - ${DATA_DIR}/model_cache:/model_cache
@@ -46,6 +59,8 @@ services:
     depends_on:
       minio:
         condition: service_healthy
+      redis:
+        condition: service_healthy
 
   backend:
     build: ./backend
@@ -56,6 +71,10 @@ services:
       MINIO_ACCESS_KEY: ${MINIO_ROOT_USER}
       MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
       MINIO_BUCKET_NAME: ${MINIO_BUCKET_NAME}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-change-me-redis}
+      INTERNAL_CONFIG_TOKEN: ${INTERNAL_CONFIG_TOKEN:-change-me-internal}
     healthcheck:
       test:
         [
@@ -74,6 +93,8 @@ services:
       postgres:
         condition: service_healthy
       minio:
+        condition: service_healthy
+      redis:
         condition: service_healthy
 
   frontend:

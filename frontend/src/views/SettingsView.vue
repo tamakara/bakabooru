@@ -21,23 +21,21 @@ import { modelManagerApi, systemApi, type ModelDto } from '../api/system'
 import { authApi } from '../api/auth'
 
 type SettingsForm = {
-  'tag.threshold': number | null
-  'ai-job.max-attempts': number | null
-  'ai-job.retry-base-delay-seconds': number | null
-  'ai-job.retry-max-delay-seconds': number | null
+  'analysis.tag-threshold': number | null
+  'analysis.max-attempts': number | null
+  'analysis.retry-base-delay-seconds': number | null
+  'analysis.retry-max-delay-seconds': number | null
   'upload.completed-retention-days': number | null
-  'ai.service-url': string
-  'ai.inference-concurrency': number | null
+  'inference.concurrency': number | null
 }
 
 const defaults = {
-  'tag.threshold': 0.61,
-  'ai-job.max-attempts': 5,
-  'ai-job.retry-base-delay-seconds': 30,
-  'ai-job.retry-max-delay-seconds': 1800,
+  'analysis.tag-threshold': 0.61,
+  'analysis.max-attempts': 5,
+  'analysis.retry-base-delay-seconds': 30,
+  'analysis.retry-max-delay-seconds': 1800,
   'upload.completed-retention-days': 7,
-  'ai.service-url': 'http://model-manager:8000',
-  'ai.inference-concurrency': 1
+  'inference.concurrency': 1
 } satisfies SettingsForm
 
 const message = useMessage()
@@ -67,13 +65,12 @@ function numberSetting(value: string | undefined, fallback: number) {
 watch(settingsQuery.data, value => {
   if (!value) return
   settingsForm.value = {
-    'tag.threshold': numberSetting(value['tag.threshold'], defaults['tag.threshold']),
-    'ai-job.max-attempts': numberSetting(value['ai-job.max-attempts'], defaults['ai-job.max-attempts']),
-    'ai-job.retry-base-delay-seconds': numberSetting(value['ai-job.retry-base-delay-seconds'], defaults['ai-job.retry-base-delay-seconds']),
-    'ai-job.retry-max-delay-seconds': numberSetting(value['ai-job.retry-max-delay-seconds'], defaults['ai-job.retry-max-delay-seconds']),
+    'analysis.tag-threshold': numberSetting(value['analysis.tag-threshold'], defaults['analysis.tag-threshold']),
+    'analysis.max-attempts': numberSetting(value['analysis.max-attempts'], defaults['analysis.max-attempts']),
+    'analysis.retry-base-delay-seconds': numberSetting(value['analysis.retry-base-delay-seconds'], defaults['analysis.retry-base-delay-seconds']),
+    'analysis.retry-max-delay-seconds': numberSetting(value['analysis.retry-max-delay-seconds'], defaults['analysis.retry-max-delay-seconds']),
     'upload.completed-retention-days': numberSetting(value['upload.completed-retention-days'], defaults['upload.completed-retention-days']),
-    'ai.service-url': value['ai.service-url'] || defaults['ai.service-url'],
-    'ai.inference-concurrency': numberSetting(value['ai.inference-concurrency'], defaults['ai.inference-concurrency'])
+    'inference.concurrency': numberSetting(value['inference.concurrency'], defaults['inference.concurrency'])
   }
 }, { immediate: true })
 
@@ -85,22 +82,18 @@ function errorMessage(error: unknown, fallback: string) {
 function validateSettings() {
   const form = settingsForm.value
   const numericKeys: Array<keyof SettingsForm> = [
-    'tag.threshold',
-    'ai-job.max-attempts',
-    'ai-job.retry-base-delay-seconds',
-    'ai-job.retry-max-delay-seconds',
+    'analysis.tag-threshold',
+    'analysis.max-attempts',
+    'analysis.retry-base-delay-seconds',
+    'analysis.retry-max-delay-seconds',
     'upload.completed-retention-days',
-    'ai.inference-concurrency'
+    'inference.concurrency'
   ]
   if (numericKeys.some(key => form[key] === null || !Number.isFinite(Number(form[key])))) {
     message.error('请填写完整的数值设置')
     return false
   }
-  if (!form['ai.service-url'].trim()) {
-    message.error('AI 服务地址不能为空')
-    return false
-  }
-  if (Number(form['ai-job.retry-max-delay-seconds']) < Number(form['ai-job.retry-base-delay-seconds'])) {
+  if (Number(form['analysis.retry-max-delay-seconds']) < Number(form['analysis.retry-base-delay-seconds'])) {
     message.error('最大重试间隔不能小于初始重试间隔')
     return false
   }
@@ -109,9 +102,13 @@ function validateSettings() {
 
 const updateSettingsMutation = useMutation({
   mutationFn: systemApi.updateSettings,
-  onSuccess: async () => {
+  onSuccess: async (result: { restartRequired?: boolean, restartServices?: string[], message?: string }) => {
     await queryClient.invalidateQueries({ queryKey: ['settings'] })
-    message.success('设置已保存')
+    if (result.restartRequired) {
+      message.warning(`${result.message || '设置已保存'}，请重启${(result.restartServices || []).join('、') || '相关服务'}后生效`)
+    } else {
+      message.success(result.message || '设置已保存')
+    }
   },
   onError: (error: unknown) => message.error(errorMessage(error, '保存设置失败'))
 })
@@ -126,16 +123,13 @@ function saveSettings() {
 
 const tagModels = computed(() => (modelsQuery.data.value ?? []).filter(model => model.type === 'TAGGER'))
 const clipModels = computed(() => (modelsQuery.data.value ?? []).filter(model => model.type === 'CLIP'))
-const modelGroups = computed(() => [
-  { title: '标签模型', models: tagModels.value },
-  { title: 'CLIP 模型', models: clipModels.value }
-])
+const modelGroups = computed(() => [...tagModels.value, ...clipModels.value])
 
 const modelMutation = useMutation({
   mutationFn: (id: string) => modelManagerApi.download(id),
   onSuccess: async () => {
     await queryClient.invalidateQueries({ queryKey: ['models'] })
-    message.success('模型下载任务已提交，下载完成后请重启 AI 服务')
+    message.success('模型下载任务已提交')
   },
   onError: (error: unknown) => message.error(errorMessage(error, '模型下载失败')),
   onSettled: () => {
@@ -148,6 +142,15 @@ function downloadModel(id: string) {
   downloadingModelId.value = id
   modelMutation.mutate(id)
 }
+
+const enableModelMutation = useMutation({
+  mutationFn: modelManagerApi.enable,
+  onSuccess: async () => {
+    await queryClient.invalidateQueries({ queryKey: ['models'] })
+    message.success('模型已启用')
+  },
+  onError: (error: unknown) => message.error(errorMessage(error, '启用模型失败'))
+})
 
 function modelStatusLabel(model: ModelDto) {
   if (model.artifactState === 'READY') return '已就绪'
@@ -201,17 +204,17 @@ function updatePassword() {
         <n-spin :show="settingsQuery.isLoading.value">
           <n-form :model="settingsForm" label-placement="top" size="medium">
             <div class="grid grid-cols-1 gap-x-5 sm:grid-cols-2">
-              <n-form-item label="标签置信度阈值" path="tag.threshold">
-                <n-input-number v-model:value="settingsForm['tag.threshold']" :min="0" :max="1" :step="0.01" :precision="2" class="w-full" placeholder="0.61" />
+              <n-form-item label="标签置信度阈值" path="analysis.tag-threshold">
+                <n-input-number v-model:value="settingsForm['analysis.tag-threshold']" :min="0" :max="1" :step="0.01" :precision="2" class="w-full" placeholder="0.61" />
               </n-form-item>
-              <n-form-item label="任务最大重试次数" path="ai-job.max-attempts">
-                <n-input-number v-model:value="settingsForm['ai-job.max-attempts']" :min="1" :max="20" :precision="0" class="w-full" placeholder="5" />
+              <n-form-item label="任务最大重试次数" path="analysis.max-attempts">
+                <n-input-number v-model:value="settingsForm['analysis.max-attempts']" :min="1" :max="20" :precision="0" class="w-full" placeholder="5" />
               </n-form-item>
-              <n-form-item label="重试初始间隔（秒）" path="ai-job.retry-base-delay-seconds">
-                <n-input-number v-model:value="settingsForm['ai-job.retry-base-delay-seconds']" :min="1" :max="3600" :precision="0" class="w-full" placeholder="30" />
+              <n-form-item label="重试初始间隔（秒）" path="analysis.retry-base-delay-seconds">
+                <n-input-number v-model:value="settingsForm['analysis.retry-base-delay-seconds']" :min="1" :max="3600" :precision="0" class="w-full" placeholder="30" />
               </n-form-item>
-              <n-form-item label="重试最大间隔（秒）" path="ai-job.retry-max-delay-seconds">
-                <n-input-number v-model:value="settingsForm['ai-job.retry-max-delay-seconds']" :min="1" :max="86400" :precision="0" class="w-full" placeholder="1800" />
+              <n-form-item label="重试最大间隔（秒）" path="analysis.retry-max-delay-seconds">
+                <n-input-number v-model:value="settingsForm['analysis.retry-max-delay-seconds']" :min="1" :max="86400" :precision="0" class="w-full" placeholder="1800" />
               </n-form-item>
               <n-form-item label="已完成上传任务保留天数" path="upload.completed-retention-days">
                 <n-input-number v-model:value="settingsForm['upload.completed-retention-days']" :min="1" :max="365" :precision="0" class="w-full" placeholder="7" />
@@ -226,21 +229,12 @@ function updatePassword() {
         </template>
       </n-card>
 
-      <n-card size="small" title="AI 服务">
+      <n-card size="small" title="推理设置">
         <n-spin :show="settingsQuery.isLoading.value">
           <n-form :model="settingsForm" label-placement="top" size="medium">
             <div class="grid grid-cols-1 gap-x-5 sm:grid-cols-2">
-              <n-form-item label="服务地址" path="ai.service-url">
-                <n-input v-model:value="settingsForm['ai.service-url']" placeholder="http://model-manager:8000" />
-              </n-form-item>
-              <n-form-item label="推理并发数" path="ai.inference-concurrency">
-                <n-input-number v-model:value="settingsForm['ai.inference-concurrency']" :min="1" :max="64" :precision="0" class="w-full" placeholder="1" />
-              </n-form-item>
-              <n-form-item label="推理设备">
-                <n-input value="CUDA（固定 GPU 推理）" readonly />
-              </n-form-item>
-              <n-form-item label="模型缓存目录">
-                <n-input value="/model_cache（由容器配置管理）" readonly />
+              <n-form-item label="推理并发数" path="inference.concurrency">
+                <n-input-number v-model:value="settingsForm['inference.concurrency']" :min="1" :max="64" :precision="0" class="w-full" placeholder="1" />
               </n-form-item>
             </div>
           </n-form>
@@ -259,16 +253,18 @@ function updatePassword() {
         </div>
       </n-alert>
 
-      <n-card v-for="group in modelGroups" :key="group.title" size="small" :title="group.title">
+      <n-card size="small" title="模型管理">
         <n-spin :show="modelsQuery.isLoading.value">
-          <div v-if="group.models.length" class="divide-y divide-gray-100 dark:divide-gray-800">
-            <div v-for="model in group.models" :key="model.id" class="flex min-h-16 flex-wrap items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
+          <div v-if="modelGroups.length" class="divide-y divide-gray-100 dark:divide-gray-800">
+            <div v-for="model in modelGroups" :key="model.id" class="flex min-h-16 flex-wrap items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
               <div class="min-w-0 flex-1">
                 <div class="truncate text-sm font-medium">{{ model.name }}</div>
-                <div class="text-xs text-gray-500">版本 {{ model.version }}<span v-if="model.dimension"> · {{ model.dimension }} 维</span></div>
+                <div class="text-xs text-gray-500">{{ model.type === 'TAGGER' ? '标签模型' : 'CLIP 模型' }} · 版本 {{ model.version }}<span v-if="model.dimension"> · {{ model.dimension }} 维</span></div>
               </div>
               <n-space align="center" size="small">
                 <n-tag size="small" :type="modelStatusType(model)">{{ modelStatusLabel(model) }}</n-tag>
+                <n-tag v-if="model.enabled" size="small" type="success">当前启用</n-tag>
+                <n-button v-else-if="model.artifactState === 'READY'" size="small" :loading="enableModelMutation.isPending.value" @click="enableModelMutation.mutate(model.id)">启用</n-button>
                 <n-button
                   v-if="model.artifactState === 'NOT_INSTALLED' || model.artifactState === 'FAILED'"
                   size="small"

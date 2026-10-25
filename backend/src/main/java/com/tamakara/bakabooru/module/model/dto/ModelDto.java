@@ -15,6 +15,8 @@ public class ModelDto {
     private Integer dimension;
     private String status;
     private String artifactState;
+    private boolean enabled;
+    private boolean restartRequired;
     private java.util.List<String> capabilities;
     private String errorMessage;
 
@@ -37,6 +39,14 @@ public class ModelDto {
         return dto;
     }
 
+    public static ModelDto from(Model model, boolean enabled, String errorMessage) {
+        ModelDto dto = from(model);
+        dto.enabled = enabled;
+        dto.restartRequired = "RESTART_REQUIRED".equals(dto.artifactState);
+        dto.errorMessage = errorMessage;
+        return dto;
+    }
+
     public static ModelDto fromRemote(java.util.Map<?, ?> model) {
         ModelDto dto = new ModelDto();
         dto.id = value(model, "id");
@@ -46,6 +56,7 @@ public class ModelDto {
         Object dimension = model.get("dimension");
         dto.dimension = dimension instanceof Number n ? n.intValue() : null;
         dto.artifactState = value(model, "artifactState");
+        dto.restartRequired = "RESTART_REQUIRED".equals(dto.artifactState);
         Object capabilities = model.get("capabilities");
         if (capabilities instanceof java.util.List<?> list) {
             dto.capabilities = list.stream().map(String::valueOf).toList();

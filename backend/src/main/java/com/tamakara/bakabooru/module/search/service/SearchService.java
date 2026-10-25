@@ -8,6 +8,7 @@ import com.tamakara.bakabooru.module.search.dto.SearchResultDto;
 import com.tamakara.bakabooru.module.image.dto.ImageThumbnailDto;
 import com.tamakara.bakabooru.module.image.dto.SearchDto;
 import com.tamakara.bakabooru.module.image.service.ImageSearchService;
+import com.tamakara.bakabooru.module.system.service.SystemSettingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +26,7 @@ public class SearchService {
     private final ImageSearchService imageSearchService;
     private final QueryParsingService queryParsingService;
     private final EmbeddingService embeddingService;
+    private final SystemSettingService settingService;
 
     @Transactional(readOnly = true)
     public SearchResultDto<ImageThumbnailDto> search(SearchRequestDto request) {
@@ -46,8 +48,11 @@ public class SearchService {
         searchDto.setHeightMax(request.getHeightMax());
         searchDto.setSizeMin(request.getSizeMin());
         searchDto.setSizeMax(request.getSizeMax());
-        searchDto.setVectorModelIds(request.getVectorModelIds());
-        searchDto.setVectorModelId(request.getVectorModelId());
+        String activeClip = settingService.getActiveClipId();
+        if (StringUtils.hasText(request.getSemanticQuery()) && !StringUtils.hasText(activeClip)) {
+            throw new IllegalStateException("请先在模型管理中启用 CLIP 模型");
+        }
+        searchDto.setVectorModelId(activeClip);
         applySort(request, searchDto);
 
         Set<String> positiveTags = new HashSet<>();
@@ -57,10 +62,7 @@ public class SearchService {
         searchDto.setNegativeTags(negativeTags);
 
         if (StringUtils.hasText(request.getSemanticQuery())) {
-            if (!StringUtils.hasText(request.getVectorModelId())) {
-                throw new IllegalArgumentException("vectorModelId is required for semantic search");
-            }
-            EmbeddingResponseDto embeddingResult = queryParsingService.generateEmbedding(request.getSemanticQuery(), request.getVectorModelId());
+            EmbeddingResponseDto embeddingResult = queryParsingService.generateEmbedding(request.getSemanticQuery(), activeClip);
             if (embeddingResult.getEmbedding() != null) {
                 searchDto.setEmbedding(embeddingResult.getEmbedding().stream()
                         .map(Double::floatValue)
@@ -71,24 +73,19 @@ public class SearchService {
         return imageSearchService.searchImages(searchDto);
     }
 
-    public SearchResultDto<ImageThumbnailDto> searchByImage(MultipartFile file, Double threshold, Integer page, Integer size,
-                                                            java.util.List<String> vectorModelIds, String vectorModelId) {
-        return doSearchByImage(file, threshold, page, size, vectorModelIds, vectorModelId);
+    public SearchResultDto<ImageThumbnailDto> searchByImage(MultipartFile file, Double threshold, Integer page, Integer size) {
+        return doSearchByImage(file, threshold, page, size);
     }
 
-    private SearchResultDto<ImageThumbnailDto> doSearchByImage(MultipartFile file, Double threshold, Integer page, Integer size,
-                                                               java.util.List<String> vectorModelIds, String vectorModelId) {
-        if (!StringUtils.hasText(vectorModelId) && (vectorModelIds == null || vectorModelIds.size() != 1)) {
-            throw new IllegalArgumentException("vectorModelId is required for image search");
-        }
-        String selectedModel = StringUtils.hasText(vectorModelId) ? vectorModelId : vectorModelIds.get(0);
+    private SearchResultDto<ImageThumbnailDto> doSearchByImage(MultipartFile file, Double threshold, Integer page, Integer size) {
+        String selectedModel = settingService.getActiveClipId();
+        if (!StringUtils.hasText(selectedModel)) throw new IllegalStateException("请先在模型管理中启用 CLIP 模型");
         double[] embedding = embeddingService.generateImageEmbedding(file, selectedModel);
 
         SearchDto searchDto = new SearchDto();
         searchDto.setPage(page == null ? 0 : page);
         searchDto.setSize(size == null ? 20 : size);
         searchDto.setEmbedding(DoubleStream.of(embedding).mapToObj(d -> (float) d).toList());
-        searchDto.setVectorModelIds(vectorModelIds);
         searchDto.setVectorModelId(selectedModel);
         searchDto.setSortProperty("similarity");
         searchDto.setSortDirection("DESC");

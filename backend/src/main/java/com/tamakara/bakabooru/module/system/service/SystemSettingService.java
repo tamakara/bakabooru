@@ -6,6 +6,7 @@ import com.tamakara.bakabooru.module.system.repository.SystemSettingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.redis.core.StringRedisTemplate;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -14,11 +15,14 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SystemSettingService {
 
-    public static final String TAG_THRESHOLD = "tag.threshold";
-    public static final String ANALYSIS_MAX_ATTEMPTS = "ai-job.max-attempts";
-    public static final String ANALYSIS_RETRY_BASE_DELAY_SECONDS = "ai-job.retry-base-delay-seconds";
-    public static final String ANALYSIS_RETRY_MAX_DELAY_SECONDS = "ai-job.retry-max-delay-seconds";
+    public static final String TAG_THRESHOLD = "analysis.tag-threshold";
+    public static final String ANALYSIS_MAX_ATTEMPTS = "analysis.max-attempts";
+    public static final String ANALYSIS_RETRY_BASE_DELAY_SECONDS = "analysis.retry-base-delay-seconds";
+    public static final String ANALYSIS_RETRY_MAX_DELAY_SECONDS = "analysis.retry-max-delay-seconds";
     public static final String UPLOAD_COMPLETED_RETENTION_DAYS = "upload.completed-retention-days";
+    public static final String INFERENCE_CONCURRENCY = "inference.concurrency";
+    public static final String ACTIVE_TAGGER = "model.active-tagger-id";
+    public static final String ACTIVE_CLIP = "model.active-clip-id";
     public static final String BOOTSTRAP_DATABASE_URL = "bootstrap.database-url";
     public static final String BOOTSTRAP_STORAGE_ENDPOINT = "bootstrap.storage-endpoint";
 
@@ -28,8 +32,7 @@ public class SystemSettingService {
             ANALYSIS_RETRY_BASE_DELAY_SECONDS,
             ANALYSIS_RETRY_MAX_DELAY_SECONDS,
             UPLOAD_COMPLETED_RETENTION_DAYS,
-            "ai.service-url",
-            "ai.inference-concurrency"
+            INFERENCE_CONCURRENCY
     );
 
     private final SystemSettingRepository systemSettingRepository;
@@ -41,22 +44,15 @@ public class SystemSettingService {
                 new SettingDefinitionDto(ANALYSIS_RETRY_BASE_DELAY_SECONDS, "AI retry base delay", "integer", "30", "HOT", false, "Base retry delay seconds"),
                 new SettingDefinitionDto(ANALYSIS_RETRY_MAX_DELAY_SECONDS, "AI retry max delay", "integer", "1800", "HOT", false, "Maximum retry delay seconds"),
                 new SettingDefinitionDto(UPLOAD_COMPLETED_RETENTION_DAYS, "Upload retention", "integer", "7", "HOT", false, "Completed upload retention days"),
-                new SettingDefinitionDto("ai.service-url", "AI service URL", "text", "http://model-manager:8000", "HOT", false, "Runtime model manager endpoint"),
-                new SettingDefinitionDto("ai.inference-concurrency", "Inference concurrency", "integer", "1", "HOT", false, "Maximum concurrent inference requests"),
-                new SettingDefinitionDto("ai.device-mode", "Device mode", "text", "cuda", "RELOAD", false, "Inference is fixed to CUDA"),
-                new SettingDefinitionDto("ai.model-cache-dir", "Model cache directory", "text", "/model_cache", "RELOAD", false, "Container-managed AI model cache directory"),
-                new SettingDefinitionDto(BOOTSTRAP_DATABASE_URL, "Database URL", "text", "jdbc:postgresql://postgres:5432/bakabooru", "BOOTSTRAP", false, "Database connection URL"),
-                new SettingDefinitionDto(BOOTSTRAP_STORAGE_ENDPOINT, "Storage endpoint", "text", "http://minio:9000", "BOOTSTRAP", false, "Storage service endpoint")
+                new SettingDefinitionDto(INFERENCE_CONCURRENCY, "Inference concurrency", "integer", "1", "HOT", false, "Maximum concurrent inference requests")
         );
     }
 
     @Transactional(readOnly = true)
     public List<SettingDefinitionDto> getDefinitionsWithCurrentValues() {
         List<SettingDefinitionDto> definitions = new ArrayList<>(getDefinitions());
-        Map<String, String> persisted = systemSettingRepository.findAll().stream()
-                .collect(Collectors.toMap(SystemSetting::getKey, SystemSetting::getValue));
         definitions.forEach(definition -> {
-            definition.setCurrentValue(persisted.getOrDefault(definition.getKey(), definition.getDefaultValue()));
+            definition.setCurrentValue(getValue(definition.getKey(), definition.getDefaultValue()));
             definition.setRequiresRestart("BOOTSTRAP".equals(definition.getScope()));
         });
         return definitions;
@@ -68,21 +64,40 @@ public class SystemSettingService {
         Map<String, String> values = getDefinitions().stream()
                 .filter(definition -> EDITABLE_KEYS.contains(definition.getKey()))
                 .collect(Collectors.toMap(SettingDefinitionDto::getKey, SettingDefinitionDto::getDefaultValue));
-        systemSettingRepository.findAllById(EDITABLE_KEYS).forEach(setting -> values.put(setting.getKey(), setting.getValue()));
+        EDITABLE_KEYS.forEach(key -> getOptionalSetting(key, null).ifPresent(value -> values.put(key, value)));
         return values;
     }
 
     @Transactional(readOnly = true)
     public String getSetting(String key) {
-        return systemSettingRepository.findById(key)
-                .map(SystemSetting::getValue)
-                .orElseThrow(() -> new RuntimeException("Setting with key: " + key + " not found"));
+        return getOptionalSetting(key, null).orElseThrow(() -> new RuntimeException("Setting with key: " + key + " not found"));
     }
 
-    public String getOptionalSetting(String key, String defaultValue) {
-        return systemSettingRepository.findById(key).map(SystemSetting::getValue)
-                .filter(value -> value != null && !value.isBlank()).orElse(defaultValue);
+    private final StringRedisTemplate redisTemplate;
+
+    public Optional<String> getOptionalSetting(String key, String defaultValue) {
+        try {
+            String cached = redisTemplate.opsForValue().get(cacheKey(key));
+            if (cached != null && !cached.isBlank()) return Optional.of(cached);
+        } catch (RuntimeException ignored) {
+            // PostgreSQL remains available as the source of truth during Redis outages.
+        }
+        Optional<String> value = systemSettingRepository.findById(key).map(SystemSetting::getValue)
+                .filter(item -> item != null && !item.isBlank());
+        value.ifPresent(item -> {
+            try { redisTemplate.opsForValue().set(cacheKey(key), item); }
+            catch (RuntimeException ignored) { /* Cache failure does not fail configuration reads. */ }
+        });
+        return value.or(() -> Optional.ofNullable(defaultValue));
     }
+
+    private String cacheKey(String key) { return "bakabooru:setting:" + key; }
+
+    public String getValue(String key, String defaultValue) { return getOptionalSetting(key, defaultValue).orElse(defaultValue); }
+
+    public String getActiveTaggerId() { return getValue(ACTIVE_TAGGER, null); }
+
+    public String getActiveClipId() { return getValue(ACTIVE_CLIP, null); }
 
     // Typed setting accessors used by background workers.
 
@@ -148,18 +163,17 @@ public class SystemSettingService {
         long retryBaseDelay = parseLong(settings, ANALYSIS_RETRY_BASE_DELAY_SECONDS);
         long retryMaxDelay = parseLong(settings, ANALYSIS_RETRY_MAX_DELAY_SECONDS);
         long retentionDays = parseLong(settings, UPLOAD_COMPLETED_RETENTION_DAYS);
-        int inferenceConcurrency = parseInt(settings, "ai.inference-concurrency");
+        int inferenceConcurrency = parseInt(settings, INFERENCE_CONCURRENCY);
 
         requireRange(TAG_THRESHOLD, threshold, 0, 1);
         requireRange(ANALYSIS_MAX_ATTEMPTS, maxAttempts, 1, 20);
         requireRange(ANALYSIS_RETRY_BASE_DELAY_SECONDS, retryBaseDelay, 1, 3600);
         requireRange(UPLOAD_COMPLETED_RETENTION_DAYS, retentionDays, 1, 365);
-        requireRange("ai.inference-concurrency", inferenceConcurrency, 1, 64);
+        requireRange(INFERENCE_CONCURRENCY, inferenceConcurrency, 1, 64);
         if (retryMaxDelay < retryBaseDelay) {
             throw new IllegalArgumentException(ANALYSIS_RETRY_MAX_DELAY_SECONDS
                     + " must be greater than or equal to " + ANALYSIS_RETRY_BASE_DELAY_SECONDS);
         }
-        requireValue(settings, "ai.service-url");
     }
 
     private int parseInt(Map<String, String> settings, String key) {
@@ -225,6 +239,17 @@ public class SystemSettingService {
         }
 
         systemSettingRepository.saveAll(existingSettings);
-
+        Runnable evict = () -> keys.forEach(key -> {
+            try { redisTemplate.delete(cacheKey(key)); }
+            catch (RuntimeException ignored) { /* A later cache miss will read the committed database value. */ }
+        });
+        if (org.springframework.transaction.support.TransactionSynchronizationManager.isSynchronizationActive()) {
+            org.springframework.transaction.support.TransactionSynchronizationManager.registerSynchronization(
+                    new org.springframework.transaction.support.TransactionSynchronization() {
+                        @Override public void afterCommit() { evict.run(); }
+                    });
+        } else {
+            evict.run();
+        }
     }
 }

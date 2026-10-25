@@ -23,8 +23,8 @@ public class ModelManagerController {
         return service.markDownloadStarted(id);
     }
 
-    @DeleteMapping("/{id}/artifact")
-    public ModelDto uninstall(@PathVariable String id) {
-        return service.uninstall(id);
+    @PostMapping("/{id}/enable")
+    public ModelDto enable(@PathVariable String id) {
+        return service.enable(id);
     }
 }

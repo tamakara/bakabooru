@@ -151,7 +151,7 @@ public class UploadJobWorker {
         image.setStatus("NORMAL");
         Image savedImage = imageService.addImage(image);
         if (hasAiSelection) {
-            analysisJobService.enqueue(savedImage, snapshot.getTagModelId(), snapshot.getVectorModelIds());
+            analysisJobService.enqueue(savedImage);
         }
 
         UploadJob current = uploadJobRepository.findById(jobId)

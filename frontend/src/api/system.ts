@@ -7,7 +7,7 @@ export const systemApi = {
   },
 
   updateSettings: async (settings: Record<string, string>) => {
-    await apiClient.post('/system/settings', settings)
+    return (await apiClient.post('/system/settings', settings)).data
   },
 
   getSettingsMetadata: async () => {
@@ -25,6 +25,8 @@ export interface ModelDto {
   dimension?: number
   status?: string
   artifactState: 'NOT_INSTALLED' | 'DOWNLOADING' | 'RESTART_REQUIRED' | 'READY' | 'FAILED'
+  enabled: boolean
+  restartRequired: boolean
   capabilities: string[]
   errorMessage?: string
 }
@@ -32,5 +34,5 @@ export interface ModelDto {
 export const modelManagerApi = {
   list: async () => (await apiClient.get<ModelDto[]>('/ai/models')).data,
   download: async (id: string) => (await apiClient.post<ModelDto>(`/ai/models/${id}/download`)).data,
-  uninstall: async (id: string) => (await apiClient.delete<ModelDto>(`/ai/models/${id}/artifact`)).data
+  enable: async (id: string) => (await apiClient.post<ModelDto>(`/ai/models/${id}/enable`)).data
 }

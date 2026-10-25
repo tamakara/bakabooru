@@ -3,6 +3,7 @@ package com.tamakara.bakabooru.controller;
 import com.tamakara.bakabooru.module.system.service.SystemSettingService;
 import com.tamakara.bakabooru.module.model.client.ModelManagerClient;
 import com.tamakara.bakabooru.module.system.dto.SettingDefinitionDto;
+import com.tamakara.bakabooru.module.system.dto.SettingsUpdateResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -37,15 +38,16 @@ public class SettingsController {
 
     @PostMapping
     @Operation(summary = "operation")
-    public void updateSettings(@RequestBody Map<String, String> settings) {
+    public SettingsUpdateResponse updateSettings(@RequestBody Map<String, String> settings) {
         try {
             systemSettingService.updateEditableSettings(settings);
             try {
                 modelManagerClient.updateRuntimeSettings(Map.of(
-                        "inference_concurrency", Integer.parseInt(settings.getOrDefault("ai.inference-concurrency", systemSettingService.getOptionalSetting("ai.inference-concurrency", "1")))));
+                        "inference_concurrency", Integer.parseInt(systemSettingService.getValue(SystemSettingService.INFERENCE_CONCURRENCY, "1"))));
             } catch (RuntimeException ignored) {
                 // Settings remain persisted while Model Manager is offline; it receives them on its next reload.
             }
+            return new SettingsUpdateResponse(true, false, List.of(), "配置已生效");
         } catch (IllegalArgumentException error) {
             throw new ResponseStatusException(BAD_REQUEST, error.getMessage(), error);
         }

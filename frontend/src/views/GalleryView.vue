@@ -2,7 +2,6 @@
 import {useQuery} from '@tanstack/vue-query'
 import {searchApi} from '../api/search'
 import {galleryApi, type ImageDto, type ImageThumbnailDto} from '../api/gallery'
-import {modelManagerApi} from '../api/system'
 import {computed, h, nextTick, reactive, ref, shallowRef, watch} from 'vue'
 import {
   NButton,
@@ -52,17 +51,12 @@ import {v4 as uuidv4} from 'uuid';
 
 // 搜索模式
 const searchMode = ref<'TEXT' | 'IMAGE'>('TEXT')
-const {data: models} = useQuery({queryKey: ['models'], queryFn: modelManagerApi.list})
-const vectorModelOptions = computed(() => (models.value || []).filter(model => model.type === 'CLIP' && model.artifactState === 'READY').map(model => ({label: model.name, value: model.id})))
-const tagModelOptions = computed(() => (models.value || []).filter(model => model.type === 'TAGGER' && model.artifactState === 'READY').map(model => ({label: model.name, value: model.id})))
 
 // 表单状态
 const formState = reactive({
   keyword: '',
   tags: '',
   semanticQuery: '',  // 语义描述搜索
-  vectorModelId: null as string | null,
-  vectorModelIds: [] as string[],
   status: null as 'NORMAL' | 'ANALYZING' | 'ERROR' | 'MISSING' | null,
   sortBy: 'createdAt',
   sortDirection: 'DESC',
@@ -78,17 +72,7 @@ const formState = reactive({
 const imageSearchState = reactive({
   file: undefined as File | undefined,
   threshold: 0.7,
-  vectorModelId: null as string | null
 })
-watch(vectorModelOptions, options => {
-  if (options.length === 1) {
-    const first = options[0]
-    if (first) {
-      if (!formState.vectorModelId) formState.vectorModelId = first.value
-      if (!imageSearchState.vectorModelId) imageSearchState.vectorModelId = first.value
-    }
-  }
-}, {immediate: true})
 
 // 图搜上传
 const fileList = ref<any[]>([])
@@ -156,10 +140,6 @@ function handleSearch() {
   page.value = 1
 
   if (searchMode.value === 'TEXT') {
-    if (formState.semanticQuery.trim() && vectorModelOptions.value.length > 1 && !formState.vectorModelId) {
-      message.warning('Select a CLIP model for semantic search')
-      return
-    }
     activeSearchState.value = {
       mode: 'TEXT',
       ...formState,
@@ -170,15 +150,10 @@ function handleSearch() {
       message.warning('请先上传图片')
       return
     }
-    if (!imageSearchState.vectorModelId) {
-      message.warning('Select a CLIP model for image search')
-      return
-    }
     activeSearchState.value = {
       mode: 'IMAGE',
       file: imageSearchState.file,
       threshold: imageSearchState.threshold,
-      vectorModelId: imageSearchState.vectorModelId,
       // 这里的 randomSeed 主要用于触发 useQuery 更新
       randomSeed: uuidv4()
     }
@@ -210,7 +185,6 @@ function handleReset() {
     fileList.value = []
     imageSearchState.file = undefined
     imageSearchState.threshold = 0.7
-    imageSearchState.vectorModelId = vectorModelOptions.value.length === 1 ? vectorModelOptions.value[0]?.value || null : null
   }
 }
 
@@ -249,8 +223,6 @@ const {
           tags: currentState.tags,
           semanticQuery: currentState.semanticQuery || undefined,
           status: currentState.status ?? undefined,
-           vectorModelId: currentState.vectorModelId ?? undefined,
-           vectorModelIds: currentState.vectorModelIds?.length ? currentState.vectorModelIds : undefined,
           randomSeed: currentState.randomSeed,
           widthMin: currentState.widthMin ?? undefined,
           widthMax: currentState.widthMax ?? undefined,
@@ -280,7 +252,6 @@ const {
             currentState.threshold,
             page.value - 1,
             pageSize.value
-            , undefined, currentState.vectorModelId || undefined
         )
 
         const elapsed = (performance.now() - startTime).toFixed(2)
@@ -412,8 +383,6 @@ const selectedIds = ref<Set<number>>(new Set())
 const isSelectionMode = computed(() => selectedIds.value.size > 0)
 const showBatchTagModal = ref(false)
 const showBatchVectorModal = ref(false)
-const batchTagModelId = ref<string | null>(null)
-const batchVectorModelIds = ref<string[]>([])
 const batchAiLoading = ref(false)
 
 function toggleSelection(id: number) {
@@ -625,10 +594,10 @@ async function handleBatchDownload() {
 }
 
 async function handleBatchTags(): Promise<boolean> {
-  if (!selectedIds.value.size || !batchTagModelId.value || batchAiLoading.value) return false
+  if (!selectedIds.value.size || batchAiLoading.value) return false
   batchAiLoading.value = true
   try {
-    await galleryApi.generateTagsBatch(Array.from(selectedIds.value), batchTagModelId.value)
+    await galleryApi.generateTagsBatch(Array.from(selectedIds.value))
     message.success('批量标签生成任务已提交')
     showBatchTagModal.value = false
     clearSelection()
@@ -643,10 +612,10 @@ async function handleBatchTags(): Promise<boolean> {
 }
 
 async function handleBatchVectors(): Promise<boolean> {
-  if (!selectedIds.value.size || !batchVectorModelIds.value.length || batchAiLoading.value) return false
+  if (!selectedIds.value.size || batchAiLoading.value) return false
   batchAiLoading.value = true
   try {
-    await galleryApi.generateVectorsBatch(Array.from(selectedIds.value), batchVectorModelIds.value)
+    await galleryApi.generateVectorsBatch(Array.from(selectedIds.value))
     message.success('批量索引向量任务已提交')
     showBatchVectorModal.value = false
     clearSelection()
@@ -701,14 +670,6 @@ async function handleBatchVectors(): Promise<boolean> {
                         clearable
                         size="small"
                     />
-                  </n-form-item>
-
-                  <n-form-item label="CLIP 模型">
-                    <n-select v-model:value="formState.vectorModelId" :options="vectorModelOptions" clearable placeholder="选择已下载的模型" size="small" />
-                  </n-form-item>
-
-                  <n-form-item label="已计算向量模型">
-                    <n-select v-model:value="formState.vectorModelIds" :options="vectorModelOptions" multiple clearable placeholder="筛选已计算这些模型的图片" size="small" />
                   </n-form-item>
 
                   <n-form-item label="关键字">
@@ -814,9 +775,6 @@ async function handleBatchVectors(): Promise<boolean> {
                        </div>
                     </div>
                   </n-form-item>
-                  <n-form-item label="CLIP 模型">
-                    <n-select v-model:value="imageSearchState.vectorModelId" :options="vectorModelOptions" placeholder="选择已下载的模型" size="small" />
-                  </n-form-item>
                 </div>
               </n-form>
             </n-tab-pane>
@@ -883,11 +841,11 @@ async function handleBatchVectors(): Promise<boolean> {
             </template>
             下载
           </n-button>
-          <n-button type="primary" secondary @click="showBatchTagModal = true" :disabled="!isSelectionMode || !tagModelOptions.length">
+          <n-button type="primary" secondary @click="showBatchTagModal = true" :disabled="!isSelectionMode">
             <template #icon><n-icon><PricetagOutline /></n-icon></template>
             批量生成标签
           </n-button>
-          <n-button type="primary" secondary @click="showBatchVectorModal = true" :disabled="!isSelectionMode || !vectorModelOptions.length">
+          <n-button type="primary" secondary @click="showBatchVectorModal = true" :disabled="!isSelectionMode">
             <template #icon><n-icon><HardwareChipOutline /></n-icon></template>
             批量计算向量
           </n-button>
@@ -1003,11 +961,11 @@ async function handleBatchVectors(): Promise<boolean> {
         @select="handleSelect"
     />
 
-    <n-modal v-model:show="showBatchTagModal" preset="dialog" title="批量生成标签" positive-text="开始生成" negative-text="取消" :positive-button-props="{ loading: batchAiLoading, disabled: !batchTagModelId }" @positive-click="handleBatchTags">
-      <div class="w-full"><n-select v-model:value="batchTagModelId" :options="tagModelOptions" placeholder="选择已下载的标签模型" /></div>
+    <n-modal v-model:show="showBatchTagModal" preset="dialog" title="批量生成标签" positive-text="开始生成" negative-text="取消" :positive-button-props="{ loading: batchAiLoading }" @positive-click="handleBatchTags">
+      <div class="text-sm text-gray-500">将使用当前启用的标签模型。</div>
     </n-modal>
-    <n-modal v-model:show="showBatchVectorModal" preset="dialog" title="批量计算索引向量" positive-text="开始计算" negative-text="取消" :positive-button-props="{ loading: batchAiLoading, disabled: !batchVectorModelIds.length }" @positive-click="handleBatchVectors">
-      <div class="w-full"><n-select v-model:value="batchVectorModelIds" multiple :options="vectorModelOptions" placeholder="选择一个或多个已下载的 CLIP 模型" /></div>
+    <n-modal v-model:show="showBatchVectorModal" preset="dialog" title="批量计算索引向量" positive-text="开始计算" negative-text="取消" :positive-button-props="{ loading: batchAiLoading }" @positive-click="handleBatchVectors">
+      <div class="text-sm text-gray-500">将使用当前启用的 CLIP 模型。</div>
     </n-modal>
   </n-layout>
 </template>

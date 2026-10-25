@@ -6,7 +6,6 @@ import com.tamakara.bakabooru.module.model.dto.ImageAnalysisResponseDto;
 import com.tamakara.bakabooru.module.model.dto.ImageEmbeddingResponseDto;
 import com.tamakara.bakabooru.module.model.dto.SemanticSearchRequestDto;
 import com.tamakara.bakabooru.config.ModelManagerProperties;
-import com.tamakara.bakabooru.module.system.service.SystemSettingService;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,20 +23,18 @@ public class ModelManagerClient {
     private static final Duration MODEL_MANAGER_TIMEOUT = Duration.ofSeconds(120);
 
     private final WebClient webClient;
-    private final SystemSettingService systemSettingService;
+    private final String baseUrl;
 
     public ModelManagerClient(
             ModelManagerProperties modelManagerProperties,
-            WebClient.Builder webClientBuilder,
-            SystemSettingService systemSettingService
+            WebClient.Builder webClientBuilder
     ) {
         this.webClient = webClientBuilder.build();
-        this.systemSettingService = systemSettingService;
+        this.baseUrl = modelManagerProperties.getUrl().replaceAll("/+$", "");
     }
 
     private String url(String path) {
-        String base = systemSettingService.getOptionalSetting("ai.service-url", "http://model-manager:8000");
-        return base.replaceAll("/+$", "") + path;
+        return baseUrl + path;
     }
 
     public ImageAnalysisResponseDto analyzeImage(ImageAnalysisRequestDto requestBody) {

@@ -148,23 +148,23 @@ export const galleryApi = {
     return response.data
   },
 
-  generateTags: async (id: number, modelId: string) => {
-    const response = await apiClient.post<ImageDto>(`/images/${id}/ai/tags`, {modelId})
+  generateTags: async (id: number) => {
+    const response = await apiClient.post<ImageDto>(`/images/${id}/ai/tags`)
     return response.data
   },
 
-  generateVectors: async (id: number, modelIds: string[]) => {
-    const response = await apiClient.post<ImageDto>(`/images/${id}/ai/vectors`, {modelIds})
+  generateVectors: async (id: number) => {
+    const response = await apiClient.post<ImageDto>(`/images/${id}/ai/vectors`)
     return response.data
   },
 
-  generateTagsBatch: async (ids: number[], modelId: string) => {
-    const response = await apiClient.post<ImageDto[]>('/images/batch/ai/tags', { ids, modelId })
+  generateTagsBatch: async (ids: number[]) => {
+    const response = await apiClient.post<ImageDto[]>('/images/batch/ai/tags', { ids })
     return response.data
   },
 
-  generateVectorsBatch: async (ids: number[], modelIds: string[]) => {
-    const response = await apiClient.post<ImageDto[]>('/images/batch/ai/vectors', { ids, modelIds })
+  generateVectorsBatch: async (ids: number[]) => {
+    const response = await apiClient.post<ImageDto[]>('/images/batch/ai/vectors', { ids })
     return response.data
   },
 

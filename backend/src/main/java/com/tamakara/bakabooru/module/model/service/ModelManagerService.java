@@ -4,9 +4,11 @@ import com.tamakara.bakabooru.module.model.dto.ModelDto;
 import com.tamakara.bakabooru.module.model.client.ModelManagerClient;
 import com.tamakara.bakabooru.module.model.entity.Model;
 import com.tamakara.bakabooru.module.model.repository.ModelRepository;
+import com.tamakara.bakabooru.module.system.service.SystemSettingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -18,6 +20,7 @@ import java.time.Instant;
 public class ModelManagerService {
     private final ModelRepository repository;
     private final ModelManagerClient modelManagerClient;
+    private final SystemSettingService settingService;
 
     @Transactional
     public List<ModelDto> list() {
@@ -44,8 +47,8 @@ public class ModelManagerService {
             });
             repository.saveAll(models);
             List<ModelDto> result = new ArrayList<>(models.stream().map(model -> {
-                ModelDto dto = ModelDto.from(model);
-                dto.setErrorMessage(errors.get(model.getId()));
+                boolean enabled = model.getId().equals("TAGGER".equals(model.getModelType()) ? settingService.getActiveTaggerId() : settingService.getActiveClipId());
+                ModelDto dto = ModelDto.from(model, enabled, errors.get(model.getId()));
                 return dto;
             }).toList());
             java.util.Set<String> knownIds = models.stream().map(Model::getId).collect(java.util.stream.Collectors.toSet());
@@ -57,11 +60,18 @@ public class ModelManagerService {
         } catch (RuntimeException ignored) {
             // The web service remains usable while the AI service is starting.
         }
-        return models.stream().map(ModelDto::from).toList();
+        return models.stream().map(model -> ModelDto.from(model,
+                model.getId().equals("TAGGER".equals(model.getModelType()) ? settingService.getActiveTaggerId() : settingService.getActiveClipId()), null)).toList();
+    }
+
+    @Scheduled(fixedDelayString = "${app.model-manager.status-sync-interval-ms:15000}", initialDelayString = "${app.model-manager.status-sync-initial-delay-ms:5000}")
+    public void synchronizeArtifactStates() {
+        list();
     }
 
     @Transactional
     public ModelDto markDownloadStarted(String id) {
+        list();
         Model model = repository.findById(id).orElse(null);
         if (model == null) {
             try {
@@ -72,27 +82,31 @@ public class ModelManagerService {
                 throw new IllegalArgumentException("Model not found: " + id, error);
             }
         }
+        // Downloads are asynchronous. A complete artifact must be returned as-is
+        // so polling clients never restart an already finished download.
+        if ("READY".equals(model.getStatus()) || "RESTART_REQUIRED".equals(model.getStatus())) {
+            return ModelDto.from(model,
+                    model.getId().equals("TAGGER".equals(model.getModelType())
+                            ? settingService.getActiveTaggerId() : settingService.getActiveClipId()), null);
+        }
         model.setStatus("DOWNLOADING");
         model.setUpdatedAt(Instant.now());
-        ModelDto result = ModelDto.from(repository.save(model));
-        try {
-            String state = modelManagerClient.downloadModel(id);
+        String state = modelManagerClient.downloadModel(id);
+        if (List.of("DOWNLOADING", "RESTART_REQUIRED", "READY", "FAILED").contains(state)) {
             model.setStatus(state);
-            model.setUpdatedAt(Instant.now());
-            result = ModelDto.from(repository.save(model));
-        } catch (RuntimeException error) {
-            model.setStatus("FAILED");
-            repository.save(model);
-            throw error;
         }
-        return result;
+        return ModelDto.from(repository.save(model), false, null);
     }
 
     @Transactional
-    public ModelDto uninstall(String id) {
+    public ModelDto enable(String id) {
+        // Refresh the persisted artifact state before enforcing the READY rule;
+        // model-manager may have completed a download since the last listing.
+        list();
         Model model = repository.findById(id).orElseThrow(() -> new IllegalArgumentException("Model not found: " + id));
-        model.setStatus("NOT_INSTALLED");
-        model.setUpdatedAt(Instant.now());
-        return ModelDto.from(repository.save(model));
+        if (!"READY".equals(model.getStatus())) throw new IllegalStateException("模型尚未就绪，无法启用");
+        String type = model.getModelType() == null ? "CLIP" : model.getModelType();
+        settingService.updateSettings(Map.of("TAGGER".equals(type) ? SystemSettingService.ACTIVE_TAGGER : SystemSettingService.ACTIVE_CLIP, id));
+        return ModelDto.from(model, true, null);
     }
 }

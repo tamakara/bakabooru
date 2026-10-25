@@ -6,6 +6,7 @@ import com.tamakara.bakabooru.module.image.dto.ImageDto;
 import com.tamakara.bakabooru.module.image.entity.Image;
 import com.tamakara.bakabooru.module.image.mapper.ImageMapper;
 import com.tamakara.bakabooru.module.image.repository.ImageRepository;
+import com.tamakara.bakabooru.module.system.service.SystemSettingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,12 +18,10 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class ImageAnalysisService {
 
-    private static final String TAGGER_MODEL_ID = "camie-tagger-v2";
-    private static final Set<String> VECTOR_MODEL_IDS = Set.of("clip-vit-base-patch32");
-
     private final ImageRepository imageRepository;
     private final ImageMapper imageMapper;
     private final AnalysisJobService analysisJobService;
+    private final SystemSettingService settingService;
 
     @Transactional
     public ImageDto retry(Long imageId, String capability) {
@@ -40,31 +39,44 @@ public class ImageAnalysisService {
     @Transactional
     public List<ImageDto> enqueueTags(BatchTagsRequest request) {
         if (request == null || request.ids() == null || request.ids().isEmpty()
-                || request.modelId() == null || request.modelId().isBlank()) {
-            throw new IllegalArgumentException("图片列表和标签模型不能为空");
+                ) {
+            throw new IllegalArgumentException("图片列表不能为空");
         }
         validateImageIds(request.ids());
         return request.ids().stream().distinct()
-                .map(id -> enqueue(id, request.modelId(), null))
+                .map(this::enqueueTags)
                 .toList();
     }
 
     @Transactional
     public List<ImageDto> enqueueVectors(BatchVectorsRequest request) {
         if (request == null || request.ids() == null || request.ids().isEmpty()
-                || request.modelIds() == null || request.modelIds().stream().allMatch(id -> id == null || id.isBlank())) {
-            throw new IllegalArgumentException("图片列表和向量模型不能为空");
+                ) {
+            throw new IllegalArgumentException("图片列表不能为空");
         }
         validateImageIds(request.ids());
-        String modelIds = request.modelIds().stream()
-                .filter(id -> id != null && !id.isBlank())
-                .map(String::trim)
-                .distinct()
-                .reduce((left, right) -> left + "," + right)
-                .orElseThrow(() -> new IllegalArgumentException("至少选择一个向量模型"));
+        String modelIds = requireActiveClip();
         return request.ids().stream().distinct()
                 .map(id -> enqueue(id, null, modelIds))
                 .toList();
+    }
+
+    @Transactional
+    public ImageDto enqueueTags(Long imageId) {
+        String modelId = settingService.getActiveTaggerId();
+        if (modelId == null || modelId.isBlank()) throw new IllegalStateException("请先在模型管理中启用标签模型");
+        return enqueue(imageId, modelId, null);
+    }
+
+    @Transactional
+    public ImageDto enqueueVectors(Long imageId) {
+        return enqueue(imageId, null, requireActiveClip());
+    }
+
+    private String requireActiveClip() {
+        String modelId = settingService.getActiveClipId();
+        if (modelId == null || modelId.isBlank()) throw new IllegalStateException("请先在模型管理中启用 CLIP 模型");
+        return modelId;
     }
 
     private Image findImage(Long imageId) {
@@ -76,16 +88,6 @@ public class ImageAnalysisService {
         if ((tagModelId == null || tagModelId.isBlank())
                 && (vectorModelIds == null || vectorModelIds.isBlank())) {
             throw new IllegalArgumentException("At least one analysis model is required");
-        }
-        if (tagModelId != null && !tagModelId.isBlank() && !TAGGER_MODEL_ID.equals(tagModelId.trim())) {
-            throw new IllegalArgumentException("未知的标签模型: " + tagModelId);
-        }
-        if (vectorModelIds != null && !vectorModelIds.isBlank()) {
-            for (String modelId : vectorModelIds.split(",")) {
-                if (!VECTOR_MODEL_IDS.contains(modelId.trim())) {
-                    throw new IllegalArgumentException("未知的向量模型: " + modelId);
-                }
-            }
         }
     }
 

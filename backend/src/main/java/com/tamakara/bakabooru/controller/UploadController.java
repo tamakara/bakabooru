@@ -25,10 +25,8 @@ public class UploadController {
 
     @PostMapping
     @Operation(summary = "operation")
-    public void createTask(@RequestParam("file") MultipartFile file,
-                           @RequestParam(required = false) String tagModelId,
-                           @RequestParam(required = false) String vectorModelIds) {
-        uploadJobService.createTask(file, tagModelId, vectorModelIds);
+    public void createTask(@RequestParam("file") MultipartFile file) {
+        uploadJobService.createTask(file);
     }
 
     @GetMapping("/tasks")

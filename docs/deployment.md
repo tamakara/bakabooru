@@ -14,6 +14,7 @@
 | `backend` | Spring Boot API、数据库迁移和后台任务 | 内部 `8080` |
 | `model-manager` | FastAPI 推理和模型生命周期 | 内部 `8000`、`data/model_cache` |
 | `postgres` | PostgreSQL 16 + pgvector | `data/postgres`、内部 `5432` |
+| `redis` | 配置缓存 | `data/redis`、内部 `6379` |
 | `minio` | 图片对象存储 | `data/minio`、`9000/9001` |
 
 ## 启动和升级
@@ -35,8 +36,10 @@ docker compose ps
 | `MINIO_ROOT_USER` / `MINIO_ROOT_PASSWORD` | MinIO 和 Backend 访问凭据 | `bakabooru_user` / `bakabooru_password` |
 | `MINIO_BUCKET_NAME` | 图片 bucket | `images` |
 | `DATA_DIR` | 持久化数据根目录 | `./data` |
+| `REDIS_PASSWORD` | Redis 密码 | `change-me-redis` |
+| `INTERNAL_CONFIG_TOKEN` | model-manager 回源 Backend 配置的共享令牌 | `change-me-internal` |
 
-Backend 的服务地址、Worker 调度参数和缩略图规格位于 `backend/src/main/resources/application.yml`；Model Manager 的推理配置位于 `model-manager/app/core/settings.py`。运行时标签阈值、分析重试参数和推理并发可以通过系统设置接口修改。
+Backend 的服务地址、Worker 调度参数和缩略图规格位于 `backend/src/main/resources/application.yml`；Model Manager 的 CUDA、Redis 和模型缓存目录位于 `model-manager/app/core/settings.py`。标签阈值、分析重试参数、上传任务保留天数和推理并发通过系统设置接口修改，PostgreSQL 持久化、Redis 缓存。
 
 Backend 启动时会确保 MinIO bucket 存在并设置为匿名可读，以便浏览器加载图片。MinIO 控制台和 S3 API 端口会映射到宿主机；对外部署时应在防火墙或反向代理层限制这些管理入口。改为私有 bucket 需要同时实现鉴权图片代理或签名 URL。
 
@@ -46,6 +49,7 @@ Backend 启动时会确保 MinIO bucket 存在并设置为匿名可读，以便�
 data/
 ├── postgres/       # PostgreSQL 数据
 ├── minio/          # 原图、缩略图和暂存文件
+├── redis/           # 配置缓存，可丢失并自动从 PostgreSQL 回填
 └── model_cache/    # 模型工件，可重新下载
 ```
 
