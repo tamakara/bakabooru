@@ -70,11 +70,20 @@ Backend API 使用 `/api` 前缀。除认证初始化、登录和健康检查外
 | `GET` | `/api/system/settings/metadata` | 获取设置元数据 |
 | `POST` | `/api/system/settings` | 更新可编辑设置 |
 
-保存设置后返回 `updated`、`restartRequired`、`restartServices` 和 `message`。model-manager 读取 Redis 配置，缓存未命中时通过受保护的 `/internal/config/{key}` 回源 Backend。
+保存设置后返回 `updated`、`restartRequired`、`restartServices` 和 `message`。Redis 只由 Backend 使用；model-manager 通过受保护的 `/internal/config` HTTP 接口读取配置。
+
+内部服务读取配置使用 `X-Internal-Token`：
+
+| 方法 | 路径 | 用途 |
+| --- | --- | --- |
+| `GET` | `/internal/config?keys=inference.concurrency,model.active-clip-id` | 批量读取配置，返回 `{ "values": { "key": "value" } }` |
+| `GET` | `/internal/config/{key}` | 单键读取，返回相同的 `values` 外层结构 |
 
 ## Model Manager API
 
 这些接口只供 Backend 调用，默认不经前端公开代理。
+
+model-manager 的运行时配置由它定时通过 Backend 的内部配置接口拉取；Redis 连接和缓存处理仅存在于 Backend。
 
 | 方法 | 路径 | 用途 |
 | --- | --- | --- |
@@ -87,4 +96,3 @@ Backend API 使用 `/api` 前缀。除认证初始化、登录和健康检查外
 | `POST` | `/v1/embeddings/text` | 生成文本向量 |
 | `POST` | `/v1/embeddings/image-file` | 从上传图片生成向量 |
 | `POST` | `/v1/embeddings/image` | 从 MinIO 对象生成向量 |
-| `POST` | `/v1/runtime-settings` | 更新推理并发参数 |

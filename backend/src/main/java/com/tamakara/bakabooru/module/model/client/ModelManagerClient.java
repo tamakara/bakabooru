@@ -123,10 +123,4 @@ public class ModelManagerClient {
         return webClient.get().uri(url("/v1/models")).retrieve().bodyToMono(List.class).block(MODEL_MANAGER_TIMEOUT);
     }
 
-    public void updateRuntimeSettings(Map<String, Object> settings) {
-        webClient.post().uri(url("/v1/runtime-settings"))
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(settings)
-                .retrieve().toBodilessEntity().block(Duration.ofSeconds(10));
-    }
 }

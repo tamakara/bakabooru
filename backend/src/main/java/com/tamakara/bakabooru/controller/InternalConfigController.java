@@ -4,15 +4,10 @@ import com.tamakara.bakabooru.config.InternalConfigProperties;
 import com.tamakara.bakabooru.module.system.service.SystemSettingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @RestController
 @RequestMapping("/internal/config")
@@ -24,6 +19,7 @@ public class InternalConfigController {
             SystemSettingService.ANALYSIS_MAX_ATTEMPTS,
             SystemSettingService.ANALYSIS_RETRY_BASE_DELAY_SECONDS,
             SystemSettingService.ANALYSIS_RETRY_MAX_DELAY_SECONDS,
+            SystemSettingService.UPLOAD_COMPLETED_RETENTION_DAYS,
             SystemSettingService.ACTIVE_TAGGER,
             SystemSettingService.ACTIVE_CLIP
     );
@@ -31,12 +27,51 @@ public class InternalConfigController {
     private final InternalConfigProperties properties;
 
     @GetMapping("/{key}")
-    public Map<String, String> get(@PathVariable String key,
-                                   @RequestHeader(value = "X-Internal-Token", required = false) String token) {
+    public Map<String, Map<String, String>> get(@PathVariable String key,
+                                                @RequestHeader(value = "X-Internal-Token", required = false) String token) {
+        authorize(token);
+        validateKey(key);
+        return valuesResponse(List.of(key));
+    }
+
+    @GetMapping
+    public Map<String, Map<String, String>> getMany(
+            @RequestParam(name = "keys", required = false) String keys,
+            @RequestHeader(value = "X-Internal-Token", required = false) String token) {
+        authorize(token);
+        if (keys == null || keys.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "keys is required");
+        }
+        List<String> requested = Arrays.stream(keys.split(","))
+                .map(String::trim).filter(item -> !item.isBlank()).distinct().toList();
+        if (requested.isEmpty()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "keys is required");
+        requested.forEach(this::validateKey);
+        return valuesResponse(requested);
+    }
+
+    private Map<String, Map<String, String>> valuesResponse(List<String> keys) {
+        Map<String, String> values = new LinkedHashMap<>();
+        keys.forEach(key -> values.put(key, settingService.getValue(key, defaultValue(key))));
+        return Map.of("values", values);
+    }
+
+    private String defaultValue(String key) {
+        if (SystemSettingService.TAG_THRESHOLD.equals(key)) return "0.61";
+        if (SystemSettingService.ANALYSIS_MAX_ATTEMPTS.equals(key)) return "5";
+        if (SystemSettingService.ANALYSIS_RETRY_BASE_DELAY_SECONDS.equals(key)) return "30";
+        if (SystemSettingService.ANALYSIS_RETRY_MAX_DELAY_SECONDS.equals(key)) return "1800";
+        if (SystemSettingService.UPLOAD_COMPLETED_RETENTION_DAYS.equals(key)) return "7";
+        if (SystemSettingService.INFERENCE_CONCURRENCY.equals(key)) return "1";
+        return "";
+    }
+
+    private void authorize(String token) {
         if (token == null || !token.equals(properties.getInternalToken())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid internal token");
         }
+    }
+
+    private void validateKey(String key) {
         if (!ALLOWED_KEYS.contains(key)) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unknown config key");
-        return Map.of("key", key, "value", settingService.getValue(key, ""));
     }
 }

@@ -5,7 +5,6 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 
 from app.api import embeddings_router, images_router, models_router
-from app.api.runtime import router as runtime_router
 from app.core.model_manager import model_manager
 from app.core.inference import configure_from_settings, refresh_runtime_settings
 @asynccontextmanager
@@ -26,7 +25,6 @@ app = FastAPI(
 app.include_router(images_router)
 app.include_router(embeddings_router)
 app.include_router(models_router)
-app.include_router(runtime_router)
 
 
 @app.get("/health")

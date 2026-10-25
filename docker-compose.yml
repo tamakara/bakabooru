@@ -36,9 +36,6 @@ services:
       MINIO_ACCESS_KEY: ${MINIO_ROOT_USER}
       MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
       MINIO_BUCKET_NAME: ${MINIO_BUCKET_NAME}
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      REDIS_PASSWORD: ${REDIS_PASSWORD:-change-me-redis}
       BACKEND_INTERNAL_URL: http://backend:8080
       INTERNAL_CONFIG_TOKEN: ${INTERNAL_CONFIG_TOKEN:-change-me-internal}
     gpus: all
@@ -58,8 +55,6 @@ services:
       start_period: 30s
     depends_on:
       minio:
-        condition: service_healthy
-      redis:
         condition: service_healthy
 
   backend:

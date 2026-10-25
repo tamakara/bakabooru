@@ -31,7 +31,7 @@ flowchart LR
 - `module.model`：模型实体和目录、`ModelManagerClient`、文本/图片向量服务。
 - `module.search`：组合搜索和语义搜索编排。
 - `module.upload`：上传任务、文件归档和入库 Worker。
-- `module.system`：系统设置、Redis 缓存和认证。
+- `module.system`：系统设置、Backend 内部 Redis 缓存和认证。
 
 ## 核心流程
 
@@ -147,7 +147,7 @@ sequenceDiagram
 
 ### 配置管理
 
-配置页面先读取可编辑值和配置元数据。更新请求只允许白名单中的热更新配置，Backend 会合并已有值进行类型、范围和依赖校验，再持久化到 `system_settings` 并删除对应 Redis 缓存。Backend 读取配置时先查 Redis，未命中时回源 PostgreSQL 并回填；Model Manager 也按相同键读取 Redis，未命中时通过受保护的内部接口请求 Backend 回源。推理并发配置会同步调用 Model Manager；同步失败不会回滚数据库，界面只提示后续生效。
+配置页面先读取可编辑值和配置元数据。更新请求只允许白名单中的热更新配置，Backend 会合并已有值进行类型、范围和依赖校验，再持久化到 `system_settings` 并在事务提交后删除对应 Redis 缓存。Backend 读取配置时先查 Redis，未命中时回源 PostgreSQL 并回填；Model Manager 只通过受保护的内部 HTTP 接口向 Backend 获取配置，不感知 Redis。推理并发配置由 Model Manager 定时拉取；Backend 或网络暂时不可用时保留当前已生效值。
 
 ```mermaid
 sequenceDiagram
@@ -156,7 +156,6 @@ sequenceDiagram
     participant API as SettingsController
     participant Service as SystemSettingService
     participant DB as PostgreSQL
-    participant Manager as Model Manager
 
     UI->>API: GET /api/system/settings
     API->>Service: 读取可编辑设置
@@ -179,16 +178,29 @@ sequenceDiagram
         API-->>UI: 400 Bad Request
     else 校验通过
         Service->>DB: 更新 system_settings
-        opt 修改了推理并发
-            API->>Manager: POST /v1/runtime-settings
-            alt Model Manager 在线
-                Manager-->>API: 更新成功
-            else Model Manager 暂不可用
-                Note over API,DB: 保留已持久化配置，等待服务恢复后加载
-            end
-        end
+        Note over API,DB: 事务提交后删除 Backend Redis 缓存
         API-->>UI: 更新成功
     end
+```
+
+Model Manager 配置读取流程：
+
+```mermaid
+sequenceDiagram
+    participant Manager as Model Manager
+    participant Backend
+    participant Redis
+    participant DB as PostgreSQL
+    Manager->>Backend: GET /internal/config?keys=inference.concurrency
+    Backend->>Redis: 读取配置缓存
+    alt Redis 命中
+        Redis-->>Backend: 配置值
+    else Redis 未命中
+        Backend->>DB: 查询 system_settings
+        DB-->>Backend: 配置值
+        Backend->>Redis: 回填缓存
+    end
+    Backend-->>Manager: { values: ... }
 ```
 
 ## 一致性

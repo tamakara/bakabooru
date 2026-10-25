@@ -16,18 +16,28 @@ def configure_concurrency(value: int) -> None:
 
 def configure_from_settings() -> None:
     try:
-        configure_concurrency(int(get_setting("inference.concurrency", "1")))
+        refresh_concurrency_from_backend()
     except ValueError:
-        configure_concurrency(1)
+        logging.getLogger(__name__).warning("Invalid inference concurrency from Backend")
+
+
+def refresh_concurrency_from_backend() -> bool:
+    configured = get_setting("inference.concurrency", None)
+    if configured is None:
+        return False
+    value = int(configured)
+    if value < 1 or value > 64:
+        return False
+    if value != _configured_concurrency:
+        configure_concurrency(value)
+    return True
 
 
 async def refresh_runtime_settings() -> None:
     while True:
         await asyncio.sleep(10)
         try:
-            value = max(1, min(int(get_setting("inference.concurrency", "1")), 64))
-            if value != _configured_concurrency:
-                configure_concurrency(value)
+            refresh_concurrency_from_backend()
         except Exception:
             logging.getLogger(__name__).warning("Unable to refresh inference settings", exc_info=True)
 

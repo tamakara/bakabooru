@@ -101,7 +101,7 @@ erDiagram
 
 ### `system_settings`
 
-键值形式的系统设置表，主键为 `setting_key`。当前运行时键包括 `analysis.tag-threshold`、`analysis.max-attempts`、`analysis.retry-base-delay-seconds`、`analysis.retry-max-delay-seconds`、`upload.completed-retention-days`、`inference.concurrency`、`model.active-tagger-id` 和 `model.active-clip-id`。Redis 只缓存这些值，数据库仍是事实来源；缓存失效后由 Backend 回源并回填。Model Manager 不直接连接 PostgreSQL，而是通过内部配置接口回源。
+键值形式的系统设置表，主键为 `setting_key`。当前运行时键包括 `analysis.tag-threshold`、`analysis.max-attempts`、`analysis.retry-base-delay-seconds`、`analysis.retry-max-delay-seconds`、`upload.completed-retention-days`、`inference.concurrency`、`model.active-tagger-id` 和 `model.active-clip-id`。Redis 只由 Backend 缓存这些值，数据库仍是事实来源；缓存失效后由 Backend 回源并回填。Model Manager 只调用 Backend 内部配置接口，不感知 Redis。
 
 ## 一致性与生命周期
 

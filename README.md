@@ -44,6 +44,8 @@ bakabooru/
 
 Backend 模块和边界见[项目结构](docs/project-structure.md)。
 
+配置由 PostgreSQL 持久化、Redis 缓存，Redis 只由 Backend 使用。model-manager 通过 Backend 内部 HTTP 配置接口读取运行时配置。
+
 ## 文档
 
 | 文档 | 内容 |
