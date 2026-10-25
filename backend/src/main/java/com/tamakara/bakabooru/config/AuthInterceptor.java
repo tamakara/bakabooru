@@ -1,6 +1,6 @@
 package com.tamakara.bakabooru.config;
 
-import com.tamakara.bakabooru.module.system.service.AuthService;
+import com.tamakara.bakabooru.module.auth.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

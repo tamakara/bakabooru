@@ -8,7 +8,7 @@ import com.tamakara.bakabooru.module.search.dto.SearchResultDto;
 import com.tamakara.bakabooru.module.image.dto.ImageThumbnailDto;
 import com.tamakara.bakabooru.module.image.dto.SearchDto;
 import com.tamakara.bakabooru.module.image.service.ImageSearchService;
-import com.tamakara.bakabooru.module.system.service.SystemSettingService;
+import com.tamakara.bakabooru.module.setting.service.SettingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +26,7 @@ public class SearchService {
     private final ImageSearchService imageSearchService;
     private final QueryParsingService queryParsingService;
     private final EmbeddingService embeddingService;
-    private final SystemSettingService settingService;
+    private final SettingService settingService;
 
     @Transactional(readOnly = true)
     public SearchResultDto<ImageThumbnailDto> search(SearchRequestDto request) {

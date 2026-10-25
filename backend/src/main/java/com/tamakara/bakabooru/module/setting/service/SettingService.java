@@ -1,8 +1,8 @@
-package com.tamakara.bakabooru.module.system.service;
+package com.tamakara.bakabooru.module.setting.service;
 
-import com.tamakara.bakabooru.module.system.entity.SystemSetting;
-import com.tamakara.bakabooru.module.system.dto.SettingDefinitionDto;
-import com.tamakara.bakabooru.module.system.repository.SystemSettingRepository;
+import com.tamakara.bakabooru.module.setting.entity.Setting;
+import com.tamakara.bakabooru.module.setting.dto.SettingDefinitionDto;
+import com.tamakara.bakabooru.module.setting.repository.SettingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class SystemSettingService {
+public class SettingService {
 
     public static final String TAG_THRESHOLD = "analysis.tag-threshold";
     public static final String ANALYSIS_MAX_ATTEMPTS = "analysis.max-attempts";
@@ -35,7 +35,7 @@ public class SystemSettingService {
             INFERENCE_CONCURRENCY
     );
 
-    private final SystemSettingRepository systemSettingRepository;
+    private final SettingRepository settingRepository;
 
     public List<SettingDefinitionDto> getDefinitions() {
         return List.of(
@@ -82,7 +82,7 @@ public class SystemSettingService {
         } catch (RuntimeException ignored) {
             // PostgreSQL remains available as the source of truth during Redis outages.
         }
-        Optional<String> value = systemSettingRepository.findById(key).map(SystemSetting::getValue)
+        Optional<String> value = settingRepository.findById(key).map(Setting::getValue)
                 .filter(item -> item != null && !item.isBlank());
         value.ifPresent(item -> {
             try { redisTemplate.opsForValue().set(cacheKey(key), item); }
@@ -223,22 +223,22 @@ public class SystemSettingService {
 
         Set<String> keys = new HashSet<>(newSettings.keySet());
 
-        List<SystemSetting> existingSettings = systemSettingRepository.findAllById(keys);
+        List<Setting> existingSettings = settingRepository.findAllById(keys);
 
         if (existingSettings.size() != keys.size()) {
             Set<String> existingKeys = existingSettings.stream()
-                    .map(SystemSetting::getKey)
+                    .map(Setting::getKey)
                     .collect(Collectors.toSet());
             keys.removeAll(existingKeys);
             throw new RuntimeException("Update failed. The following keys do not exist: " + keys);
         }
 
-        for (SystemSetting setting : existingSettings) {
+        for (Setting setting : existingSettings) {
             String newValue = newSettings.get(setting.getKey());
             setting.setValue(newValue);
         }
 
-        systemSettingRepository.saveAll(existingSettings);
+        settingRepository.saveAll(existingSettings);
         Runnable evict = () -> keys.forEach(key -> {
             try { redisTemplate.delete(cacheKey(key)); }
             catch (RuntimeException ignored) { /* A later cache miss will read the committed database value. */ }

@@ -4,7 +4,7 @@ import com.tamakara.bakabooru.module.model.dto.ModelDto;
 import com.tamakara.bakabooru.module.model.client.ModelManagerClient;
 import com.tamakara.bakabooru.module.model.entity.Model;
 import com.tamakara.bakabooru.module.model.repository.ModelRepository;
-import com.tamakara.bakabooru.module.system.service.SystemSettingService;
+import com.tamakara.bakabooru.module.setting.service.SettingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +20,7 @@ import java.time.Instant;
 public class ModelManagerService {
     private final ModelRepository repository;
     private final ModelManagerClient modelManagerClient;
-    private final SystemSettingService settingService;
+    private final SettingService settingService;
 
     @Transactional
     public List<ModelDto> list() {
@@ -106,7 +106,7 @@ public class ModelManagerService {
         Model model = repository.findById(id).orElseThrow(() -> new IllegalArgumentException("Model not found: " + id));
         if (!"READY".equals(model.getStatus())) throw new IllegalStateException("模型尚未就绪，无法启用");
         String type = model.getModelType() == null ? "CLIP" : model.getModelType();
-        settingService.updateSettings(Map.of("TAGGER".equals(type) ? SystemSettingService.ACTIVE_TAGGER : SystemSettingService.ACTIVE_CLIP, id));
+        settingService.updateSettings(Map.of("TAGGER".equals(type) ? SettingService.ACTIVE_TAGGER : SettingService.ACTIVE_CLIP, id));
         return ModelDto.from(model, true, null);
     }
 }

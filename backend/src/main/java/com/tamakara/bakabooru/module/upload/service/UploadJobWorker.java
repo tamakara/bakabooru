@@ -7,7 +7,7 @@ import com.tamakara.bakabooru.module.image.entity.Image;
 import com.tamakara.bakabooru.module.image.service.ImageService;
 import com.tamakara.bakabooru.module.image.service.StorageService;
 import com.tamakara.bakabooru.module.image.service.ThumbnailService;
-import com.tamakara.bakabooru.module.system.service.SystemSettingService;
+import com.tamakara.bakabooru.module.setting.service.SettingService;
 import com.tamakara.bakabooru.module.upload.entity.UploadJob;
 import com.tamakara.bakabooru.module.upload.entity.UploadJobStatus;
 import com.tamakara.bakabooru.module.upload.repository.UploadJobRepository;
@@ -38,7 +38,7 @@ public class UploadJobWorker {
     private final ThumbnailService thumbnailService;
     private final AnalysisJobService analysisJobService;
     private final UploadProperties uploadProperties;
-    private final SystemSettingService systemSettingService;
+    private final SettingService settingService;
     private final TransactionTemplate transactionTemplate;
 
     private final String workerId = UUID.randomUUID().toString();
@@ -68,7 +68,7 @@ public class UploadJobWorker {
     @Scheduled(cron = "${app.upload.cleanup-cron:0 0 3 * * *}")
     public void cleanupCompletedJobs() {
         Instant cutoff = Instant.now().minus(
-                Duration.ofDays(systemSettingService.getUploadCompletedRetentionDays()));
+                Duration.ofDays(settingService.getUploadCompletedRetentionDays()));
         List<UploadJob> jobs = uploadJobRepository
                 .findByStatusAndCompletedAtBefore(UploadJobStatus.COMPLETED, cutoff);
         for (UploadJob job : jobs) {

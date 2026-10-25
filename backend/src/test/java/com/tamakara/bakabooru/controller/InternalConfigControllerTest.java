@@ -1,7 +1,7 @@
 package com.tamakara.bakabooru.controller;
 
 import com.tamakara.bakabooru.config.InternalConfigProperties;
-import com.tamakara.bakabooru.module.system.service.SystemSettingService;
+import com.tamakara.bakabooru.module.setting.service.SettingService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.server.ResponseStatusException;
@@ -15,13 +15,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class InternalConfigControllerTest {
-    private SystemSettingService settings;
+    private SettingService settings;
     private InternalConfigProperties properties;
     private InternalConfigController controller;
 
     @BeforeEach
     void setUp() {
-        settings = mock(SystemSettingService.class);
+        settings = mock(SettingService.class);
         properties = new InternalConfigProperties();
         properties.setInternalToken("test-token");
         controller = new InternalConfigController(settings, properties);
@@ -29,22 +29,22 @@ class InternalConfigControllerTest {
 
     @Test
     void batchReturnsUnifiedValuesObject() {
-        when(settings.getValue(SystemSettingService.INFERENCE_CONCURRENCY, "1")).thenReturn("2");
-        when(settings.getValue(SystemSettingService.ACTIVE_CLIP, "")).thenReturn("clip-vit-base-patch32");
+        when(settings.getValue(SettingService.INFERENCE_CONCURRENCY, "1")).thenReturn("2");
+        when(settings.getValue(SettingService.ACTIVE_CLIP, "")).thenReturn("clip-vit-base-patch32");
 
         assertEquals(Map.of("values", Map.of(
-                SystemSettingService.INFERENCE_CONCURRENCY, "2",
-                SystemSettingService.ACTIVE_CLIP, "clip-vit-base-patch32")),
+                SettingService.INFERENCE_CONCURRENCY, "2",
+                SettingService.ACTIVE_CLIP, "clip-vit-base-patch32")),
                 controller.getMany("inference.concurrency,model.active-clip-id", "test-token"));
-        verify(settings).getValue(SystemSettingService.INFERENCE_CONCURRENCY, "1");
-        verify(settings).getValue(SystemSettingService.ACTIVE_CLIP, "");
+        verify(settings).getValue(SettingService.INFERENCE_CONCURRENCY, "1");
+        verify(settings).getValue(SettingService.ACTIVE_CLIP, "");
     }
 
     @Test
     void singleKeyUsesSameResponseShape() {
-        when(settings.getValue(SystemSettingService.INFERENCE_CONCURRENCY, "1")).thenReturn("1");
-        assertEquals(Map.of("values", Map.of(SystemSettingService.INFERENCE_CONCURRENCY, "1")),
-                controller.get(SystemSettingService.INFERENCE_CONCURRENCY, "test-token"));
+        when(settings.getValue(SettingService.INFERENCE_CONCURRENCY, "1")).thenReturn("1");
+        assertEquals(Map.of("values", Map.of(SettingService.INFERENCE_CONCURRENCY, "1")),
+                controller.get(SettingService.INFERENCE_CONCURRENCY, "test-token"));
     }
 
     @Test

@@ -1,4 +1,4 @@
-package com.tamakara.bakabooru.module.system.entity;
+package com.tamakara.bakabooru.module.setting.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,7 +15,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SystemSetting {
+public class Setting {
 
     @Id
     @Column(name = "setting_key", nullable = false, unique = true)

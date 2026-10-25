@@ -26,7 +26,8 @@ backend/src/main/java/com/tamakara/bakabooru/
 ├── module/model/                     # Model、ModelManagerClient 和向量服务
 ├── module/search/                    # 搜索编排和搜索 DTO
 ├── module/upload/                    # 上传任务和入库 Worker
-├── module/system/                    # 认证、系统设置、Backend 内部 Redis 配置缓存和相关实体
+├── module/setting/                   # 设置实体、仓储、校验与 Backend 内部 Redis 缓存
+├── module/auth/                      # 密码生命周期、登录和 JWT 认证
 ├── config/                           # Spring 配置、属性和拦截器
 └── initializer/                      # MinIO bucket 和缩略图初始化
 ```

@@ -1,7 +1,7 @@
 package com.tamakara.bakabooru.controller;
 
 import com.tamakara.bakabooru.config.InternalConfigProperties;
-import com.tamakara.bakabooru.module.system.service.SystemSettingService;
+import com.tamakara.bakabooru.module.setting.service.SettingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -14,16 +14,16 @@ import java.util.*;
 @RequiredArgsConstructor
 public class InternalConfigController {
     private static final Set<String> ALLOWED_KEYS = Set.of(
-            SystemSettingService.INFERENCE_CONCURRENCY,
-            SystemSettingService.TAG_THRESHOLD,
-            SystemSettingService.ANALYSIS_MAX_ATTEMPTS,
-            SystemSettingService.ANALYSIS_RETRY_BASE_DELAY_SECONDS,
-            SystemSettingService.ANALYSIS_RETRY_MAX_DELAY_SECONDS,
-            SystemSettingService.UPLOAD_COMPLETED_RETENTION_DAYS,
-            SystemSettingService.ACTIVE_TAGGER,
-            SystemSettingService.ACTIVE_CLIP
+            SettingService.INFERENCE_CONCURRENCY,
+            SettingService.TAG_THRESHOLD,
+            SettingService.ANALYSIS_MAX_ATTEMPTS,
+            SettingService.ANALYSIS_RETRY_BASE_DELAY_SECONDS,
+            SettingService.ANALYSIS_RETRY_MAX_DELAY_SECONDS,
+            SettingService.UPLOAD_COMPLETED_RETENTION_DAYS,
+            SettingService.ACTIVE_TAGGER,
+            SettingService.ACTIVE_CLIP
     );
-    private final SystemSettingService settingService;
+    private final SettingService settingService;
     private final InternalConfigProperties properties;
 
     @GetMapping("/{key}")
@@ -56,12 +56,12 @@ public class InternalConfigController {
     }
 
     private String defaultValue(String key) {
-        if (SystemSettingService.TAG_THRESHOLD.equals(key)) return "0.61";
-        if (SystemSettingService.ANALYSIS_MAX_ATTEMPTS.equals(key)) return "5";
-        if (SystemSettingService.ANALYSIS_RETRY_BASE_DELAY_SECONDS.equals(key)) return "30";
-        if (SystemSettingService.ANALYSIS_RETRY_MAX_DELAY_SECONDS.equals(key)) return "1800";
-        if (SystemSettingService.UPLOAD_COMPLETED_RETENTION_DAYS.equals(key)) return "7";
-        if (SystemSettingService.INFERENCE_CONCURRENCY.equals(key)) return "1";
+        if (SettingService.TAG_THRESHOLD.equals(key)) return "0.61";
+        if (SettingService.ANALYSIS_MAX_ATTEMPTS.equals(key)) return "5";
+        if (SettingService.ANALYSIS_RETRY_BASE_DELAY_SECONDS.equals(key)) return "30";
+        if (SettingService.ANALYSIS_RETRY_MAX_DELAY_SECONDS.equals(key)) return "1800";
+        if (SettingService.UPLOAD_COMPLETED_RETENTION_DAYS.equals(key)) return "7";
+        if (SettingService.INFERENCE_CONCURRENCY.equals(key)) return "1";
         return "";
     }
 

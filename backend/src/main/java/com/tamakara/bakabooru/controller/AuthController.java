@@ -1,6 +1,6 @@
 package com.tamakara.bakabooru.controller;
 
-import com.tamakara.bakabooru.module.system.service.AuthService;
+import com.tamakara.bakabooru.module.auth.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

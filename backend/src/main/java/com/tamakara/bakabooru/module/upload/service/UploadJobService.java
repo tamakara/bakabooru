@@ -6,7 +6,7 @@ import com.tamakara.bakabooru.module.upload.dto.UploadTaskDto;
 import com.tamakara.bakabooru.module.upload.entity.UploadJob;
 import com.tamakara.bakabooru.module.upload.entity.UploadJobStatus;
 import com.tamakara.bakabooru.module.upload.repository.UploadJobRepository;
-import com.tamakara.bakabooru.module.system.service.SystemSettingService;
+import com.tamakara.bakabooru.module.setting.service.SettingService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.stereotype.Service;
@@ -24,7 +24,7 @@ public class UploadJobService {
 
     private final UploadJobRepository uploadJobRepository;
     private final StorageService storageService;
-    private final SystemSettingService settingService;
+    private final SettingService settingService;
 
     public void createTask(MultipartFile file) {
         UUID id = UUID.randomUUID();

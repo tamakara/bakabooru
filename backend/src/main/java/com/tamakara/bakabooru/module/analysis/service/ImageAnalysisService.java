@@ -6,7 +6,7 @@ import com.tamakara.bakabooru.module.image.dto.ImageDto;
 import com.tamakara.bakabooru.module.image.entity.Image;
 import com.tamakara.bakabooru.module.image.mapper.ImageMapper;
 import com.tamakara.bakabooru.module.image.repository.ImageRepository;
-import com.tamakara.bakabooru.module.system.service.SystemSettingService;
+import com.tamakara.bakabooru.module.setting.service.SettingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +21,7 @@ public class ImageAnalysisService {
     private final ImageRepository imageRepository;
     private final ImageMapper imageMapper;
     private final AnalysisJobService analysisJobService;
-    private final SystemSettingService settingService;
+    private final SettingService settingService;
 
     @Transactional
     public ImageDto retry(Long imageId, String capability) {

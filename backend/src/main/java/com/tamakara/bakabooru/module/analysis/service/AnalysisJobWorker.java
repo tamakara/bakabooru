@@ -11,7 +11,7 @@ import com.tamakara.bakabooru.module.image.entity.Image;
 import com.tamakara.bakabooru.module.image.entity.ImageEmbedding;
 import com.tamakara.bakabooru.module.image.repository.ImageRepository;
 import com.tamakara.bakabooru.module.image.service.StorageService;
-import com.tamakara.bakabooru.module.system.service.SystemSettingService;
+import com.tamakara.bakabooru.module.setting.service.SettingService;
 import com.tamakara.bakabooru.module.image.entity.Tag;
 import com.tamakara.bakabooru.module.image.service.TagService;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +38,7 @@ public class AnalysisJobWorker {
     private final ImageRepository imageRepository;
     private final ModelManagerClient modelManagerClient;
     private final TagService tagService;
-    private final SystemSettingService systemSettingService;
+    private final SettingService settingService;
     private final AnalysisJobProperties properties;
     private final TransactionTemplate transactionTemplate;
     private final StorageService storageService;
@@ -83,7 +83,7 @@ public class AnalysisJobWorker {
                 }));
                 return;
             }
-            double threshold = systemSettingService.getDoubleSetting(SystemSettingService.TAG_THRESHOLD);
+            double threshold = settingService.getDoubleSetting(SettingService.TAG_THRESHOLD);
             List<String> models = input.vectorModelIds() == null || input.vectorModelIds().isBlank() ? null : Arrays.stream(input.vectorModelIds().split(",")).map(String::trim).toList();
             ImageAnalysisRequestDto request = new ImageAnalysisRequestDto("original/" + input.hash(), threshold, input.tagModelId(), models);
             ImageAnalysisResponseDto response = switch (input.capability()) {
@@ -175,7 +175,7 @@ public class AnalysisJobWorker {
             AnalysisJob job = analysisJobRepository.findById(jobId).orElse(null); if (!owns(job)) return;
             Instant now = Instant.now(); String message = error.getMessage() == null ? error.getClass().getSimpleName() : error.getMessage();
             job.setErrorMessage(message); job.setLockedBy(null); job.setLockedUntil(null); job.setUpdatedAt(now);
-            if (job.getAttempts() >= systemSettingService.getAnalysisMaxAttempts()) { job.setStatus(AnalysisJobStatus.FAILED); job.setCompletedAt(now); }
+            if (job.getAttempts() >= settingService.getAnalysisMaxAttempts()) { job.setStatus(AnalysisJobStatus.FAILED); job.setCompletedAt(now); }
             else { job.setStatus(AnalysisJobStatus.PENDING); job.setNextRetryAt(now.plus(retryDelay(job.getAttempts()))); }
             analysisJobRepository.save(job); Image image = job.getImage(); image.setAnalysisError(message); image.setAnalysisCompletedAt(job.getStatus() == AnalysisJobStatus.FAILED ? now : null);
             if (job.getStatus() == AnalysisJobStatus.FAILED && job.getVectorModelIds() != null) for (String modelId : job.getVectorModelIds().split(",")) image.getIndexVectors().stream().filter(vector -> modelId.trim().equals(vector.getModelId())).forEach(vector -> { vector.setStatus("FAILED"); vector.setErrorMessage(message); });
@@ -197,7 +197,7 @@ public class AnalysisJobWorker {
     }
 
     private boolean owns(AnalysisJob job) { return job != null && job.getStatus() == AnalysisJobStatus.RUNNING && workerId.equals(job.getLockedBy()); }
-    Duration retryDelay(int attempts) { long multiplier = 1L << Math.min(Math.max(attempts - 1, 0), 20); Duration delay = Duration.ofSeconds(systemSettingService.getAnalysisRetryBaseDelaySeconds()).multipliedBy(multiplier); Duration max = Duration.ofSeconds(systemSettingService.getAnalysisRetryMaxDelaySeconds()); return delay.compareTo(max) > 0 ? max : delay; }
+    Duration retryDelay(int attempts) { long multiplier = 1L << Math.min(Math.max(attempts - 1, 0), 20); Duration delay = Duration.ofSeconds(settingService.getAnalysisRetryBaseDelaySeconds()).multipliedBy(multiplier); Duration max = Duration.ofSeconds(settingService.getAnalysisRetryMaxDelaySeconds()); return delay.compareTo(max) > 0 ? max : delay; }
     private void validateResponse(ImageAnalysisResponseDto response, String capability) {
         if (response == null) throw new IllegalStateException("AI response invalid");
         if (!"TAGS".equals(capability) && response.getEmbedding() == null && (response.getEmbeddings() == null || response.getEmbeddings().isEmpty())) {

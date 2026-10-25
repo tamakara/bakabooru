@@ -6,7 +6,7 @@ import com.tamakara.bakabooru.module.analysis.repository.AnalysisJobRepository;
 import com.tamakara.bakabooru.module.image.entity.Image;
 import com.tamakara.bakabooru.module.image.entity.ImageEmbedding;
 import com.tamakara.bakabooru.module.image.repository.ImageRepository;
-import com.tamakara.bakabooru.module.system.service.SystemSettingService;
+import com.tamakara.bakabooru.module.setting.service.SettingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +19,7 @@ public class AnalysisJobService {
 
     private final AnalysisJobRepository analysisJobRepository;
     private final ImageRepository imageRepository;
-    private final SystemSettingService settingService;
+    private final SettingService settingService;
 
     @Transactional
     public AnalysisJob enqueue(Image image) {

@@ -31,7 +31,8 @@ flowchart LR
 - `module.model`：模型实体和目录、`ModelManagerClient`、文本/图片向量服务。
 - `module.search`：组合搜索和语义搜索编排。
 - `module.upload`：上传任务、文件归档和入库 Worker。
-- `module.system`：系统设置、Backend 内部 Redis 缓存和认证。
+- `module.setting`：运行时设置、Backend 内部 Redis 缓存。
+- `module.auth`：密码生命周期和 JWT 认证。
 
 ## 核心流程
 
@@ -154,7 +155,7 @@ sequenceDiagram
     actor User as 用户
     participant UI as Frontend
     participant API as SettingsController
-    participant Service as SystemSettingService
+    participant Service as SettingService
     participant DB as PostgreSQL
 
     UI->>API: GET /api/system/settings

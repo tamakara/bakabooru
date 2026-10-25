@@ -1,6 +1,7 @@
-package com.tamakara.bakabooru.module.system.service;
+package com.tamakara.bakabooru.module.auth.service;
 
 import com.tamakara.bakabooru.utils.JwtUtils;
+import com.tamakara.bakabooru.module.setting.service.SettingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -13,11 +14,11 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-    private final SystemSettingService systemSettingService;
+    private final SettingService settingService;
 
-    private String getEncodedPassword() { return systemSettingService.getSetting("system.auth-password"); }
+    private String getEncodedPassword() { return settingService.getSetting("system.auth-password"); }
     public boolean isPasswordSet() { return StringUtils.hasText(getEncodedPassword()); }
-    public boolean isInitialized() { return systemSettingService.getBooleanSetting("system.auth-initialized"); }
+    public boolean isInitialized() { return settingService.getBooleanSetting("system.auth-initialized"); }
 
     public String login(String password) {
         String currentPassword = decodePassword(getEncodedPassword());
@@ -31,7 +32,7 @@ public class AuthService {
         Map<String, String> settings = new HashMap<>();
         settings.put("system.auth-password", encoded);
         settings.put("system.auth-initialized", "true");
-        systemSettingService.updateSettings(settings);
+        settingService.updateSettings(settings);
     }
 
     public void validate(String token) {

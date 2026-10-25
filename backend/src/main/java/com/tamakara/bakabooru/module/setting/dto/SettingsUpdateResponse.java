@@ -1,4 +1,4 @@
-package com.tamakara.bakabooru.module.system.dto;
+package com.tamakara.bakabooru.module.setting.dto;
 
 import java.util.List;
 
