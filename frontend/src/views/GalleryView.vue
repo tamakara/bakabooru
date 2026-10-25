@@ -103,7 +103,6 @@ const activeSearchState = shallowRef<any>({
 })
 const page = ref(1)
 const pageSize = ref(20)
-const failedThumbnailIds = ref(new Set<number>())
 const pageSizeOptions = [
   {label: '10 / 页', value: 10},
   {label: '20 / 页', value: 20},
@@ -443,12 +442,12 @@ function handleImageClick(image: any) {
   }
 }
 
-function handleThumbnailError(image: ImageThumbnailDto) {
-  // A missing thumbnail is terminal for this card. Do not fall back to the
-  // original image, which may be unavailable for the same reason.
-  const failed = new Set(failedThumbnailIds.value)
-  failed.add(image.id)
-  failedThumbnailIds.value = failed
+function handleThumbnailError(event: Event, image: ImageThumbnailDto) {
+  const target = event.target as HTMLImageElement
+  const originalUrl = image.imageUrl ? new URL(image.imageUrl, document.baseURI).href : ''
+  if (originalUrl && target.src !== originalUrl) {
+    target.src = image.imageUrl
+  }
 }
 
 // 右键菜单
@@ -632,7 +631,7 @@ async function handleBatchVectors(): Promise<boolean> {
 </script>
 
 <template>
-  <n-layout has-sider class="h-full">
+  <n-layout has-sider class="h-full w-full min-h-0 min-w-0">
     <n-layout-sider
         bordered
         collapse-mode="transform"
@@ -805,7 +804,7 @@ async function handleBatchVectors(): Promise<boolean> {
 
     <div v-if="isMobile && !collapsed" class="absolute inset-0 bg-black/50 z-40" @click="collapsed = true"></div>
 
-    <n-layout class="h-full" content-style="display: flex; flex-direction: column; height: 100%;">
+    <n-layout class="h-full w-full min-h-0 min-w-0" content-style="display: flex; flex-direction: column; height: 100%;">
 
       <!-- 顶部功能栏 -->
       <n-layout-header bordered class="p-3 flex justify-between items-center transition-all"
@@ -860,7 +859,7 @@ async function handleBatchVectors(): Promise<boolean> {
         </div>
       </n-layout-header>
 
-      <n-layout-content :native-scrollbar="false" content-style="padding: 16px;" class="flex-1">
+      <n-layout-content :native-scrollbar="false" content-style="padding: 16px;" class="flex-1 w-full min-h-0 min-w-0 overflow-hidden">
         <div v-if="isLoading && !images.length" class="flex justify-center items-center h-full">
           <n-spin size="large"/>
         </div>
@@ -870,11 +869,11 @@ async function handleBatchVectors(): Promise<boolean> {
         </div>
 
         <div v-else
-             class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
+             class="grid w-full min-w-0 grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
           <div
               v-for="image in images"
               :key="image.id"
-              class="relative group cursor-pointer rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow bg-gray-200 dark:bg-gray-800 aspect-square border-2"
+              class="relative group min-w-0 cursor-pointer rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow bg-gray-200 dark:bg-gray-800 aspect-square border-2"
               :class="selectedIds.has(image.id) ? 'border-primary-500 ring-2 ring-primary-500/30' : 'border-transparent'"
               @click="handleImageClick(image)"
               @pointerdown="handlePointerDown(image)"
@@ -883,18 +882,15 @@ async function handleBatchVectors(): Promise<boolean> {
               @contextmenu="handleContextMenu($event, image)"
           >
             <img
-                v-if="!failedThumbnailIds.has(image.id)"
                 :src="image.thumbnailUrl"
                 :alt="image.title || 'image'"
                 class="w-full h-full object-cover transition-transform duration-300 transform select-none"
                 :class="{ 'scale-90': selectedIds.has(image.id) }"
-                @error="handleThumbnailError(image)"
-                loading="lazy"
+                @error="handleThumbnailError($event, image)"
+                loading="eager"
+                decoding="async"
                 draggable="false"
             />
-            <div v-else class="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-500">
-              <n-icon size="34"><CloseCircleOutline /></n-icon>
-            </div>
 
             <!-- 选中遮罩 -->
             <div v-if="selectedIds.has(image.id)" class="absolute inset-0 bg-primary-500/20 pointer-events-none"></div>
@@ -940,6 +936,7 @@ async function handleBatchVectors(): Promise<boolean> {
     </n-layout>
 
     <ImageDetail
+        v-if="showDetail"
         v-model:show="showDetail"
         v-model:image="selectedDetailImage"
         :loading="detailLoading"
