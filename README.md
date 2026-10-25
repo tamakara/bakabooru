@@ -50,5 +50,6 @@ Backend 模块和边界见[项目结构](docs/project-structure.md)。
 | --- | --- |
 | [架构设计](docs/architecture.md) | 服务边界、模块职责、请求流和异步处理 |
 | [功能与 API](docs/features-api.md) | 前端功能、Backend API 和 Model Manager API |
+| [数据模型](docs/data-model.md) | PostgreSQL 表、关系、状态和任务生命周期 |
 | [项目结构](docs/project-structure.md) | 目录、模块边界和本地验证入口 |
 | [部署与配置](docs/deployment.md) | Compose、环境变量、持久化、升级和备份 |
